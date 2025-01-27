@@ -1,0 +1,94 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+header {
+  background-color: #4CAF50;
+  height: 70px;
+  color: white;
+  text-align: center;
+  line-height: 30px;
+  padding: 10px 0;
+}
+#mainContainer {
+  display: grid;
+  grid-template-rows: 45px 400px 300px; /* 행 비율: 첫 번째 줄 1, 두 번째 줄 2, 세 번째 줄 1 */
+  grid-template-columns: 1fr 3fr; /* 열 비율: 왼쪽 1, 오른쪽 1 */
+  gap: 15px; /* 박스 간의 간격 */
+  padding: 20px;
+  background-color: #f9f9f9;
+  height: calc(100vh - 60px); /* 헤더 제외 화면 전체 높이 */
+}
+.leftBox {
+  background-color: #ffffff; /* 각 박스의 흰색 배경 */
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 박스 분리 효과 */
+  border-radius: 5px; /* 모서리 둥글게 */
+}
+#stockContainer {
+  height: 378px;
+  overflow-y: auto;
+  border: 1px solid #ddd; /* 리스트 박스 테두리 */
+  border-radius: 5px;
+  background-color: #fefefe; /* 리스트 내부 배경 */
+}
+.stockItem {
+  padding: 10px;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+}
+.stockItem:hover {
+  background-color: #f0f0f0;
+}
+.selectedStockItem {
+  background-color: #4CAF50;
+  color: white;
+}
+#searchInput {
+  width: 200px;
+}
+#chartWrapper {
+  display: flex;
+  flex-direction: column;
+}
+.chartContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #ffffff;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+canvas {
+  max-width: 100%;
+  height: 400px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fefefe;
+}
+#myChart, #myVolumeChart {
+  width: 1000px;
+  display: block;
+}
+#myChart {
+  height: 450px;
+}
+#myVolumeChart {
+  height: 200px;
+}
+.box {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#chartBox canvas, #volumeBox canvas {
+width: 100%;
+height: 100%;
+}
+h1 {
+  cursor: pointer;
+}
