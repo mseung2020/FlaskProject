@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko"> 
+<!-- 헤드 헤드 헤드 헤드 헤드 -->  
+<head>
+  <!-- 기타 기타 기타 기타 기타 -->
+  <meta charset="UTF-8">
+  <title>Candle chart + Trading volume Update (Chart.js + chartjs-plugin-zoom)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
+  
+  <!-- 스타일 스타일 스타일 스타일 스타일 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<!-- 바디 바디 바디 바디 바디 -->
+<body>
+  <!-- 헤더 헤더 헤더 헤더 헤더 -->
+  <header>
+    <h1 onclick="location.href='/'">Stock Analysis</h1>
+  </header>
+  <!-- 디비 디비 디비 디비 디비 -->
+  <div id="mainContainer">
+    <!-- 종목 검색 박스 -->
+    <div id="stockSearchBox" class="box"> 
+      <input type="text" id="searchInput" placeholder="회사명 검색" />
+      <button onclick="searchByName()">검색</button>
+    </div>
+    
+    <!-- 일수 검색 박스 -->
+    <div id="daysSearchBox" class="box"> 
+      <label>일수 입력 (1~365): </label>
+      <input type="text" id="daysInput" placeholder="예: 30" />
+      <button onclick="requestChart()">확인</button>
+    </div>
+    
+    <!-- 종목 리스트 -->
+    <div id="stockListBox" class="box">
+      <div id="stockContainer"></div>
+    </div>
+    
+    <!-- 차트 영역 -->
+    <div id="chartBox" class="box">
+      <canvas id="myChart"></canvas>
+    </div>
+    
+    <!-- 빈 공간 -->
+    <div id="emptyBox" class="box"></div>
+
+    <!-- 거래량 차트 -->
+    <div id="volumeBox" class="box">
+    <canvas id="myVolumeChart"></canvas>
+    </div>
+
+  </div>
+  <!-- 스크립트 스크립트 스크립트 스크립트 스크립트 -->
+  <script src="{{ url_for('static', filename='script.js') }}" > </script>
+</body>
+</html>
