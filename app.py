@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_caching import Cache
 import pandas as pd
 import os
-import asyncio
+import asyncio 
 import aiohttp
 from io import StringIO
 from indicators import (
