@@ -1,0 +1,174 @@
+/* --------------------- CSS 시작 --------------------- */
+/* ========== 공통 변수 설정 ========== */
+:root {
+  --primary-color: #274c77;
+  --secondary-color: #f9f9f9;
+  --white: #ffffff;
+  --border-color: #ddd;
+  --text-color: #666;
+  --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --font-family: Arial, sans-serif;
+  --header-height: 70px;
+  --padding-base: 20px;
+  --box-radius: 5px;
+}
+/* ----- 바디 ----- */
+body {
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+  background-color: var(--secondary-color);
+}
+
+/* ----- 헤더 ----- */
+header {
+  background-color: var(--primary-color);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--padding-base);
+  color: var(--white);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  height: 40px;
+  margin-left: 5px;
+  vertical-align: middle; 
+  cursor: pointer;
+}
+
+header .logo {
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px;
+}
+
+header nav {
+  display: flex;
+  gap: 30px;
+  justify-content: flex-end;
+  margin: 10px;
+  flex: 1;
+}
+
+header .header-link {
+  color: var(--white);
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+header .header-link:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  cursor: pointer;
+}
+
+/* ----- 메인 컨테이너 ----- */
+/* 좌측 1fr, 우측 3fr로 배치 */
+#mainContainer {
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: 1fr 3fr;
+  gap: 15px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  /* 높이는 내부 내용에 따라 자동 */
+}
+.box {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+/* ----- 좌측 지표 목록 박스 ----- */
+#stockContainer {
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fefefe;
+}
+.stockItem {
+  padding: 10px;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+}
+.stockItem:hover {
+  background-color: #f0f0f0;
+}
+.selectedStockItem {
+  background-color: #274c77;
+  color: white;
+}
+
+/* ----- 우측 차트 영역 박스 ----- */
+#chartBox {
+  position: relative;
+  /* 높이 고정 없이 내부 내용(content-box)에 맞게 auto */
+}
+/* 원래의 캔버스 – indicator 내용이 있을 때 숨김 */
+#myChart {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  height: 395px;
+  display: block;
+}
+/* 내부 컨텐츠 박스 : indicator 내용이 이 박스 안에 표시됨 */
+.content-box {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  /* 위쪽 여백 줄이고, 왼쪽 여백 늘림 */
+  padding: 20px 10px 10px 20px;
+  background-color: #fefefe;
+  /* 내부 내용에 맞게 높이 자동 조절 */
+}
+/* 제목(섹션)용 CSS – 폰트 크기와 굵기 조절 */
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+.content-box p {
+line-height: 1.6; /* 줄 간격 조절 */
+}
+
+/* ----- 공통 canvas 스타일 ----- */
+canvas {
+  max-width: 100%;
+  background-color: #fefefe;
+}
+
+/* fadeInUp 애니메이션 keyframes 정의 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* mainContainer의 자식 박스들에 그룹별 딜레이 적용 */
+#mainContainer > .box:nth-child(1){
+  animation-delay: 0.2s;
+}
+
+#mainContainer > .box:nth-child(2){
+  animation-delay: 0.4s;
+}
+/* --------------------- CSS 끝 --------------------- */

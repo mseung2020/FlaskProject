@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>NewCandle™</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/page3.css') }}">
+</head>
+<body>
+  <!-- 헤더 (내비게이션 바) -->
+  <header role="banner">
+    <div class="header-left">
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
+      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+    </div>
+    <div class="header-right">
+      <nav aria-label="메인 네비게이션">
+        <a href="/index" class="header-link">● 종목 분석</a>
+        <a href="/page2" class="header-link">● 투자 정보 </a>
+        <a href="/page3" class="header-link">● AI 연구</a>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- 메인 컨테이너 -->
+  <div id="mainContainer">
+
+    <div id="Box1" class="box">
+      <div id="Content1">
+      </div>
+    </div>
+
+    <div id="Box2" class="box">
+      <div id="Content2">
+      </div>
+    </div>
+    
+    <div id="Box3" class="box">
+      <div id="Content3">
+      </div>
+    </div>
+
+    <div id="Box4" class="box">
+      <div id="Content4">
+      </div>
+    </div>
+    
+    <div id="Box5" class="box">
+      <div id="Content5">
+      </div>
+    </div>
+
+    <div id="Box6" class="box">
+      <div id="Content6">
+      </div>
+    </div>
+
+  </div>
+  
+  <script> </script>
+</body>
+</html>

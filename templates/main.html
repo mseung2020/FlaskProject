@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <!-- 반응형 디자인을 위한 viewport 설정 -->
+    <meta name="viewport" content="width=1200">
+    <title>NewCandle™</title>
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
+    
+    <!-- Chart.js 및 확대/축소 플러그인 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
+    
+    <!-- 외부 CSS 파일 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body>
+    
+    <!-- 메인 컨테이너: 그리드 레이아웃으로 구성 -->
+    <div id="mainContainer">
+
+        <div id="Box1" class="box">
+          <div id="Content1">
+            <h1 onclick="location.href='/index'" tabindex="0" class="link">● 종목 분석 바로가기 →</h1>
+          </div>
+        </div>
+    
+    </div>
+    
+    <!-- script.js 파일 로드: 기능과 차트 업데이트를 담당 -->
+    <script src="{{ url_for('static', filename='js/page1.js') }}"></script>
+  </body>
+</html>
