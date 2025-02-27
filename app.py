@@ -1,11 +1,14 @@
 import logging
 from flask import Flask, render_template, request, jsonify
 from flask_caching import Cache
+from flask_cors import CORS
 import pandas as pd
 import os
 import asyncio 
 import aiohttp
 from io import StringIO
+import threading
+import time
 from indicators import (
     calculate_ma, calculate_macd, calculate_rsi, calculate_stoch,
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
@@ -17,6 +20,7 @@ from indicators import (
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
+CORS(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # ------------------ 전역 상수 및 경로 ------------------
@@ -387,5 +391,13 @@ def get_latest_trading_date():
         return jsonify({"error": f"최신 개장일을 가져오는 중 오류가 발생했습니다: {str(e)}"}), 500
 
 # ------------------ 서버 실행 ------------------
+def keep_alive():
+    while True:
+        print("서버 유지 중...")
+        time.sleep(60)  # 1분마다 실행
+
+threading.Thread(target=keep_alive, daemon=True).start()
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
