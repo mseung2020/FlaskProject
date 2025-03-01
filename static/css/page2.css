@@ -1,4 +1,7 @@
 /* --------------------- CSS 시작 --------------------- */
+html {
+  overflow-y: scroll;
+}
 /* ========== 공통 변수 설정 ========== */
 :root {
   --primary-color: #274c77;
@@ -15,6 +18,9 @@
 /* ----- 바디 ----- */
 body {
   font-family: var(--font-family);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   background-color: var(--secondary-color);
@@ -63,10 +69,12 @@ header .header-link {
   text-decoration: none;
   font-size: 20px;
   font-weight: bold;
+  padding: 5px 10px; /* 호버 효과를 위한 패딩 */
+  transition: background-color 0.3s ease;
 }
-
 header .header-link:hover {
-  text-decoration: underline;
+  background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
+  border-radius: 4px;
 }
 
 h1 {
@@ -171,4 +179,15 @@ canvas {
 #mainContainer > .box:nth-child(2){
   animation-delay: 0.4s;
 }
+
+/* ----- 푸터 ----- */
+footer {
+  background-color: var(--primary-color);
+  color: var(--white);
+  text-align: center;
+  padding: 15px 0;
+  font-size: 14px;
+}
+
+
 /* --------------------- CSS 끝 --------------------- */
