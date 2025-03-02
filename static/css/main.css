@@ -91,7 +91,7 @@ header .header-link:hover {
   border-radius: var(--box-radius);
   box-shadow: var(--shadow);
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
   animation: fadeInUp 1s forwards;
 }
 .hero-title {
@@ -113,7 +113,7 @@ header .header-link:hover {
   cursor: pointer;
   transition: background-color var(--transition-speed);
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
   animation: fadeInUp 1s forwards;
 }
 .cta-button:hover {
