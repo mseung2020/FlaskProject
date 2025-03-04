@@ -247,6 +247,7 @@
 
   // ========== 초기화 함수 ==========
   function init() {
+    document.getElementById('daysInput').value = "242";
     document.getElementById("toggleVolume").checked = true;
     document.getElementById("toggleMovingAverage").checked = true;
     loadStockList();
@@ -390,6 +391,7 @@
         div.classList.add('selectedStockItem');
         AppState.selectedItemElement = div;
         AppState.currentCode = item.종목코드;
+        requestChart();
       });
       container.appendChild(div);
     });
@@ -467,8 +469,8 @@
       if (json.ma5 && json.ma20 && json.ma60 && json.ma120) {
         updateMovingAverages(json.dates, json.ma5, json.ma20, json.ma60, json.ma120);
       }
-      if (json.BU && json.BL) {
-        updateBollinger(json.dates, json.BU, json.BL);
+      if (json.BB_upper && json.BB_lower) {
+        updateBollinger(json.dates, json.BB_upper, json.BB_lower);
       }
       if (document.getElementById("toggleTradingvalue").checked && json.tradingvalue) {
         updateTradingvalueChart(json.dates, json.tradingvalue, json.opens, json.closes);
@@ -750,7 +752,7 @@
   }
 
   // ========== Bollinger Band ==========
-  function updateBollinger(dates, BU, BL) {
+  function updateBollinger(dates, BB_upper, BB_lower) {
     // 기존 Bollinger 데이터셋 제거
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== '상단 밴드' && ds.label !== '하단 밴드'
@@ -758,7 +760,7 @@
     // 상단 밴드 데이터셋 추가 (fill 옵션과 backgroundColor 추가)
     AppState.charts.main.data.datasets.push({
       label: '상단 밴드',
-      data: BU,
+      data: BB_upper,
       borderColor: 'brown',
       borderWidth: 1,
       fill: '+1', // 바로 아래 데이터셋(하단 밴드)까지 영역 채움
@@ -772,7 +774,7 @@
     // 하단 밴드 데이터셋 추가
     AppState.charts.main.data.datasets.push({
       label: '하단 밴드',
-      data: BL,
+      data: BB_lower,
       borderColor: 'brown',
       borderWidth: 1,
       fill: false,
@@ -806,11 +808,11 @@
         alert('에러: ' + json.error);
         return;
       }
-      if (!json.BU || !json.BL) {
+      if (!json.BB_upper || !json.BB_lower) {
         alert('볼린저밴드 데이터를 불러올 수 없습니다.');
         return;
       }
-      updateBollinger(json.dates, json.BU, json.BL);
+      updateBollinger(json.dates, json.BB_upper, json.BB_lower);
     })
     .catch(err => alert('에러: ' + err));
   }

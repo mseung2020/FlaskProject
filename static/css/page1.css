@@ -336,6 +336,29 @@ h1 {
   border-radius: var(--box-radius);
 }
 
+/* ========== 9. @@@ 영역 (@@@) ========== */
+#tempBox3 {
+  position: relative;
+  height: 280px;
+}
+
+#tempContainer3 {
+  height: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--box-radius);
+}
+
+/* ========== 10. @@@ 영역 (@@@) ========== */
+#tempBox4 {
+  position: relative;
+}
+
+#tempContainer4 {
+  height: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--box-radius);
+}
+
 /* ========== 반응형 디자인 ==========
 @media (max-width: 1200px) {
   #mainContainer {
@@ -393,6 +416,11 @@ h1 {
 #bottomRow > .box:nth-child(1),
 #bottomRow > .box:nth-child(2) {
   animation-delay: 0.8s;
+}
+
+#bottomRow > .box:nth-child(3),
+#bottomRow > .box:nth-child(4) {
+  animation-delay: 1.0s;
 }
 
 /* ----- 푸터 ----- */

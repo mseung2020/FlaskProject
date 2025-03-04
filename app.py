@@ -17,7 +17,6 @@ from indicators import (
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
@@ -30,7 +29,8 @@ STOCK_LIST_URL = 'http://kind.krx.co.kr/corpgeneral/corpList.do?method=download'
 BUFFER_DAYS = 120
 MIN_DAYS_LIMIT = 1
 MAX_DAYS_LIMIT = 365
-MAX_PAGES = 49
+MAX_PAGES = 37
+PRECOMPUTE_DAYS = 370
 
 # ------------------ 종목 리스트 로드 (캐싱 및 다운로드) ------------------
 def load_stock_list():
@@ -55,6 +55,9 @@ def load_stock_list():
 
 # 전역 변수로 종목 리스트 로드 (서버 시작 시 미리 로드)
 all_stocks = load_stock_list()
+
+# ------------------ 전역 데이터 캐시 (종목별 미리 계산된 전체 데이터) ------------------
+precomputed_stock_data = {}
 
 # ------------------ 기본 페이지 라우트 ------------------
 @app.route('/')
@@ -153,13 +156,81 @@ def get_latest_ohlc_data(code, num_days):
         loop.close()
     return result
 
+# ------------------ 새로운 함수: 전체 OHLC 데이터 및 지표 미리 계산 ------------------
+def prepare_full_ohlc_data(code):
+    dates, opens, closes, highs, lows, volumes = get_latest_ohlc_data(code, PRECOMPUTE_DAYS)
+    df = pd.DataFrame({
+        '날짜': dates,
+        '시가': list(map(float, opens)),
+        '종가': list(map(float, closes)),
+        '고가': list(map(float, highs)),
+        '저가': list(map(float, lows)),
+        '거래량': list(map(float, volumes))
+    })
+    try:
+        # 각 지표 계산 후, 해당 열을 병합
+        df_ma = calculate_ma(df.copy())
+        df_macd = calculate_macd(df.copy())
+        df_rsi = calculate_rsi(df.copy())
+        df_stoch = calculate_stoch(df.copy())
+        df_stochrsi = calculate_stochrsi(df.copy())
+        df_williams = calculate_williams(df.copy())
+        df_cci = calculate_cci(df.copy())
+        df_atr = calculate_atr(df.copy())
+        df_roc = calculate_roc(df.copy())
+        df_uo = calculate_uo(df.copy())
+        df_adx = calculate_adx(df.copy())
+        df_bollinger = calculate_bollinger(df.copy())
+        df_tradingvalue = calculate_tradingvalue(df.copy())
+        
+        # 이동평균선
+        df['ma5'] = df_ma['ma5']
+        df['ma20'] = df_ma['ma20']
+        df['ma60'] = df_ma['ma60']
+        df['ma120'] = df_ma['ma120']
+        # MACD
+        df['macd'] = df_macd['macd']
+        df['signal'] = df_macd['signal']
+        df['oscillator'] = df_macd['oscillator']
+        # RSI
+        df['rsi'] = df_rsi['rsi']
+        # Stochastic Oscillator
+        df['stoch_K'] = df_stoch['%K']
+        df['stoch_D'] = df_stoch['%D']
+        # Stochastic RSI
+        df['stochrsi_K'] = df_stochrsi['%K']
+        df['stochrsi_D'] = df_stochrsi['%D']
+        # Williams %R
+        df['williams'] = df_williams['%R']
+        # CCI
+        df['CCI'] = df_cci['CCI']
+        # ATR
+        df['ATR'] = df_atr['ATR']
+        # ROC
+        df['ROC'] = df_roc['ROC']
+        # Ultimate Oscillator
+        df['UO'] = df_uo['UO']
+        # ADX
+        df['DI'] = df_adx['+DI']
+        df['DIM'] = df_adx['-DI']
+        df['ADX'] = df_adx['ADX']
+        # Bollinger Bands (상단 및 하단 밴드)
+        df['BB_upper'] = df_bollinger['BU']  # 볼린저 상단
+        df['BB_lower'] = df_bollinger['BL']  # 볼린저 하단
+        # Trading Value (거래대금)
+        df['tradingvalue'] = df_tradingvalue['tradingvalue']
+        
+    except Exception as e:
+        logging.error("전체 보조지표 계산 중 오류: %s", e)
+    return df
+
 # ------------------ 주가 데이터 및 보조지표 API ------------------
 @cache.cached(timeout=3600, query_string=True)
 @app.route('/get_ohlc_history', methods=['POST'])
 def get_ohlc_history():
     # 파라미터 파싱 및 검증
     code = request.form.get('code', '').strip()
-    days_str = request.form.get('days', '10').strip()
+    days_str = request.form.get('days', '242').strip()
     indicators_flags = {
         'ma': request.form.get('ma', 'false').strip().lower() == 'true',
         'macd': request.form.get('macd', 'false').strip().lower() == 'true',
@@ -183,196 +254,167 @@ def get_ohlc_history():
             return jsonify({'error': f'일수는 {MIN_DAYS_LIMIT}~{MAX_DAYS_LIMIT} 사이여야 합니다.'}), 400
     except ValueError:
         return jsonify({'error': '유효한 숫자를 입력하세요.'}), 400
-
-    try:
-        total_days = days + BUFFER_DAYS
-        dates, opens, closes, highs, lows, volumes = get_latest_ohlc_data(code, total_days)
-        # 클라이언트에 최신 days 데이터만 전달
-        response_data = {
-            'dates': dates[-days:],
-            'opens': opens[-days:],
-            'closes': closes[-days:],
-            'highs': highs[-days:],
-            'lows': lows[-days:],
-            'volumes': volumes[-days:]
-        }
-
-        # 보조지표 계산 (각 계산 함수는 데이터프레임을 복사하여 사용)
-        df_full = pd.DataFrame({'날짜': dates, '종가': list(map(float, closes))})
-        if indicators_flags['ma']:
-            ma_df = calculate_ma(df_full.copy())
-        else:
-            ma_df = pd.DataFrame({'날짜': dates, 'ma5': [None]*len(dates), 'ma20': [None]*len(dates),
-                                  'ma60': [None]*len(dates), 'ma120': [None]*len(dates)})
-        response_data.update({
-            'ma5': [ma_df.loc[ma_df['날짜'] == d, 'ma5'].values[0] if d in ma_df['날짜'].values else None for d in dates[-days:]],
-            'ma20': [ma_df.loc[ma_df['날짜'] == d, 'ma20'].values[0] if d in ma_df['날짜'].values else None for d in dates[-days:]],
-            'ma60': [ma_df.loc[ma_df['날짜'] == d, 'ma60'].values[0] if d in ma_df['날짜'].values else None for d in dates[-days:]],
-            'ma120': [ma_df.loc[ma_df['날짜'] == d, 'ma120'].values[0] if d in ma_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['macd']:
-            macd_df = calculate_macd(df_full.copy())
-        else:
-            macd_df = pd.DataFrame({'날짜': dates, 'macd': [None]*len(dates),
-                                    'signal': [None]*len(dates), 'oscillator': [None]*len(dates)})
-        response_data.update({
-            'macd': [macd_df.loc[macd_df['날짜'] == d, 'macd'].values[0] if d in macd_df['날짜'].values else None for d in dates[-days:]],
-            'signal': [macd_df.loc[macd_df['날짜'] == d, 'signal'].values[0] if d in macd_df['날짜'].values else None for d in dates[-days:]],
-            'oscillator': [macd_df.loc[macd_df['날짜'] == d, 'oscillator'].values[0] if d in macd_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['rsi']:
-            rsi_df = calculate_rsi(df_full.copy())
-        else:
-            rsi_df = pd.DataFrame({'날짜': dates, 'rsi': [None]*len(dates)})
-        response_data.update({
-            'rsi': [rsi_df.loc[rsi_df['날짜'] == d, 'rsi'].values[0] if d in rsi_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['stoch']:
-            df_stoch = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            stoch_df = calculate_stoch(df_stoch.copy())
-        else:
-            stoch_df = pd.DataFrame({'날짜': dates, '%K': [None]*len(dates), '%D': [None]*len(dates)})
-        response_data.update({
-            'K': [stoch_df.loc[stoch_df['날짜'] == d, '%K'].values[0] if d in stoch_df['날짜'].values else None for d in dates[-days:]],
-            'D': [stoch_df.loc[stoch_df['날짜'] == d, '%D'].values[0] if d in stoch_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['stochrsi']:
-            stochrsi_df = calculate_stochrsi(df_full.copy())
-        else:
-            stochrsi_df = pd.DataFrame({'날짜': dates, '%K': [None]*len(dates), '%D': [None]*len(dates)})
-        response_data.update({
-            'KK': [stochrsi_df.loc[stochrsi_df['날짜'] == d, '%K'].values[0] if d in stochrsi_df['날짜'].values else None for d in dates[-days:]],
-            'DD': [stochrsi_df.loc[stochrsi_df['날짜'] == d, '%D'].values[0] if d in stochrsi_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['williams']:
-            df_williams = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            williams_df = calculate_williams(df_williams.copy())
-        else:
-            williams_df = pd.DataFrame({'날짜': dates, '%R': [None]*len(dates)})
-        response_data.update({
-            'R': [williams_df.loc[williams_df['날짜'] == d, '%R'].values[0] if d in williams_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['cci']:
-            df_cci = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            cci_df = calculate_cci(df_cci.copy())
-        else:
-            cci_df = pd.DataFrame({'날짜': dates, 'CCI': [None]*len(dates)})
-        response_data.update({
-            'CCI': [cci_df.loc[cci_df['날짜'] == d, 'CCI'].values[0] if d in cci_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['atr']:
-            df_atr = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            atr_df = calculate_atr(df_atr.copy())
-        else:
-            atr_df = pd.DataFrame({'날짜': dates, 'ATR': [None]*len(dates)})
-        response_data.update({
-            'ATR': [atr_df.loc[atr_df['날짜'] == d, 'ATR'].values[0] if d in atr_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['roc']:
-            df_roc = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            roc_df = calculate_roc(df_roc.copy())
-        else:
-            roc_df = pd.DataFrame({'날짜': dates, 'ROC': [None]*len(dates)})
-        response_data.update({
-            'ROC': [roc_df.loc[roc_df['날짜'] == d, 'ROC'].values[0] if d in roc_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['uo']:
-            df_uo = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            uo_df = calculate_uo(df_uo.copy())
-        else:
-            uo_df = pd.DataFrame({'날짜': dates, 'UO': [None]*len(dates)})
-        response_data.update({
-            'UO': [uo_df.loc[uo_df['날짜'] == d, 'UO'].values[0] if d in uo_df['날짜'].values else None for d in dates[-days:]]
-        })
-
-        if indicators_flags['adx']:
-            df_adx = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs))
-            })
-            adx_df = calculate_adx(df_adx.copy())
-        else:
-            adx_df = pd.DataFrame({'날짜': dates, 'ADX': [None]*len(dates), '+DI': [None]*len(dates), '-DI': [None]*len(dates)})
-        response_data.update({
-            'ADX': [adx_df.loc[adx_df['날짜'] == d, 'ADX'].values[0] if d in adx_df['날짜'].values else None for d in dates[-days:]],
-            'DI': [adx_df.loc[adx_df['날짜'] == d, '+DI'].values[0] if d in adx_df['날짜'].values else None for d in dates[-days:]],
-            'DIM': [adx_df.loc[adx_df['날짜'] == d, '-DI'].values[0] if d in adx_df['날짜'].values else None for d in dates[-days:]]
-        })
+    
+    if code not in precomputed_stock_data:
+        try:
+            df_full = prepare_full_ohlc_data(code)
+            precomputed_stock_data[code] = df_full
+        except Exception as e:
+            logging.error("전체 데이터 준비 중 오류: %s", e)
+            return jsonify({'error': '데이터 준비 중 오류가 발생했습니다.'}), 500
+    else:
+        df_full = precomputed_stock_data[code]
         
-        if indicators_flags['bollinger']:
-            df_bollinger = pd.DataFrame({
-                '날짜': dates,
-                '종가': list(map(float, closes))
-            })
-            bollinger_df = calculate_bollinger(df_bollinger.copy())
-        else:
-            bollinger_df = pd.DataFrame({'날짜': dates, 'BU': [None]*len(dates), 'BL': [None]*len(dates)})
+    df_slice = df_full.tail(days)
+    
+    response_data = {
+        'dates': list(df_slice['날짜']),
+        'opens': list(df_slice['시가']),
+        'closes': list(df_slice['종가']),
+        'highs': list(df_slice['고가']),
+        'lows': list(df_slice['저가']),
+        'volumes': list(df_slice['거래량'])
+    }
+    
+    if indicators_flags['ma']:
         response_data.update({
-            'BU': [bollinger_df.loc[bollinger_df['날짜'] == d, 'BU'].values[0] if d in bollinger_df['날짜'].values else None for d in dates[-days:]],
-            'BL': [bollinger_df.loc[bollinger_df['날짜'] == d, 'BL'].values[0] if d in bollinger_df['날짜'].values else None for d in dates[-days:]]
+            'ma5': list(df_slice['ma5']),
+            'ma20': list(df_slice['ma20']),
+            'ma60': list(df_slice['ma60']),
+            'ma120': list(df_slice['ma120'])
         })
-        
-        if indicators_flags['tradingvalue']:
-            df_tradingvalue = pd.DataFrame({
-                '날짜': dates,
-                '시가': list(map(float, opens)),
-                '종가': list(map(float, closes)),
-                '저가': list(map(float, lows)),
-                '고가': list(map(float, highs)),
-                '거래량': list(map(float, volumes))
-            })
-            tradingvalue_df = calculate_tradingvalue(df_tradingvalue.copy())
-        else:
-            tradingvalue_df = pd.DataFrame({'날짜': dates, 'tradingvalue': [None]*len(dates)})
+    else:
         response_data.update({
-            'tradingvalue': [tradingvalue_df.loc[tradingvalue_df['날짜'] == d, 'tradingvalue'].values[0] if d in tradingvalue_df['날짜'].values else None for d in dates[-days:]]
+            'ma5': [None]*days,
+            'ma20': [None]*days,
+            'ma60': [None]*days,
+            'ma120': [None]*days
         })
-
-        return jsonify(response_data)
-    except Exception as e:
-        logging.exception("데이터 처리 중 에러 발생:")
-        return jsonify({'error': f'데이터를 가져오는 중 에러가 발생했습니다: {str(e)}'}), 500
+    
+    if indicators_flags['macd']:
+        response_data.update({
+            'macd': list(df_slice['macd']),
+            'signal': list(df_slice['signal']),
+            'oscillator': list(df_slice['oscillator'])
+        })
+    else:
+        response_data.update({
+            'macd': [None]*days,
+            'signal': [None]*days,
+            'oscillator': [None]*days
+        })
+    
+    if indicators_flags['rsi']:
+        response_data.update({
+            'rsi': list(df_slice['rsi'])
+        })
+    else:
+        response_data.update({
+            'rsi': [None]*days
+        })
+    
+    if indicators_flags['stoch']:
+        response_data.update({
+            'K': list(df_slice['stoch_K']),
+            'D': list(df_slice['stoch_D'])
+        })
+    else:
+        response_data.update({
+            'K': [None]*days,
+            'D': [None]*days
+        })
+    
+    if indicators_flags['stochrsi']:
+        response_data.update({
+            'KK': list(df_slice['stochrsi_K']),
+            'DD': list(df_slice['stochrsi_D'])
+        })
+    else:
+        response_data.update({
+            'KK': [None]*days,
+            'DD': [None]*days
+        })
+    
+    if indicators_flags['williams']:
+        response_data.update({
+            'R': list(df_slice['williams'])
+        })
+    else:
+        response_data.update({
+            'R': [None]*days
+        })
+    
+    if indicators_flags['cci']:
+        response_data.update({
+            'CCI': list(df_slice['CCI'])
+        })
+    else:
+        response_data.update({
+            'CCI': [None]*days
+        })
+    
+    if indicators_flags['atr']:
+        response_data.update({
+            'ATR': list(df_slice['ATR'])
+        })
+    else:
+        response_data.update({
+            'ATR': [None]*days
+        })
+    
+    if indicators_flags['roc']:
+        response_data.update({
+            'ROC': list(df_slice['ROC'])
+        })
+    else:
+        response_data.update({
+            'ROC': [None]*days
+        })
+    
+    if indicators_flags['uo']:
+        response_data.update({
+            'UO': list(df_slice['UO'])
+        })
+    else:
+        response_data.update({
+            'UO': [None]*days
+        })
+    
+    if indicators_flags['adx']:
+        response_data.update({
+            'DI': list(df_slice['DI']),
+            'DIM': list(df_slice['DIM']),
+            'ADX': list(df_slice['ADX'])
+            # 필요시 DI, DIM 등 추가 가능
+        })
+    else:
+        response_data.update({
+            'DI': [None]*days,
+            'DIM': [None]*days,
+            'ADX': [None]*days
+        })
+    
+    if indicators_flags['bollinger']:
+        response_data.update({
+            'BB_upper': list(df_slice['BB_upper']),
+            'BB_lower': list(df_slice['BB_lower'])
+        })
+    else:
+        response_data.update({
+            'BB_upper': [None]*days,
+            'BB_lower': [None]*days
+        })
+    
+    if indicators_flags['tradingvalue']:
+        response_data.update({
+            'tradingvalue': list(df_slice['tradingvalue'])
+        })
+    else:
+        response_data.update({
+            'tradingvalue': [None]*days
+        })
+    
+    return jsonify(response_data)
 
 # ------------------ 최신 거래일 API ------------------
 @app.route('/get_latest_trading_date', methods=['GET'])
