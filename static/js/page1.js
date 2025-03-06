@@ -1,7 +1,82 @@
 // page1.js
 // IIFE (즉시 실행 함수)로 전체 스크립트를 캡슐화하여 전역 변수 충돌을 방지합니다.
-(function() {
+(function(global) {
   'use strict';
+
+   // 캔들 차트 클래스 정의
+   function CandleChart(ctx) {
+    this.ctx = ctx;
+    this.chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: '시가~종가',
+          data: [],
+          backgroundColor: [],
+          extraData: []
+        }]
+      },
+      options: Object.assign({}, commonChartOptions)
+    });
+    // 플러그인 관리 객체 생성
+    this.pluginManager = new PluginManager(this.chart);
+  }
+
+  // 캔들 차트 업데이트 메서드
+  CandleChart.prototype.updateChart = function(data) {
+    const { dates, opens, closes, highs, lows, volumes } = data;
+    const barData = [];
+    const barColors = [];
+    const extraData = [];
+    let lastNonZeroClose = null;
+    
+    dates.forEach((date, i) => {
+      const o = +opens[i], c = +closes[i], h = +highs[i], l = +lows[i], v = +volumes[i];
+      if (Number.isNaN(o) || Number.isNaN(c)) return;
+      if (v > 0) {
+        lastNonZeroClose = c;
+        barData.push([o, c]);
+        barColors.push(c > o ? 'red' : (c < o ? 'blue' : 'black'));
+        extraData.push({ open: o, close: c, high: h, low: l, volume: v });
+      } else {
+        barData.push([c, c]);
+        barColors.push('black');
+        extraData.push({ open: c, close: c, high: c, low: c, volume: 0, zeroVolumeLinePrice: lastNonZeroClose });
+      }
+    });
+    
+    this.chart.data.labels = dates;
+    this.chart.data.datasets[0].data = barData;
+    this.chart.data.datasets[0].backgroundColor = barColors;
+    this.chart.data.datasets[0].extraData = extraData;
+    this.chart.update();
+  };
+
+  // 플러그인 관리 클래스 정의
+  function PluginManager(chart) {
+    this.chart = chart;
+    this.plugins = [];
+  }
+
+  PluginManager.prototype.register = function(plugin) {
+    this.plugins.push(plugin);
+    if (!this.chart.config.plugins) {
+      this.chart.config.plugins = [];
+    }
+    this.chart.config.plugins.push(plugin);
+    this.chart.update();
+  };
+
+  PluginManager.prototype.unregister = function(pluginId) {
+    this.plugins = this.plugins.filter(p => p.id !== pluginId);
+    this.chart.config.plugins = this.chart.config.plugins.filter(p => p.id !== pluginId);
+    this.chart.update();
+  };
+
+  // 전역 객체(window)에 노출 (다른 스크립트에서 접근 가능)
+  global.CandleChart = CandleChart;
+  global.PluginManager = PluginManager;
 
   // ========== App State ==========
   const AppState = {
@@ -37,7 +112,7 @@
   const commonChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: { duration: 500, easing: 'linear' },
+    //animation: { duration: 500, easing: 'linear' },
     layout: { padding: { top: 20, bottom: 20, left: 20, right: 40 } },
     scales: {
       x: {
@@ -385,6 +460,8 @@
       div.textContent = `${item.회사명} (${item.종목코드})`;
       div.tabIndex = 0;
       div.addEventListener('click', () => {
+        if (AppState.currentCode === item.종목코드) return;
+        
         if (AppState.selectedItemElement) {
           AppState.selectedItemElement.classList.remove('selectedStockItem');
         }
@@ -398,12 +475,12 @@
   }
 
   function searchByName() {
-    const term = document.getElementById('searchInput').value.trim();
+    const term = document.getElementById('searchInput').value.trim().toLowerCase();
     if (!term) {
       renderStockList(AppState.allStocks);
       return;
     }
-    const filtered = AppState.allStocks.filter(s => s.회사명.includes(term));
+    const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
     if (filtered.length === 0) {
       alert('검색 결과가 없습니다.');
       document.getElementById('stockContainer').innerHTML = '';
@@ -702,7 +779,7 @@
         type: 'line',
         xAxisID: 'x',
         pointRadius: 0,
-        spanGaps: false
+        spanGaps: false,
       });
     });
     const maLabel = document.getElementById("maLabel");
@@ -840,7 +917,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -939,7 +1016,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top: 20, bottom: 20, left: 20, right: 40 } },
         scales: {
           x: {
@@ -1022,7 +1099,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1101,7 +1178,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1182,7 +1259,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1264,7 +1341,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1344,7 +1421,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1424,7 +1501,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1504,7 +1581,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1584,7 +1661,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1663,7 +1740,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 500, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1735,4 +1812,4 @@
   window.onload = init;
   window.searchByName = searchByName;
   window.requestChart = requestChart;
-})();
+})(window);

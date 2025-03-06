@@ -200,31 +200,46 @@ h1 {
 
 /* ========== 5. 옵션 체크박스 영역 ========== */
 #toggleSections2 {
+  height: 100%;
   border: 1px solid var(--border-color);
   border-radius: var(--box-radius);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2.5px;
-  overflow-y: auto;
-  height: 260px;
-}
-
-#toggleSections2 div {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 2px;
+  background-color: #fefefe;
+  overflow-y: scroll;
 }
 
 #toggleSections2 input[type="checkbox"] {
-  transform: scale(1);
-  margin-right: 5px;
+  display: none; /* 기존처럼 숨기기 */
 }
 
-#toggleSections2 label {
-  font-size: clamp(12px, 1.2vw, 15px);
+#toggleSections2 .indicatorItem {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+#toggleSections2 .indicatorItem:hover {
+  background-color: #f0f0f0;
+}
+
+#toggleSections2 input[type="checkbox"]:checked + label {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+#toggleSections2 .indicatorItem label {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 10px; /* indicatorItem과 동일하게 */
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 /* ========== 6. 하단 차트 영역 (보조지표 차트들) ========== */
