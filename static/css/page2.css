@@ -118,7 +118,7 @@ h1 {
   background-color: #f0f0f0;
 }
 .selectedStockItem {
-  background-color: #274c77;
+  background-color: var(--primary-color) !important;
   color: white;
 }
 
