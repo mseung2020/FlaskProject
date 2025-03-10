@@ -8,12 +8,14 @@ import aiohttp
 from io import StringIO
 import threading
 import time
+import datetime
 from indicators import (
     calculate_ma, calculate_macd, calculate_rsi, calculate_stoch,
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
     calculate_roc, calculate_uo, calculate_adx, calculate_bollinger,
     calculate_tradingvalue
 )
+from finance import get_financial_indicators
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -36,7 +38,7 @@ PRECOMPUTE_DAYS = 370
 def load_stock_list():
     try:
         if os.path.exists(STOCK_CACHE_FILE):
-            logging.info("로컬 캐시 파일에서 종목 리스트 로드: %s", STOCK_CACHE_FILE)
+            # logging.info("로컬 캐시 파일에서 종목 리스트 로드: %s", STOCK_CACHE_FILE)
             df = pd.read_csv(STOCK_CACHE_FILE, dtype={'종목코드': str})
         else:
             logging.info("캐시 파일이 없으므로 종목 리스트 다운로드 시작.")
@@ -430,11 +432,28 @@ def get_latest_trading_date():
         logging.exception("최신 개장일 조회 중 오류:")
         return jsonify({"error": f"최신 개장일을 가져오는 중 오류가 발생했습니다: {str(e)}"}), 500
 
+# ------------------ 재무 데이터 ------------------
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/get_financial_data', methods=['GET'])
+def get_financial_data():
+    code = request.args.get('code', '').strip()
+    if not code:
+        return jsonify({'error': '종목코드가 없습니다.'}), 400
+    try:
+        data = get_financial_indicators(code)
+        return jsonify(data)
+    except Exception as e:
+        logging.error("재무 데이터 로드 중 오류: %s", e)
+        return jsonify({'error': '재무 데이터 로드 중 오류가 발생했습니다.'}), 500
+
+
+    
 # ------------------ 서버 실행 ------------------
 def keep_alive():
     while True:
-        print("서버 유지 중...")
-        time.sleep(60)  # 1분마다 실행
+        now = datetime.datetime.now()
+        print("서버 유지 중..." + now.strftime("%y%m%d %H:%M"))
+        time.sleep(300)  # 5분마다 실행
 
 threading.Thread(target=keep_alive, daemon=True).start()
 

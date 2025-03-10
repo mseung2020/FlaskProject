@@ -469,6 +469,7 @@
         AppState.selectedItemElement = div;
         AppState.currentCode = item.종목코드;
         requestChart();
+        updateFinancialTable(AppState.currentCode);
       });
       container.appendChild(div);
     });
@@ -1807,6 +1808,73 @@
   function removeAdxChart() {
     document.getElementById("adxChart").style.visibility = "hidden";
   }
+
+  // ========== 재무 데이터 로드 ==========
+  function updateFinancialTable(code) {
+    // 재무비율 데이터 로드 및 출력
+    fetch(`/get_financial_data?code=${code}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert('재무 데이터 오류: ' + data.error);
+          return;
+        }
+
+        if (data < 0) {
+          cell.classList.add("negative");
+        }
+
+        const tbody = document.querySelector('#financialTable tbody');
+  
+        tbody.innerHTML = '';
+  
+        // 지표 순서 (원하는 순서대로, 여기서는 공백 없이 실제 이름을 사용)
+        const indicators = [
+          '부채비율', '유보율', '매출액증가율', 'EPS증가율',
+          'ROA', 'ROE', 'EPS', 'BPS', 'PER', 'PBR', 'EV/EBITDA'
+        ];
+  
+        const years = ['24년', '23년', '22년'];
+  
+        let bodyRowsHtml = '';
+        for (let i = 0; i < years.length; i++) {
+          bodyRowsHtml += `<tr>`;
+          bodyRowsHtml += `<td>${years[i]}</td>`;
+          indicators.forEach(indicator => {
+            // 역순으로 값 채우기: 2 - i (i=0: data[indicator][2], i=1: data[indicator][1], i=2: data[indicator][0])
+            let val = (data[indicator] && data[indicator][2 - i] != null)
+                      ? data[indicator][2 - i]
+                      : 'N/A';
+            bodyRowsHtml += `<td>${val}</td>`;
+          });
+          bodyRowsHtml += `</tr>`;
+        }
+        tbody.innerHTML = bodyRowsHtml;
+        // 음수, N/A 전용 css
+        document.querySelectorAll("#financialTable td").forEach(cell => {
+          const text = cell.textContent.trim();
+          if (text === 'N/A') {
+            cell.classList.add('na-cell');
+          } else {
+            const num = parseFloat(text.replace(/,/g, ''));
+            if (!isNaN(num) && num < 0) {
+              cell.classList.add('negative');
+            }
+          }
+        });
+      })
+      .catch(err => {
+        alert('재무 데이터 로드 실패: ' + err);
+      });
+    // 제목 데이터 로드
+    const stockInfo = AppState.allStocks.find(s => s.종목코드 === code);  
+    if (stockInfo) {
+      document.getElementById('selectedStockName').textContent = stockInfo.회사명 + " 재무정보";
+    } else {
+      document.getElementById('selectedStockName').textContent = "선택된 종목 정보가 없습니다.";
+    }
+  }
+  
 
   // ========== Initialize on window load ==========
   window.onload = init;

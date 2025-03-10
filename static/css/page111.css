@@ -332,7 +332,6 @@ h1 {
 }
 
 /* ========== 7. 재무지표 영역 ========== */
-
 #tempBox1 {
   position: relative;
   min-height: 280px;
@@ -353,23 +352,24 @@ h1 {
   /* 재무 헤더 */
 .financial-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: rgba(39, 76, 119); /* 메인 컬러 #274c77의 8% 불투명 */
-  border-radius: 4px;
-}
-.financial-header h3,
-.financial-header .unit-info {
-  margin: 0;
-  color: #ffffff;
+  justify-content: space-between;  /* 왼쪽-오른쪽 배치 */
+  align-items: center;            /* 세로 중앙 정렬 */
+  border-left: 6px solid #274c77;  /* 메인 컬러 */
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 .financial-header h3 {
   font-weight: bold;
   font-size: 16px;
+  margin-left: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .financial-header .unit-info {
   font-size: 14px;
+  margin-right: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
   /* 재무 테이블 */
@@ -494,15 +494,29 @@ h1 {
 
 /* mainContainer의 자식 박스들에 그룹별 딜레이 적용 */
 #mainContainer > .box:nth-child(1),
-#mainContainer > .box:nth-child(2) { animation-delay: 0.2s; }
+#mainContainer > .box:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
 #mainContainer > .box:nth-child(3),
-#mainContainer > .box:nth-child(4) { animation-delay: 0.4s; }
+#mainContainer > .box:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
 #mainContainer > .box:nth-child(5),
-#mainContainer > .box:nth-child(6) { animation-delay: 0.6s; }
+#mainContainer > .box:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
 #bottomRow1 > .box:nth-child(1),
-#bottomRow1 > .box:nth-child(2) { animation-delay: 0.8s; }
+#bottomRow1 > .box:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
 #bottomRow2 > .box:nth-child(1),
-#bottomRow2 > .box:nth-child(2) { animation-delay: 1.0s; }
+#bottomRow2 > .box:nth-child(2) {
+  animation-delay: 1.0s;
+}
 
 /* ----- 푸터 ----- */
 footer {

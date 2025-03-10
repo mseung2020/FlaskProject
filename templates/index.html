@@ -11,7 +11,7 @@
     <!-- Chart.js 및 확대/축소 플러그인 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
-    
+
     <!-- 외부 CSS 파일 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page1.css') }}">
   </head>
@@ -41,7 +41,7 @@
       
       <!-- 2. 일수 검색 및 옵션 설정 박스 -->
       <section id="daysSearchBox" class="box" aria-label="조회 기간 및 옵션 설정">
-        <input type="text" id="daysInput" placeholder="조회 기간 (1~365)" aria-label="조회 기간 (1~365)">
+        <input type="text" id="daysInput" placeholder="242" aria-label="조회 기간 (1~365)">
         <button onclick="requestChart()" aria-label="조회">확인</button>
         <!-- 이동평균선 토글 -->
         <div id="toggleSections1">
@@ -54,7 +54,7 @@
           <label for="togglebollinger">볼린저밴드</label>
         </div>
         <!-- 조회 기준 날짜 표시 -->
-        <div id="date_label">조회 기준: Loading...</div>
+        <div id="date_label">조회 기준: Loading....</div>
       </section>
       
       <!-- 3. 종목 리스트 박스 -->
@@ -190,45 +190,104 @@
       </section>
 
       <!-- 별도의 컨테이로 가로비율 조정(1:1) -->
-      <div id="bottomRow">
+      <div id="bottomRow1">
         <section id="tempBox1" class="box" aria-label="임시 차트1">
           <div id="tempContainer1">
-            <h3>재무 비율</h3>
-            <p>
-              부채비율 <br/>
-              유보율 <br/>
-              매출액 증가율 <br/>
-              EPS 증가율 <br/>
-              ROA <br/>
-              ROE <br/>
-              EPS <br/>
-              BPS <br/>
-              PER <br/>
-              PBR <br/>
-              EV/EVITA
-            </p>
+            <div class="table-wrapper">
+
+              <div id="financialHeader" class="financial-header">
+                <h3 id="selectedStockName">"선택된 종목 정보가 없습니다."</h3>
+                <p class="unit-info">(단위: 억 원, 주, %, 배)</p>
+              </div>
+
+              <table id="financialTable">
+                <thead>
+                  <tr>
+                    <th>기간</th>
+                    <th>부채비율</th>
+                    <th>유보율</th>
+                    <th>매출액<br>증가율</th>
+                    <th>EPS<br>증가율</th>
+                    <th>ROA</th>
+                    <th>ROE</th>
+                    <th>EPS</th>
+                    <th>BPS</th>
+                    <th>PER</th>
+                    <th>PBR</th>
+                    <th>EV/<br>EBITDA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>24년</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td>23년</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td>22년</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
           </div>
         </section>
         <section id="tempBox2" class="box" aria-label="임시 차트2">
           <div id="tempContainer2">
-            <h3>재무 비율</h3>
-            <p>
-              안정성 비율 <br/>
-              성장성 비율 <br/>
-              수익성 비율 <br/>
-              활동성 비율 <br/>
-              성장성 비율
-            </p>
+            <h3 style= "margin-left: 10px; margin-top: 10px;">재무 비율(안정성, 수익성, 성장성, 활동성, 시장성)</h3>
+            <img src="{{ url_for('static', filename='image/wheel.png') }}" 
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
           </div>
         </section>
+      </div>
+
+      <div id="bottomRow2">
         <section id="tempBox3" class="box" aria-label="임시 차트3">
           <div id="tempContainer3">
-            <h3>재무 비율</h3>
+            <h3 style= "margin-left: 10px; margin-top: 10px;">재무 비율(미정)</h3>
+            <img src="{{ url_for('static', filename='image/wheel.png') }}" 
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
           </div>
         </section>
         <section id="tempBox4" class="box" aria-label="임시 차트4">
           <div id="tempContainer4">
-            <h3>워드 클라우드</h3>
+            <h3 style= "margin-left: 10px; margin-top: 10px;">워드 클라우드</h3>
+            <img src="{{ url_for('static', filename='image/wheel.png') }}" 
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
           </div>
         </section>
       </div>
