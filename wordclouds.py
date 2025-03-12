@@ -132,11 +132,9 @@ def generate_wordcloud(stock_code: str, num_pages: int = 10) -> tuple[str, Bytes
         ...
 
     try:
-        font_path = r"C:\WINDOWS\FONTS\MALGUNSL.TTF"
-
         # 불필요한 기능 제한: collocations=False, max_words=200 (원하는 숫자로)
         wc = WordCloud(
-            font_path=font_path,
+            font_path=r"C:\Windows\Fonts\malgun.ttf",
             background_color="white",
             width=1200,
             height=400,
