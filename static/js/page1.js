@@ -1879,22 +1879,22 @@
 
   // ========== 워드 클라우드 로드 ==========
   function updateWordCloud(code) {
-    // 백엔드에 /get_wordcloud?code=... 식으로 요청
     fetch(`/get_wordcloud?code=${code}`)
       .then(response => {
         if (!response.ok) throw new Error('워드클라우드 요청 실패');
-        return response.blob();
+        return response.json();
       })
-      .then(blob => {
-        // 응답을 blob(binary)으로 받고, object URL을 만들어서 <img> src로 설정
-        const url = URL.createObjectURL(blob);
-        showWordCloudImage(url);
+      .then(data => {
+        // 이미지 캐싱 방지용 timestamp 추가
+        const cacheBustedUrl = `${data.image_url}?t=${new Date().getTime()}`;
+        showWordCloudImage(cacheBustedUrl); // 이 함수를 사용해야 함!
       })
       .catch(err => {
         console.error(err);
         showWordCloudPlaceholder();
       });
   }
+  
 
   function updateWordCloudHeader(stockName) {
     const titleEl = document.getElementById('wordCloudTitle');

@@ -449,21 +449,22 @@ def get_financial_data():
 
 # ------------------ 워드 클라우드 API ------------------
 @app.route('/get_wordcloud', methods=['GET'])
-@cache.cached(timeout=3600, query_string=True)  # <=== 결과 캐싱 (1시간)
+@cache.cached(timeout=3600, query_string=True)
 def get_wordcloud_route():
     code = request.args.get('code', '').strip()
     if not code:
         abort(400, "code 파라미터 누락")
 
-    # 워드클라우드 생성
-    stock_name, img_io = generate_wordcloud(code, num_pages=10)  
-    # ↑ 예: num_pages=10으로 페이지 줄이기(원하는 만큼)
+    stock_name = generate_wordcloud(code, num_pages=10)
 
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/png', as_attachment=False,
-                     download_name=f'{stock_name}_wordcloud.png')
+    image_url = '/static/image/image.png'
 
-    
+    return jsonify({
+        'stock_name': stock_name,
+        'image_url': image_url
+    })
+
+
 # ------------------ 서버 실행 ------------------
 def keep_alive():
     while True:
