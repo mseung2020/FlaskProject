@@ -444,14 +444,61 @@ h1 {
 }
 
 /* ========== 10. @@@ 영역 (@@@) ========== */
-#tempBox4 {
-  position: relative;
+#wordCloudBox .table-wrapper {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0 auto;
+  background-color: #fff;
+  /* ...필요하다면 추가 스타일 */
 }
 
-#tempContainer4 {
-  height: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
+/* 헤더 부분 통일감 주기 */
+.wordcloud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(39, 76, 119); /* 재무 헤더와 통일감 있는 색상 */
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+.wordcloud-header h3,
+.wordcloud-header .unit-info {
+  margin: 0;
+  color: #ffffff; /* 재무박스와 색상 일치 */
+}
+.wordcloud-header h3 {
+  font-weight: bold;
+  font-size: 16px;
+}
+.wordcloud-header .unit-info {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+/* 실제 워드클라우드 이미지를 담을 컨테이너 */
+#wordCloudContainer {
+  min-height: 232px; /* 재무 테이블과 비슷하게 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-color: #fdfdfd;
+}
+
+#wordCloudImage {
+  max-width: 90%;
+  max-height: 90%;
+  height: auto;
+  object-fit: contain; /* (대부분 브라우저에서 지원) 이미지가 컨테이너에 맞게 축소 */
+  display: block;
+}
+
+/* 워드클라우드가 없을 때 노출되는 플레이스홀더 */
+#wordCloudPlaceholder {
+  color: #666;
+  font-size: 14px;
 }
 
 /* ========== 반응형 디자인 ==========

@@ -283,11 +283,18 @@
             style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
           </div>
         </section>
-        <section id="tempBox4" class="box" aria-label="임시 차트4">
-          <div id="tempContainer4">
-            <h3 style= "margin-left: 10px; margin-top: 10px;">워드 클라우드</h3>
-            <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+
+        <section id="wordCloudBox" class="box" aria-label="워드 클라우드 영역">
+          <div class="table-wrapper">
+            <div class="wordcloud-header">
+              <h3 id="wordCloudTitle">"선택된 종목 정보가 없습니다."</h3>
+              <div class="unit-info" id="wordCloudSubTitle">(최신 주요 키워드)</div>
+            </div>
+            <div id="wordCloudContainer">
+              <span id="wordCloudPlaceholder" style="display:none;">
+                데이터가 없습니다.
+              </span>
+            </div>
           </div>
         </section>
       </div>

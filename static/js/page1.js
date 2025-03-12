@@ -470,6 +470,8 @@
         AppState.currentCode = item.종목코드;
         requestChart();
         updateFinancialTable(AppState.currentCode);
+        updateWordCloud(AppState.currentCode);
+        updateWordCloudHeader(item.회사명);
       });
       container.appendChild(div);
     });
@@ -1874,8 +1876,76 @@
       document.getElementById('selectedStockName').textContent = "선택된 종목 정보가 없습니다.";
     }
   }
-  
 
+  // ========== 워드 클라우드 로드 ==========
+  function updateWordCloud(code) {
+    // 백엔드에 /get_wordcloud?code=... 식으로 요청
+    fetch(`/get_wordcloud?code=${code}`)
+      .then(response => {
+        if (!response.ok) throw new Error('워드클라우드 요청 실패');
+        return response.blob();
+      })
+      .then(blob => {
+        // 응답을 blob(binary)으로 받고, object URL을 만들어서 <img> src로 설정
+        const url = URL.createObjectURL(blob);
+        showWordCloudImage(url);
+      })
+      .catch(err => {
+        console.error(err);
+        showWordCloudPlaceholder();
+      });
+  }
+
+  function updateWordCloudHeader(stockName) {
+    const titleEl = document.getElementById('wordCloudTitle');
+  
+    if (!stockName) {
+      // 아직 종목이 선택되지 않음
+      titleEl.textContent = "선택된 종목 정보가 없습니다.";
+    } else {
+      titleEl.textContent = `${stockName} 워드 클라우드`;
+    }
+  }
+  
+  function showWordCloudImage(imgUrl) {
+    const container = document.getElementById('wordCloudContainer');
+    const placeholder = document.getElementById('wordCloudPlaceholder');
+  
+    // 혹시 기존 이미지가 있으면 삭제
+    const oldImg = document.getElementById('wordCloudImage');
+    if (oldImg) {
+      container.removeChild(oldImg);
+    }
+  
+    // 새 이미지 추가
+    const img = document.createElement('img');
+    img.id = 'wordCloudImage';
+    img.src = imgUrl;
+    img.alt = '워드 클라우드';
+    img.style.maxWidth = '95%';
+    img.style.maxheight = '100%';
+  
+    container.appendChild(img);
+  
+    // 플레이스홀더는 숨김
+    placeholder.style.display = 'none';
+  }
+  
+  function showWordCloudPlaceholder() {
+    const container = document.getElementById('wordCloudContainer');
+    const placeholder = document.getElementById('wordCloudPlaceholder');
+  
+    // 혹시 기존 이미지가 있으면 삭제
+    const oldImg = document.getElementById('wordCloudImage');
+    if (oldImg) {
+      container.removeChild(oldImg);
+    }
+  
+    // 플레이스홀더 표시
+    placeholder.style.display = 'block';
+  }
+  
+  
   // ========== Initialize on window load ==========
   window.onload = init;
   window.searchByName = searchByName;
