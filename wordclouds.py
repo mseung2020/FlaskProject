@@ -84,7 +84,6 @@ def fetch_news_text(code: str, page: int) -> str:
             collected_texts.append(combined)
         
         page_text = " ".join(collected_texts)
-        print(f"[페이지 {page}] 크롤링 완료.")
         return page_text
     
     except Exception as e:
@@ -140,9 +139,9 @@ def generate_wordcloud(stock_code: str, num_pages: int = 10) -> tuple[str, Bytes
             font_path=font_path,
             background_color="white",
             width=1200,
-            height=450,
+            height=400,
             collocations=False,  # 'New York' 등의 연결어 한 덩어리 처리 X
-            max_words=80        # 너무 많은 단어 제한
+            max_words=100        # 너무 많은 단어 제한
         )
         wc.generate_from_frequencies(filtered_counts)
 

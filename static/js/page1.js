@@ -1922,6 +1922,8 @@
     img.id = 'wordCloudImage';
     img.src = imgUrl;
     img.alt = '워드 클라우드';
+    img.style.maxWidth = '95%';
+    img.style.maxheight = '100%';
   
     container.appendChild(img);
   
