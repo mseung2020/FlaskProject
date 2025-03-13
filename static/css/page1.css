@@ -501,6 +501,18 @@ h1 {
 
 }
 
+#wordCloudImage,
+#wordCloudContainer canvas {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+#wordCloudContainer:hover #wordCloudImage,
+#wordCloudContainer:hover canvas {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
 /* 워드클라우드가 없을 때 노출되는 플레이스홀더 */
 #wordCloudPlaceholder {
   color: #ffffff;
