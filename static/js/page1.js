@@ -1939,7 +1939,7 @@
       // 아직 종목이 선택되지 않음
       titleEl.textContent = "선택된 종목 정보가 없습니다.";
     } else {
-      titleEl.textContent = `${stockName} 워드 클라우드`;
+      titleEl.textContent = `${stockName} 워드클라우드`;
     }
   }
     
