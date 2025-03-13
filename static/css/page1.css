@@ -444,12 +444,18 @@ h1 {
 }
 
 /* ========== 10. @@@ 영역 (@@@) ========== */
+#wordCloudBox {
+  position: relative;
+  height: 280px;
+}
+
 #wordCloudBox .table-wrapper {
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow: hidden;
   margin: 0 auto;
   background-color: #fff;
+  height: 100%;
   /* ...필요하다면 추가 스타일 */
 }
 
@@ -461,7 +467,6 @@ h1 {
   padding: 10px;
   background-color: rgba(39, 76, 119); /* 재무 헤더와 통일감 있는 색상 */
   border-radius: 4px;
-  margin-bottom: 5px;
 }
 .wordcloud-header h3,
 .wordcloud-header .unit-info {
@@ -479,25 +484,26 @@ h1 {
 
 /* 실제 워드클라우드 이미지를 담을 컨테이너 */
 #wordCloudContainer {
-  min-height: 232px; /* 재무 테이블과 비슷하게 */
+  width: 100%;
+  height: calc(100% - 45px);
+  overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   position: relative;
-  background-color: #fdfdfd;
+  background-color: #ffffff;
 }
 
-#wordCloudImage {
-  max-width: 90%;
-  max-height: 90%;
-  height: auto;
-  object-fit: contain; /* (대부분 브라우저에서 지원) 이미지가 컨테이너에 맞게 축소 */
+#wordCloudCanvas {
+  max-width: 100%;
+  max-height: 100%;
   display: block;
+
 }
 
 /* 워드클라우드가 없을 때 노출되는 플레이스홀더 */
 #wordCloudPlaceholder {
-  color: #666;
+  color: #ffffff;
   font-size: 14px;
 }
 

@@ -470,7 +470,7 @@
         AppState.currentCode = item.종목코드;
         requestChart();
         updateFinancialTable(AppState.currentCode);
-        updateWordCloud(AppState.currentCode);
+        updateWordCloud(item.종목코드);
         updateWordCloudHeader(item.회사명);
       });
       container.appendChild(div);
@@ -1878,22 +1878,58 @@
   }
 
   // ========== 워드 클라우드 로드 ==========
-  function updateWordCloud(code) {
-    // 백엔드에 /get_wordcloud?code=... 식으로 요청
-    fetch(`/get_wordcloud?code=${code}`)
-      .then(response => {
-        if (!response.ok) throw new Error('워드클라우드 요청 실패');
-        return response.blob();
+  function updateWordCloud(stockCode) {
+    // 워드 클라우드 컨테이너와 캔버스 선택
+    const container = document.getElementById('wordCloudContainer');
+    const canvas = document.getElementById('wordCloudCanvas');
+  
+    // 컨테이너의 실제 크기를 캔버스 해상도로 지정
+    const viewW = container.offsetWidth;
+    const viewH = container.offsetHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = viewW * dpr;
+    canvas.height = viewH * dpr;
+    canvas.style.width = viewW + 'px';
+    canvas.style.height = viewH + 'px'
+
+  
+    fetch(`/get_wordcloud_data?code=${stockCode}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          console.error('워드 클라우드 데이터 에러:', data.error);
+          return;
+        }
+        // data가 { "단어": 빈도, ... } 형식이라면 배열로 변환
+        const wordArray = Object.entries(data).map(([word, freq]) => {
+          const cleanedWord = word.split(',')[0];
+          return [cleanedWord, freq]; // 빈도 그대로 사용하여 크기 차이 유지
+        });
+
+        if (wordArray.length === 0) {
+          console.warn("워드 클라우드에 표시할 단어가 없습니다.");
+          return;
+        }
+  
+        // 최대 빈도 계산
+        const maxFrequency = Math.max(...wordArray.map(([_, freq]) => freq));
+
+        // wordcloud2.js 라이브러리로 워드 클라우드 생성
+        WordCloud(canvas, {
+          list: wordArray,
+          gridSize: 10,
+          weightFactor: function(freq) {
+            const maxFontSize = 100; // 원하는 최대 폰트 크기
+            const size = (freq / maxFrequency) * (Math.min(canvas.width, canvas.height) / 2);
+            return Math.min(size, maxFontSize);
+          },
+          fontFamily: 'Arial, sans-serif', // 원하는 웹 폰트로 변경 가능
+          color: 'random-dark',
+          rotateRatio: 0,
+          backgroundColor: '#ffffff'
+        });
       })
-      .then(blob => {
-        // 응답을 blob(binary)으로 받고, object URL을 만들어서 <img> src로 설정
-        const url = URL.createObjectURL(blob);
-        showWordCloudImage(url);
-      })
-      .catch(err => {
-        console.error(err);
-        showWordCloudPlaceholder();
-      });
+      .catch(error => console.error('워드클라우드 업데이트 실패:', error));
   }
 
   function updateWordCloudHeader(stockName) {
@@ -1906,46 +1942,7 @@
       titleEl.textContent = `${stockName} 워드 클라우드`;
     }
   }
-  
-  function showWordCloudImage(imgUrl) {
-    const container = document.getElementById('wordCloudContainer');
-    const placeholder = document.getElementById('wordCloudPlaceholder');
-  
-    // 혹시 기존 이미지가 있으면 삭제
-    const oldImg = document.getElementById('wordCloudImage');
-    if (oldImg) {
-      container.removeChild(oldImg);
-    }
-  
-    // 새 이미지 추가
-    const img = document.createElement('img');
-    img.id = 'wordCloudImage';
-    img.src = imgUrl;
-    img.alt = '워드 클라우드';
-    img.style.maxWidth = '95%';
-    img.style.maxheight = '100%';
-  
-    container.appendChild(img);
-  
-    // 플레이스홀더는 숨김
-    placeholder.style.display = 'none';
-  }
-  
-  function showWordCloudPlaceholder() {
-    const container = document.getElementById('wordCloudContainer');
-    const placeholder = document.getElementById('wordCloudPlaceholder');
-  
-    // 혹시 기존 이미지가 있으면 삭제
-    const oldImg = document.getElementById('wordCloudImage');
-    if (oldImg) {
-      container.removeChild(oldImg);
-    }
-  
-    // 플레이스홀더 표시
-    placeholder.style.display = 'block';
-  }
-  
-  
+    
   // ========== Initialize on window load ==========
   window.onload = init;
   window.searchByName = searchByName;

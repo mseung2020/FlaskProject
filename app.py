@@ -16,7 +16,7 @@ from indicators import (
     calculate_tradingvalue
     )
 from finance import get_financial_indicators
-from wordclouds import generate_wordcloud
+from wordclouds import get_word_frequencies
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -448,20 +448,17 @@ def get_financial_data():
         return jsonify({'error': '재무 데이터 로드 중 오류가 발생했습니다.'}), 500
 
 # ------------------ 워드 클라우드 API ------------------
-@app.route('/get_wordcloud', methods=['GET'])
 @cache.cached(timeout=3600, query_string=True)  # <=== 결과 캐싱 (1시간)
-def get_wordcloud_route():
+@app.route('/get_wordcloud_data', methods=['GET'])
+def get_wordcloud_data():
     code = request.args.get('code', '').strip()
     if not code:
-        abort(400, "code 파라미터 누락")
-
-    # 워드클라우드 생성
-    stock_name, img_io = generate_wordcloud(code, num_pages=10)  
-    # ↑ 예: num_pages=10으로 페이지 줄이기(원하는 만큼)
-
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/png', as_attachment=False,
-                     download_name=f'{stock_name}_wordcloud.png')
+        return jsonify({'error': '종목코드가 필요합니다.'}), 400
+    try:
+        frequencies = get_word_frequencies(code, num_pages=10)
+        return jsonify(frequencies)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500(0)
 
     
 # ------------------ 서버 실행 ------------------

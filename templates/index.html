@@ -12,6 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
 
+    <!-- wordcloud2.js CDN 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.1/wordcloud2.min.js"></script>
+
     <!-- 외부 CSS 파일 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page1.css') }}">
   </head>
@@ -291,8 +294,9 @@
               <div class="unit-info" id="wordCloudSubTitle">(최신 주요 키워드)</div>
             </div>
             <div id="wordCloudContainer">
+              <canvas id="wordCloudCanvas"></canvas>
               <span id="wordCloudPlaceholder" style="display:none;">
-                데이터가 없습니다.
+                현재 조회 가능한 데이터가 없습니다.
               </span>
             </div>
           </div>
