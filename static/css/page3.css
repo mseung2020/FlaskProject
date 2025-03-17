@@ -12,6 +12,27 @@
     --box-radius: 5px;
 }
 
+/* Paperlogy */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* GmarketSansMedium */
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-style: normal;
+}
+
+/* Tenada */
+@font-face {
+  font-family: 'Tenada';
+  src: url('../fonts/Tenada.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ----- 바디 ----- */
 body {
     font-family: var(--font-family);
@@ -32,6 +53,7 @@ header {
 }
   
 .header-left {
+    font-family: 'Tenada';
     display: flex;
     align-items: center;
 }
@@ -48,9 +70,11 @@ header .logo {
     font-weight: bold;
     cursor: pointer;
     margin: 10px;
+    margin-bottom: 0;
 }
   
 header nav {
+    font-family: 'Paperlogy';
     display: flex;
     gap: 30px;
     justify-content: flex-end;

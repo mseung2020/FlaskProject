@@ -18,9 +18,9 @@
     </div>
     <div class="header-right">
       <nav aria-label="메인 네비게이션">
-        <a href="/index" class="header-link">● 종목 분석</a>
-        <a href="/page2" class="header-link">● 투자 정보 </a>
-        <a href="/page3" class="header-link">● AI 연구</a>
+        <a href="/index" class="header-link">• 종목 분석</a>
+        <a href="/page2" class="header-link">• 투자 정보 </a>
+        <a href="/page3" class="header-link">• AI 연구</a>
       </nav>
     </div>
   </header>
@@ -30,7 +30,7 @@
     <!-- 좌측 박스: 지표 목록 (내용에 맞게 높이 자동) -->
     <div id="stockListBox" class="box" style="align-self: start;">
       <div id="stockContainer">
-        <div class="stockItem" onclick="showIndicatorContent('ADX', this)">ADX</div>
+        <div id="adxBtn" class="stockItem" onclick="showIndicatorContent('ADX', this)">ADX</div>
         <div class="stockItem" onclick="showIndicatorContent('ATR', this)">ATR</div>
         <div class="stockItem" onclick="showIndicatorContent('CCI', this)">CCI</div>
         <div class="stockItem" onclick="showIndicatorContent('MACD', this)">MACD</div>

@@ -11,6 +11,22 @@ def _prepare_df(df):
     """
     try:
         df_sorted = df.sort_values(by='날짜', ascending=True).copy()
+        
+        # (1) 종가가 0이면 np.nan으로 바꾸고, 그걸 이전 유효값으로 채움
+        df_sorted['종가'].replace(0, np.nan, inplace=True)
+        df_sorted['종가'].ffill(inplace=True)  # forward fill
+
+        # (2) 시가/고가/저가가 0이면, 그 날짜의 종가로 대체
+        #     (이미 종가가 0이었던 경우는 위에서 직전 유효 종가로 바뀌었을 것)
+        mask_open = (df_sorted['시가'] == 0)
+        df_sorted.loc[mask_open, '시가'] = df_sorted.loc[mask_open, '종가']
+
+        mask_high = (df_sorted['고가'] == 0)
+        df_sorted.loc[mask_high, '고가'] = df_sorted.loc[mask_high, '종가']
+
+        mask_low = (df_sorted['저가'] == 0)
+        df_sorted.loc[mask_low, '저가'] = df_sorted.loc[mask_low, '종가']
+        
         return df_sorted
     except Exception as e:
         logging.error("데이터프레임 정렬 오류: %s", e)
@@ -272,6 +288,69 @@ def calculate_tradingvalue(df):
         df['tradingvalue'] = df['평균주가']*df['거래량']
     except Exception as e:
         logging.error("거래대금 계산 오류: %s", e)
+        raise
+    df.fillna(0, inplace=True)
+    return df
+
+def calculate_envelope(df, p1=20, k=0.1):
+    """
+    envelope를 계산합니다.
+    - p1: 이동평균 기간 (기본 20일)
+    - k: 승수 (기본 0.1)
+    """
+    df = _prepare_df(df)
+    try:
+        df['ma20'] = df['종가'].rolling(window=p1, min_periods=p1).mean()
+        
+        df['EU'] = df['ma20'] * (1+k)
+        df['EL'] = df['ma20'] * (1-k)
+    except Exception as e:
+        logging.error("envelope 계산 오류: %s", e)
+        raise
+    df.fillna(0, inplace=True)
+    return df
+
+def calculate_ichimoku(df, p1=26, p2=9):
+    """
+    ichimoku를 계산합니다.
+    반환되는 컬럼:
+    - 전환선 (conversion_line)
+    - 기준선 (base_line)
+    - 선행스팬1 (leading_span1)
+    - 선행스팬2 (leading_span2)
+    - 후행스팬 (chikou_span)
+    """
+    df = _prepare_df(df)
+    try:         
+        # 1) 전환선 (Conversion Line)
+        df['전환선'] = (
+            df['고가'].rolling(window=p2, min_periods=p2).max() +
+            df['저가'].rolling(window=p2, min_periods=p2).min()
+            ) / 2
+
+        # 2) 기준선 (Base Line)
+        df['기준선'] = (
+            df['고가'].rolling(window=p1, min_periods=p1).max() +
+            df['저가'].rolling(window=p1, min_periods=p1).min()
+            ) / 2
+
+        # 3) 선행스팬1 (Leading Span A) = (전환선 + 기준선) / 2
+        df['선행스팬1'] = (df['전환선'] + df['기준선']) / 2
+        df['선행스팬1'] = df['선행스팬1'].shift(p1-1)
+
+        # 4) 선행스팬2 (Leading Span B) = (52일간 최고 + 52일간 최저) / 2
+        df['선행스팬2'] = (
+                df['고가'].rolling(window=p1*2, min_periods=p1*2).max() +
+                df['저가'].rolling(window=p1*2, min_periods=p1*2).min()
+            ) / 2
+        df['선행스팬2'] = df['선행스팬2'].shift(p1-1)        
+            
+        # 5) 후행스팬 (Chikou Span) = 현재 종가를 26일 전으로 그려줌 -> shift(-p1)
+        df['후행스팬'] = df['종가'].shift(-p1)
+        
+
+    except Exception as e:
+        logging.error("ichimoku 계산 오류: %s", e)
         raise
     df.fillna(0, inplace=True)
     return df

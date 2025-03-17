@@ -4,7 +4,7 @@
   'use strict';
 
    // 캔들 차트 클래스 정의
-   function CandleChart(ctx) {
+  function CandleChart(ctx) {
     this.ctx = ctx;
     this.chart = new Chart(ctx, {
       type: 'bar',
@@ -77,6 +77,9 @@
   // 전역 객체(window)에 노출 (다른 스크립트에서 접근 가능)
   global.CandleChart = CandleChart;
   global.PluginManager = PluginManager;
+  global.PlusChart = PlusChart;
+  global.MinusChart = MinusChart;
+  global.ResetChart = ResetChart;
 
   // ========== App State ==========
   const AppState = {
@@ -109,10 +112,11 @@
   }
 
   // ========== 공통 차트 옵션 ==========
+
   const commonChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    //animation: { duration: 500, easing: 'linear' },
+    //animation: { duration: 0, easing: 'linear' },
     layout: { padding: { top: 20, bottom: 20, left: 20, right: 40 } },
     scales: {
       x: {
@@ -321,8 +325,9 @@
   const HorizontalLinePlugin0 = createHorizontalLinePlugin([0]);
 
   // ========== 초기화 함수 ==========
+  let currentDays = 242;
   function init() {
-    document.getElementById('daysInput').value = "242";
+    document.getElementById('daysInput').value = currentDays;
     document.getElementById("toggleVolume").checked = true;
     document.getElementById("toggleMovingAverage").checked = true;
     loadStockList();
@@ -374,6 +379,14 @@
       if (this.checked) addBollinger();
       else removeBollinger();
     });
+    document.getElementById('toggleenvelope').addEventListener('change', function() {
+      if (this.checked) addenvelope();
+      else removeenvelope();
+    });
+    document.getElementById('toggleichimoku').addEventListener('change', function() {
+      if (this.checked) addichimoku();
+      else removeichimoku();
+    });    
     // 개별 보조지표 토글 이벤트 (배열로 관리)
     const indicatorToggles = [
       { id: "toggleTradingvalue", add: addTradingvalueChart, remove: removeTradingvalueChart },
@@ -450,6 +463,42 @@
       .catch(err => console.error("최신 거래일 불러오기 오류:", err));
   }
 
+  // ========== 차트 확대/축소/초기화 버튼 ==========
+  function MinusChart() {
+    // 현재 currentDays가 242이면 더이상 증가 안 함.
+    if (!AppState.currentCode) return;
+    if (currentDays < 242) {
+      currentDays += 40;
+      if (currentDays > 242) {
+        currentDays = 242;
+      }
+      document.getElementById('daysInput').value = currentDays;
+      requestChart(); // 차트 재요청
+    }
+  }
+  
+  function PlusChart() {
+    // currentDays가 42 이하이면 감소 안 함.
+    if (!AppState.currentCode) return;
+    if (currentDays > 42) {
+      currentDays -= 40;
+      if (currentDays < 42) {
+        currentDays = 42;
+      }
+      document.getElementById('daysInput').value = currentDays;
+      requestChart(); // 차트 재요청
+    }
+  }
+
+  function ResetChart() {
+    if (!AppState.currentCode) return;
+    if (currentDays != 242) {
+      currentDays = 242;
+      document.getElementById('daysInput').value = currentDays;
+      requestChart(); // 차트 재요청
+    }
+  }
+
   // ========== Rendering Functions ==========
   function renderStockList(stockData) {
     const container = document.getElementById('stockContainer');
@@ -470,7 +519,7 @@
         AppState.currentCode = item.종목코드;
         requestChart();
         updateFinancialTable(AppState.currentCode);
-        updateWordCloud(item.종목코드);
+        updateWordCloud(AppState.currentCode);
         updateWordCloudHeader(item.회사명);
       });
       container.appendChild(div);
@@ -505,13 +554,15 @@
       alert('종목을 선택하세요.');
       return;
     }
-    const daysValue = document.getElementById('daysInput').value.trim();
+    const daysValue = currentDays.toString();
     if (!daysValue) {
       alert('일수를 입력하세요 (1~365)');
       return;
     }
     const MA = document.getElementById('toggleMovingAverage').checked ? 'true' : 'false';
     const BOLLINGER = document.getElementById('togglebollinger').checked ? 'true' : 'false';
+    const ENVELOPE = document.getElementById('toggleenvelope').checked ? 'true' : 'false';
+    const ICHIMOKU = document.getElementById('toggleichimoku').checked ? 'true' : 'false';
     const flags = {
       tradingvalue: document.getElementById("toggleTradingvalue").checked ? 'true' : 'false',
       macd: document.getElementById("toggleMACD").checked ? 'true' : 'false',
@@ -525,7 +576,7 @@
       uo: document.getElementById("toggleUO").checked ? 'true' : 'false',
       adx: document.getElementById("toggleADX").checked ? 'true' : 'false'
     };
-    const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
+    const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
     fetch('/get_ohlc_history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -552,6 +603,12 @@
       if (json.BB_upper && json.BB_lower) {
         updateBollinger(json.dates, json.BB_upper, json.BB_lower);
       }
+      if (json.E_upper && json.E_lower) {
+        updateenvelope(json.dates, json.E_upper, json.E_lower);
+      }
+      if (json.ichimoku1 && json.ichimoku2 && json.ichimoku3 &&json.ichimoku4 && json.ichimoku5) {
+        updateichimoku(json.dates, json.ichimoku1, json.ichimoku2, json.ichimoku3, json.ichimoku4, json.ichimoku5);
+      }            
       if (document.getElementById("toggleTradingvalue").checked && json.tradingvalue) {
         updateTradingvalueChart(json.dates, json.tradingvalue, json.opens, json.closes);
         document.getElementById("tradingvalueChart").style.visibility = "visible"; 
@@ -835,11 +892,11 @@
   function updateBollinger(dates, BB_upper, BB_lower) {
     // 기존 Bollinger 데이터셋 제거
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
-      ds.label !== '상단 밴드' && ds.label !== '하단 밴드'
+      ds.label !== '볼린저 상단 밴드' && ds.label !== '볼린저 하단 밴드'
     );
     // 상단 밴드 데이터셋 추가 (fill 옵션과 backgroundColor 추가)
     AppState.charts.main.data.datasets.push({
-      label: '상단 밴드',
+      label: '볼린저 상단 밴드',
       data: BB_upper,
       borderColor: 'brown',
       borderWidth: 1,
@@ -853,7 +910,7 @@
 
     // 하단 밴드 데이터셋 추가
     AppState.charts.main.data.datasets.push({
-      label: '하단 밴드',
+      label: '볼린저 하단 밴드',
       data: BB_lower,
       borderColor: 'brown',
       borderWidth: 1,
@@ -865,7 +922,7 @@
     });
     const bollingerLabel = document.getElementById("bollingerLabel");
     if (document.getElementById("togglebollinger").checked) {
-      bollingerLabel.innerHTML = `<span style="color:brown; font-weight:bold;">상단/하단 밴드</span>`;
+      bollingerLabel.innerHTML = `<span style="color:brown; font-weight:bold;">볼린저 상단/하단 밴드</span>`;
       bollingerLabel.style.visibility = "visible";
     } else {
       bollingerLabel.style.visibility = "hidden";
@@ -899,12 +956,211 @@
 
   function removeBollinger() {
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
-      ds.label !== '상단 밴드' && ds.label !== '하단 밴드'
+      ds.label !== '볼린저 상단 밴드' && ds.label !== '볼린저 하단 밴드'
     );
     const bollingerLabel = document.getElementById("bollingerLabel");
     if (bollingerLabel) bollingerLabel.style.visibility = "hidden";
     AppState.charts.main.update();
   }
+
+  // ========== envelope Band ==========
+  function updateenvelope(dates, E_upper, E_lower) {
+    // 기존 envelope 데이터셋 제거
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== '인벨롭 상단 밴드' && ds.label !== '인벨롭 하단 밴드'
+    );
+    // 상단 밴드 데이터셋 추가 (fill 옵션과 backgroundColor 추가)
+    AppState.charts.main.data.datasets.push({
+      label: '인벨롭 상단 밴드',
+      data: E_upper,
+      borderColor: 'rgba(135, 180, 235, 1)',
+      borderWidth: 1,
+      fill: '+1', // 바로 아래 데이터셋(하단 밴드)까지 영역 채움
+      backgroundColor: 'rgba(135, 206, 235, 0.1)', // 옅은 브라운 색 (투명도 20%)
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });
+
+    // 하단 밴드 데이터셋 추가
+    AppState.charts.main.data.datasets.push({
+      label: '인벨롭 하단 밴드',
+      data: E_lower,
+      borderColor: 'rgba(135, 180, 235, 1)',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });
+    const envelopeLabel = document.getElementById("envelopeLabel");
+    if (document.getElementById("toggleenvelope").checked) {
+      envelopeLabel.innerHTML = `<span style="color:rgba(135, 180, 255, 1); font-weight:bold;">Envelope 상단/하단 밴드</span>`;
+      envelopeLabel.style.visibility = "visible";
+    } else {
+      envelopeLabel.style.visibility = "hidden";
+    }
+    AppState.charts.main.update();
+  }
+
+  function addenvelope() {
+    if (!AppState.currentCode) return;
+    const daysValue = document.getElementById('daysInput').value.trim();
+    if (!daysValue || isNaN(daysValue) || daysValue < 1 || daysValue > 365) return;
+    fetch('/get_ohlc_history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `code=${AppState.currentCode}&days=${daysValue}&envelope=true`
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (json.error) {
+        alert('에러: ' + json.error);
+        return;
+      }
+      if (!json.E_upper || !json.E_lower) {
+        alert('envelope 데이터를 불러올 수 없습니다.');
+        return;
+      }
+      updateenvelope(json.dates, json.E_upper, json.E_lower);
+    })
+    .catch(err => alert('에러: ' + err));
+  }
+
+  function removeenvelope() {
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== '인벨롭 상단 밴드' && ds.label !== '인벨롭 하단 밴드'
+    );
+    const envelopeLabel = document.getElementById("envelopeLabel");
+    if (envelopeLabel) envelopeLabel.style.visibility = "hidden";
+    AppState.charts.main.update();
+  }
+  
+  // ========== ichimoku Band ==========
+  function updateichimoku(dates, ichimoku1, ichimoku2, ichimoku3, ichimoku4, ichimoku5) {
+
+    const chikouLen = ichimoku5.length;
+    const SHIFT = 26; 
+    for (let i = chikouLen - SHIFT; i < chikouLen; i++) {
+      ichimoku5[i] = null;
+    }
+    // 기존 ichimoku 데이터셋 제거    
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== '기준선' && ds.label !== '전환선' && ds.label !== '선행스팬A' && ds.label !== '선행스팬B' && ds.label !== '후행스팬'
+    );
+    // 기준선 데이터셋 추가 
+    AppState.charts.main.data.datasets.push({
+      label: '기준선',
+      data: ichimoku1,
+      borderColor: 'orange',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });
+
+    // 전환선 데이터셋 추가
+    AppState.charts.main.data.datasets.push({
+      label: '전환선',
+      data: ichimoku2,
+      borderColor: 'green',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });
+
+    // 선행스팬A 데이터셋 추가
+    AppState.charts.main.data.datasets.push({
+      label: '선행스팬A',
+      data: ichimoku3,
+      borderColor: 'red',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });
+
+    // 선행스팬B 데이터셋 추가
+    AppState.charts.main.data.datasets.push({
+      label: '선행스팬B',
+      data: ichimoku4,
+      borderColor: 'blue',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });    
+
+    // 후행스팬 데이터셋 추가
+    AppState.charts.main.data.datasets.push({
+      label: '후행스팬',
+      data: ichimoku5,
+      borderColor: 'purple',
+      borderWidth: 1,
+      fill: false,
+      type: 'line',
+      xAxisID: 'x',
+      pointRadius: 0,
+      spanGaps: false
+    });  
+
+    const ichimokuLabel = document.getElementById("ichimokuLabel");
+    if (document.getElementById("toggleichimoku").checked) {
+      ichimokuLabel.innerHTML = `<span style="color:orange; font-weight:bold;">기준선</span> | 
+                                  <span style="color:green; font-weight:bold;">전환선</span> |
+                                  <span style="color:red; font-weight:bold;">선행스팬A</span> |
+                                  <span style="color:blue; font-weight:bold;">선행스팬B</span> |
+                                  <span style="color:purple; font-weight:bold;">후행스팬</span>`;
+      ichimokuLabel.style.visibility = "visible";
+    } else {
+      ichimokuLabel.style.visibility = "hidden";
+    }
+    AppState.charts.main.update();
+  }
+
+  function addichimoku() {
+    if (!AppState.currentCode) return;
+    const daysValue = document.getElementById('daysInput').value.trim();
+    if (!daysValue || isNaN(daysValue) || daysValue < 1 || daysValue > 365) return;
+    fetch('/get_ohlc_history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `code=${AppState.currentCode}&days=${daysValue}&ichimoku=true`
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (json.error) {
+        alert('에러: ' + json.error);
+        return;
+      }
+      if (!json.ichimoku1 || !json.ichimoku2 || !json.ichimoku3 || !json.ichimoku4 || !json.ichimoku5) {
+        alert('ichimoku 데이터를 불러올 수 없습니다.');
+        return;
+      }
+      updateichimoku(json.dates, json.ichimoku1, json.ichimoku2, json.ichimoku3, json.ichimoku4, json.ichimoku5);
+    })
+    .catch(err => alert('에러: ' + err));
+  }
+
+  function removeichimoku() {
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== '기준선' && ds.label !== '전환선' && ds.label !== '선행스팬A' && ds.label !== '선행스팬B' && ds.label !== '후행스팬'
+    );
+    const ichimokuLabel = document.getElementById("ichimokuLabel");
+    if (ichimokuLabel) ichimokuLabel.style.visibility = "hidden";
+    AppState.charts.main.update();
+  }  
 
   // ========== 거래대금 Chart ==========
   function initTradingvalueChart() {
@@ -920,7 +1176,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1019,7 +1275,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top: 20, bottom: 20, left: 20, right: 40 } },
         scales: {
           x: {
@@ -1102,7 +1358,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1181,7 +1437,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1262,7 +1518,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1344,7 +1600,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1424,7 +1680,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1504,7 +1760,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1584,7 +1840,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1664,7 +1920,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1743,7 +1999,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        //animation: { duration: 500, easing: 'linear' },
+        //animation: { duration: 0, easing: 'linear' },
         layout: { padding: { top:20, bottom:20, left:20, right:40 } },
         scales: {
           x: {
@@ -1926,7 +2182,7 @@
           fontFamily: 'Arial, sans-serif', // 원하는 웹 폰트로 변경 가능
           color: 'random-dark',
           rotateRatio: 0,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#f9f9f9'
         });
       })
       .catch(error => console.error('워드클라우드 업데이트 실패:', error));
@@ -1942,7 +2198,8 @@
       titleEl.textContent = `${stockName} 워드클라우드`;
     }
   }
-    
+  
+  
   // ========== Initialize on window load ==========
   window.onload = init;
   window.searchByName = searchByName;

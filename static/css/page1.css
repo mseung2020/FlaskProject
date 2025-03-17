@@ -2,14 +2,37 @@
 :root {
   --primary-color: #274c77;
   --secondary-color: #f9f9f9;
+  --third-color: #f9f9f9;
+  --text-color: #666;
+  --text-color2: #191919;
   --white: #ffffff;
   --border-color: #ddd;
-  --text-color: #666;
   --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   --font-family: Arial, sans-serif;
   --header-height: 70px;
   --padding-base: 20px;
   --box-radius: 5px;
+}
+
+/* Paperlogy */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* GmarketSansMedium */
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-style: normal;
+}
+
+/* Tenada */
+@font-face {
+  font-family: 'Tenada';
+  src: url('../fonts/Tenada.ttf') format('truetype');
+  font-style: normal;
 }
 
 /* ========== 기본 스타일 ========== */
@@ -34,6 +57,7 @@ header {
 .header-left {
   display: flex;
   align-items: center;
+  font-family: 'Tenada';
 }
 
 .header-logo {
@@ -48,6 +72,7 @@ header .logo {
   font-weight: bold;
   cursor: pointer;
   margin: 10px;
+  margin-bottom: 0;
 }
 
 header nav {
@@ -59,6 +84,7 @@ header nav {
 }
 
 header .header-link {
+  font-family: 'Paperlogy';
   color: var(--white);
   text-decoration: none;
   font-size: 20px;
@@ -84,11 +110,12 @@ h1 {
   padding: var(--padding-base);
   background-color: var(--secondary-color);
   height: auto;
+  font-family: 'Paperlogy';
 }
 
 /* ========== 공통 박스 스타일 ========== */
 .box {
-  background-color: var(--white);
+  background-color: var(--third-color);
   border-radius: var(--box-radius);
   padding: 10px;
   box-shadow: var(--shadow);
@@ -103,10 +130,20 @@ h1 {
   align-items: center;
   gap: 10px;
 }
-
+  
 #searchInput {
   flex: 1;
   min-width: 0;
+  background-color: var(--third-color);
+  color: var(--text-color);
+  border: 0;
+}
+
+.searchbutton {
+  height: 15px;
+  width: 15px;
+  vertical-align: middle; 
+  cursor: pointer;
 }
 
 /* ========== 2. 일수 검색 및 옵션 박스 ========== */
@@ -117,20 +154,55 @@ h1 {
   justify-content: space-between;
   padding: 10px;
   gap: 10px;
+  color: #191919;
 }
 
 #daysInput {
-  width: 250px;
-  min-width: 0;
+  display: none;
 }
 
 #date_label {
   font-size: 14px;
   font-weight: bold;
   color: var(--text-color);
-  margin-left: auto;
   padding: 5px;
   white-space: nowrap;
+}
+
+.chart-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ccc;       /* 옅은 테두리 */
+  border-radius: 4px;           /* 약간의 둥근 모서리 */
+  background-color: #f9f9f9;    /* 옅은 배경색 */
+  color: #333;                  /* 글자색 */
+  font-size: 20px;              /* +, - 기호가 크게 보이도록 설정 */
+  cursor: pointer;              /* 클릭 가능 마우스 포인터 */
+  transition: background-color 0.2s ease;
+  margin: 0;                /* 버튼 간격 */
+}
+
+/* 마우스 오버 시 */
+.chart-btn:hover {
+  background-color: #f0f0f0;    /* 조금 더 진한 배경색 */
+}
+
+/* 클릭(활성) 시 */
+.chart-btn:active {
+  background-color: #e0e0e0;
+}
+
+.daysearchrightContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;               /* 초기화 버튼과 조회기준 간격 */
+  margin-left: auto;       /* 나머지 공간을 밀어내고 오른쪽으로 이동 */
+}
+
+.resetbutton {
+  height: 17px;
+  width: 17px;
+  margin: 0;
 }
 
 /* ========== 3. 종목 리스트 ========== */
@@ -138,17 +210,18 @@ h1 {
   max-height: 378px;
   height: 100%;
   overflow-y: auto;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
-  background-color: #fefefe;
+  /* border: 1px solid var(--border-color);
+  border-radius: var(--box-radius); */
+  background-color: var(--third-color);
 }
 
 .stockItem {
   padding: 10px;
-  border-bottom: 1px solid #eaeaea;
+  /* border-bottom: 1px solid #eaeaea;*/
   cursor: pointer;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  color: var(--text-color2);
 }
 
 .stockItem:hover {
@@ -163,12 +236,14 @@ h1 {
 /* ========== 4. 상단 차트 영역 (캔들차트) ========== */
 #chartBox {
   position: relative;
+
 }
 
 #myChart {
   height: 450px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
+  color: var(--text-color) !important;
+  /* border: 1px solid var(--border-color);
+  border-radius: var(--box-radius); */
 }
 
 .chart_label {
@@ -201,13 +276,34 @@ h1 {
   white-space: nowrap;
 }
 
+.envelope_label {
+  position: absolute;
+  top: 64px;
+  right: 15px;
+  font-size: 10px;
+  color: var(--text-color);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.ichimoku_label {
+  position: absolute;
+  top: 81px;
+  right: 15px;
+  font-size: 10px;
+  color: var(--text-color);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
 /* ========== 5. 옵션 체크박스 영역 ========== */
 #toggleSections2 {
   height: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
-  background-color: #fefefe;
+  /* border: 1px solid var(--border-color);
+  border-radius: var(--box-radius); */
+  background-color: var(--third-color);
   overflow-y: scroll;
+  color: var(--text-color2);
 }
 
 #toggleSections2 input[type="checkbox"] {
@@ -220,7 +316,7 @@ h1 {
   width: 100%;
   padding: 10px;
   padding-bottom: 30px;
-  border-bottom: 1px solid #eaeaea;
+  /* border-bottom: 1px solid #eaeaea; */
   cursor: pointer;
   box-sizing: border-box;
 }
@@ -270,8 +366,8 @@ h1 {
 #adxBox {
   width: 100%;
   height: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
+  /* border: 1px solid var(--border-color);
+  border-radius: var(--box-radius); */
 }
 
 /* 보조지표 차트 공통 스타일 */
@@ -344,8 +440,8 @@ h1 {
   flex-direction: column;
 }
 .table-wrapper {
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  /* border: 1px solid #ddd;
+  border-radius: 5px; */
   overflow: hidden;
   margin: 0 auto;
 }
@@ -407,7 +503,7 @@ h1 {
   color: #cccccc !important;
 }
 #financialTable tbody tr:hover {
-  background-color: #f9f9f9;
+  background-color: #f0f0f0;
 }
 
 /* ========== 8. @@@ 영역 (@@@) ========== */
@@ -450,11 +546,11 @@ h1 {
 }
 
 #wordCloudBox .table-wrapper {
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  /* border: 1px solid #ddd;
+  border-radius: 5px; */
   overflow: hidden;
   margin: 0 auto;
-  background-color: #fff;
+  background-color: var(--secondary-color);
   height: 100%;
   /* ...필요하다면 추가 스타일 */
 }
@@ -491,7 +587,7 @@ h1 {
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--secondary-color);
 }
 
 #wordCloudCanvas {
@@ -509,7 +605,6 @@ h1 {
 #wordCloudContainer:hover #wordCloudImage,
 #wordCloudContainer:hover canvas {
   transform: scale(1.05);
-  filter: brightness(1.1);
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 

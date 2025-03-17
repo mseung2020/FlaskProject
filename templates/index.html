@@ -27,9 +27,9 @@
       </div>
       <div class="header-right">
         <nav aria-label="메인 네비게이션">
-          <a href="/index" class="header-link">● 종목 분석</a>
-          <a href="/page2" class="header-link">● 투자 정보 </a>
-          <a href="/page3" class="header-link">● AI 연구</a>
+          <a href="/index" class="header-link">• 종목 분석</a>
+          <a href="/page2" class="header-link">• 투자 정보 </a>
+          <a href="/page3" class="header-link">• AI 연구</a>
         </nav>
       </div>
     </header>
@@ -39,13 +39,14 @@
       <!-- 1. 종목 검색 박스 -->
       <section id="stockSearchBox" class="box" aria-label="종목 검색">
         <input type="text" id="searchInput" placeholder="회사명 검색" aria-label="회사명 검색">
-        <button onclick="searchByName()" aria-label="검색">검색</button>
+        <img src="{{ url_for('static', filename='image/search.png') }}" alt="searchbutton" class="searchbutton" onclick="searchByName()" aria-label="검색">
       </section>
       
       <!-- 2. 일수 검색 및 옵션 설정 박스 -->
       <section id="daysSearchBox" class="box" aria-label="조회 기간 및 옵션 설정">
         <input type="text" id="daysInput" placeholder="242" aria-label="조회 기간 (1~365)">
-        <button onclick="requestChart()" aria-label="조회">확인</button>
+        <button class="chart-btn" onclick="PlusChart()" aria-label="확대" >+</button>
+        <button class="chart-btn" onclick="MinusChart()" aria-label="축소" >-</button>
         <!-- 이동평균선 토글 -->
         <div id="toggleSections1">
           <input type="checkbox" id="toggleMovingAverage" checked>
@@ -56,8 +57,26 @@
           <input type="checkbox" id="togglebollinger" unchecked>
           <label for="togglebollinger">볼린저밴드</label>
         </div>
-        <!-- 조회 기준 날짜 표시 -->
-        <div id="date_label">조회 기준: Loading....</div>
+        <!-- envelope 토글 -->
+        <div id="toggleSections1">
+          <input type="checkbox" id="toggleenvelope" unchecked>
+          <label for="toggleenvelope">Envelope</label>
+        </div>
+        <!-- ichimoku 토글 -->
+        <div id="toggleSections1">
+          <input type="checkbox" id="toggleichimoku" unchecked>
+          <label for="toggleichimoku">일목균형표</label>
+        </div>      
+
+        <div class="daysearchrightContainer">
+          <!-- 초기화 버튼 -->
+          <button class="chart-btn" onclick="ResetChart()" aria-label="초기화">
+            <img src="{{ url_for('static', filename='image/reset.png') }}" 
+                 alt="resetbutton" class="resetbutton" aria-label="초기화">
+          </button>
+          <!-- 조회 기준 날짜 표시 -->
+          <div id="date_label">조회 기준: Loading....</div>
+        </div>
       </section>
       
       <!-- 3. 종목 리스트 박스 -->
@@ -70,6 +89,8 @@
         <div id="chartLabel" class="chart_label" style="visibility: hidden;"></div>
         <div id="maLabel" class="ma_label" style="visibility: hidden;"></div>
         <div id="bollingerLabel" class="bollinger_label" style="visibility: hidden;"></div>
+        <div id="envelopeLabel" class="envelope_label" style="visibility: hidden;"></div>   
+        <div id="ichimokuLabel" class="ichimoku_label" style="visibility: hidden;"></div>               
         <canvas id="myChart" aria-label="주가 캔들 차트"></canvas>
       </section>
       

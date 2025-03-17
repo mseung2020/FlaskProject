@@ -6,18 +6,41 @@ html {
 :root {
   --primary-color: #274c77;
   --secondary-color: #f9f9f9;
+  --third-color: #f9f9f9;
   --white: #ffffff;
   --border-color: #ddd;
   --text-color: #666;
+  --text-color2: #191919;
   --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  --font-family: Arial, sans-serif;
   --header-height: 70px;
   --padding-base: 20px;
   --box-radius: 5px;
 }
+
+/* Paperlogy */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* GmarketSansMedium */
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-style: normal;
+}
+
+/* Tenada */
+@font-face {
+  font-family: 'Tenada';
+  src: url('../fonts/Tenada.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ----- 바디 ----- */
 body {
-  font-family: var(--font-family);
+  font-family: 'Paperlogy';
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -40,6 +63,7 @@ header {
 .header-left {
   display: flex;
   align-items: center;
+  font-family: 'Tenada';
 }
 
 .header-logo {
@@ -54,6 +78,7 @@ header .logo {
   font-weight: bold;
   cursor: pointer;
   margin: 10px;
+  margin-bottom: 0;
 }
 
 header nav {
@@ -62,6 +87,7 @@ header nav {
   justify-content: flex-end;
   margin: 10px;
   flex: 1;
+  font-family: 'Paperlogy';
 }
 
 header .header-link {
@@ -89,11 +115,11 @@ h1 {
   grid-template-columns: 1fr 3fr;
   gap: 15px;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: var(--secondary-color);
   /* 높이는 내부 내용에 따라 자동 */
 }
 .box {
-  background-color: #ffffff;
+  background-color: var(--third-color);
   border-radius: 5px;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -105,17 +131,18 @@ h1 {
 /* ----- 좌측 지표 목록 박스 ----- */
 #stockContainer {
   overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #fefefe;
+  /* border: 1px solid #ddd;
+  border-radius: 5px; */
+  background-color: var(--third-color);
 }
 .stockItem {
   padding: 10px;
-  border-bottom: 1px solid #eaeaea;
+  /* border-bottom: 1px solid #eaeaea;*/
+  color: var(--text-color2);
   cursor: pointer;
 }
 .stockItem:hover {
-  background-color: #f0f0f0;
+  background-color: var(--secondary-color);
 }
 .selectedStockItem {
   background-color: var(--primary-color) !important;
@@ -129,19 +156,21 @@ h1 {
 }
 /* 원래의 캔버스 – indicator 내용이 있을 때 숨김 */
 #myChart {
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  /* border: 1px solid #ddd;
+  border-radius: 5px;*/
   width: 100%;
-  height: 395px;
+  height: 385px;
   display: block;
+  background-color: var(--third-color);
 }
 /* 내부 컨텐츠 박스 : indicator 내용이 이 박스 안에 표시됨 */
 .content-box {
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  /* border: 1px solid #ddd;
+  border-radius: 5px; */
   /* 위쪽 여백 줄이고, 왼쪽 여백 늘림 */
   padding: 20px 10px 10px 20px;
-  background-color: #fefefe;
+  background-color: var(--third-color);
+  color: var(--text-color2);
   /* 내부 내용에 맞게 높이 자동 조절 */
 }
 /* 제목(섹션)용 CSS – 폰트 크기와 굵기 조절 */
@@ -150,7 +179,7 @@ h1 {
   font-weight: bold;
 }
 .content-box p {
-line-height: 1.6; /* 줄 간격 조절 */
+  line-height: 1.6; /* 줄 간격 조절 */
 }
 
 /* ----- 공통 canvas 스타일 ----- */

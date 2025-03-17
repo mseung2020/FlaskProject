@@ -513,4 +513,11 @@ if (contentBox) {
     }
 }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    var adxBtn = document.getElementById("adxBtn");
+    if (adxBtn) {
+      showIndicatorContent('ADX', adxBtn);
+    }
+  });
 /* --------------------- JavaScript 끝 --------------------- */

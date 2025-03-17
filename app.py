@@ -13,7 +13,7 @@ from indicators import (
     calculate_ma, calculate_macd, calculate_rsi, calculate_stoch,
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
     calculate_roc, calculate_uo, calculate_adx, calculate_bollinger,
-    calculate_tradingvalue
+    calculate_tradingvalue, calculate_envelope, calculate_ichimoku
     )
 from finance import get_financial_indicators
 from wordclouds import get_word_frequencies
@@ -185,6 +185,8 @@ def prepare_full_ohlc_data(code):
         df_adx = calculate_adx(df.copy())
         df_bollinger = calculate_bollinger(df.copy())
         df_tradingvalue = calculate_tradingvalue(df.copy())
+        df_envelope = calculate_envelope(df.copy())
+        df_ichimoku = calculate_ichimoku(df.copy())        
         
         # 이동평균선
         df['ma5'] = df_ma['ma5']
@@ -222,6 +224,15 @@ def prepare_full_ohlc_data(code):
         df['BB_lower'] = df_bollinger['BL']  # 볼린저 하단
         # Trading Value (거래대금)
         df['tradingvalue'] = df_tradingvalue['tradingvalue']
+        # envelope (상단 및 하단 밴드)
+        df['E_upper'] = df_envelope['EU']  # envelope 상단
+        df['E_lower'] = df_envelope['EL']  # envelope 하단
+        # ichimoku (기준선, 전환선, 선행스팬1,2, 후행스팬)
+        df['ichimoku1'] = df_ichimoku['기준선']  # 기준선
+        df['ichimoku2'] = df_ichimoku['전환선']  # 전환선
+        df['ichimoku3'] = df_ichimoku['선행스팬1']  # 선행스팬1
+        df['ichimoku4'] = df_ichimoku['선행스팬2']  # 선행스팬2
+        df['ichimoku5'] = df_ichimoku['후행스팬']  # 후행스팬
         
     except Exception as e:
         logging.error("전체 보조지표 계산 중 오류: %s", e)
@@ -247,7 +258,9 @@ def get_ohlc_history():
         'uo': request.form.get('uo', 'false').strip().lower() == 'true',
         'adx': request.form.get('adx', 'false').strip().lower() == 'true',
         'bollinger': request.form.get('bollinger', 'false').strip().lower() == 'true',
-        'tradingvalue': request.form.get('tradingvalue', 'false').strip().lower() == 'true'
+        'tradingvalue': request.form.get('tradingvalue', 'false').strip().lower() == 'true',
+        'envelope': request.form.get('envelope', 'false').strip().lower() == 'true',
+        'ichimoku': request.form.get('ichimoku', 'false').strip().lower() == 'true'        
     }
     if not code:
         return jsonify({'error': '종목코드가 없습니다.'}), 400
@@ -416,7 +429,35 @@ def get_ohlc_history():
         response_data.update({
             'tradingvalue': [None]*days
         })
-    
+        
+    if indicators_flags['envelope']:
+        response_data.update({
+            'E_upper': list(df_slice['E_upper']),
+            'E_lower': list(df_slice['E_lower'])
+        })
+    else:
+        response_data.update({
+            'E_upper': [None]*days,
+            'E_lower': [None]*days
+        })    
+        
+    if indicators_flags['ichimoku']:
+        response_data.update({
+            'ichimoku1': list(df_slice['ichimoku1']),
+            'ichimoku2': list(df_slice['ichimoku2']),
+            'ichimoku3': list(df_slice['ichimoku3']),
+            'ichimoku4': list(df_slice['ichimoku4']),            
+            'ichimoku5': list(df_slice['ichimoku5'])            
+        })
+    else:
+        response_data.update({
+            'ichimoku1': [None]*days,
+            'ichimoku2': [None]*days,
+            'ichimoku3': [None]*days,
+            'ichimoku4': [None]*days,
+            'ichimoku5': [None]*days
+        })   
+        
     return jsonify(response_data)
 
 # ------------------ 최신 거래일 API ------------------
@@ -458,7 +499,7 @@ def get_wordcloud_data():
         frequencies = get_word_frequencies(code, num_pages=10)
         return jsonify(frequencies)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500(0)
+        return jsonify({'error': str(e)}), 500
 
     
 # ------------------ 서버 실행 ------------------
