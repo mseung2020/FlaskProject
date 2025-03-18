@@ -3,6 +3,8 @@
 (function(global) {
   'use strict';
 
+  Chart.defaults.font.family = "'Paperlogy', Arial, sans-serif";
+
    // 캔들 차트 클래스 정의
   function CandleChart(ctx) {
     this.ctx = ctx;
@@ -251,7 +253,7 @@
           const xM = bElem.getProps(['x'], false).x;
           const yM = yScale.getPixelForValue(cm.maxHigh);
           ctx.save();
-          ctx.font = '12px Arial';
+          ctx.font = '12px';
           ctx.fillStyle = 'red';
           const txt = `최고 ${formatNumber(cm.maxHigh)} (${formatDate(cm.maxHighDate)})`;
           ctx.fillText(txt, xM + 5, yM - 5);
@@ -264,7 +266,7 @@
           const xM = bElem.getProps(['x'], false).x;
           const yM = yScale.getPixelForValue(cm.minLow);
           ctx.save();
-          ctx.font = '12px Arial';
+          ctx.font = '12px';
           ctx.fillStyle = 'blue';
           const txt = `최저 ${formatNumber(cm.minLow)} (${formatDate(cm.minLowDate)})`;
           ctx.fillText(txt, xM + 5, yM + 15);
@@ -336,6 +338,7 @@
     setupCheckboxControls();
     updateIndicatorVisibility();
     fetchLatestTradingDate();
+    setupSearchIconToggle();
   }
 
   function loadStockList() {
@@ -366,7 +369,7 @@
 
   function setupEventListeners() {
     document.getElementById('searchInput').addEventListener('keyup', e => {
-      if (e.key === 'Enter') searchByName();
+      searchByName();
     });
     document.getElementById('daysInput').addEventListener('keyup', e => {
       if (e.key === 'Enter') requestChart();
@@ -386,7 +389,11 @@
     document.getElementById('toggleichimoku').addEventListener('change', function() {
       if (this.checked) addichimoku();
       else removeichimoku();
-    });    
+    });
+    document.getElementById('togglepsar').addEventListener('change', function() {
+      if (this.checked) addpsar();
+      else removepsar();
+    });        
     // 개별 보조지표 토글 이벤트 (배열로 관리)
     const indicatorToggles = [
       { id: "toggleTradingvalue", add: addTradingvalueChart, remove: removeTradingvalueChart },
@@ -508,6 +515,12 @@
       div.className = 'stockItem';
       div.textContent = `${item.회사명} (${item.종목코드})`;
       div.tabIndex = 0;
+
+      if (AppState.currentCode === item.종목코드) {
+        div.classList.add('selectedStockItem');
+        AppState.selectedItemElement = div;
+      }  
+
       div.addEventListener('click', () => {
         if (AppState.currentCode === item.종목코드) return;
         
@@ -534,12 +547,44 @@
     }
     const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
     if (filtered.length === 0) {
-      alert('검색 결과가 없습니다.');
+      //alert('검색 결과가 없습니다.');
       document.getElementById('stockContainer').innerHTML = '';
     } else {
       renderStockList(filtered);
     }
   }
+
+  function setupSearchIconToggle() {
+    const searchInput = document.getElementById('searchInput');
+    const searchIcon = document.querySelector('.searchbutton');
+  
+    function updateIcon() {
+      if (searchInput.value.trim() !== '') {
+        searchIcon.src = closeIconUrl; // 여기서 변수 사용
+        searchIcon.alt = "clearbutton";
+        searchIcon.ariaLabel = "검색어 지우기";
+      } else {
+        searchIcon.src = searchIconUrl; // 여기서 변수 사용
+        searchIcon.alt = "searchbutton";
+        searchIcon.ariaLabel = "검색";
+      }
+    }
+  
+    searchInput.addEventListener('input', updateIcon);
+  
+    searchIcon.addEventListener('click', () => {
+      if (searchIcon.alt === 'clearbutton') {
+        searchInput.value = '';
+        updateIcon();
+        renderStockList(AppState.allStocks);
+      } else {
+        searchByName();
+      }
+    });
+  
+    updateIcon();
+  }
+  
 
   function updateLatestTradingDate(dates) {
     if (!dates || dates.length === 0) return;
@@ -563,6 +608,7 @@
     const BOLLINGER = document.getElementById('togglebollinger').checked ? 'true' : 'false';
     const ENVELOPE = document.getElementById('toggleenvelope').checked ? 'true' : 'false';
     const ICHIMOKU = document.getElementById('toggleichimoku').checked ? 'true' : 'false';
+    const PSAR = document.getElementById('togglepsar').checked ? 'true' : 'false';
     const flags = {
       tradingvalue: document.getElementById("toggleTradingvalue").checked ? 'true' : 'false',
       macd: document.getElementById("toggleMACD").checked ? 'true' : 'false',
@@ -576,7 +622,7 @@
       uo: document.getElementById("toggleUO").checked ? 'true' : 'false',
       adx: document.getElementById("toggleADX").checked ? 'true' : 'false'
     };
-    const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
+    const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&psar=${PSAR}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
     fetch('/get_ohlc_history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -608,7 +654,10 @@
       }
       if (json.ichimoku1 && json.ichimoku2 && json.ichimoku3 &&json.ichimoku4 && json.ichimoku5) {
         updateichimoku(json.dates, json.ichimoku1, json.ichimoku2, json.ichimoku3, json.ichimoku4, json.ichimoku5);
-      }            
+      }    
+      if (json.psar) {
+        updatepsar(json.dates, json.psar);
+      }              
       if (document.getElementById("toggleTradingvalue").checked && json.tradingvalue) {
         updateTradingvalueChart(json.dates, json.tradingvalue, json.opens, json.closes);
         document.getElementById("tradingvalueChart").style.visibility = "visible"; 
@@ -973,10 +1022,10 @@
     AppState.charts.main.data.datasets.push({
       label: '인벨롭 상단 밴드',
       data: E_upper,
-      borderColor: 'rgba(135, 180, 235, 1)',
+      borderColor: 'rgba(80, 188, 223, 1)',
       borderWidth: 1,
       fill: '+1', // 바로 아래 데이터셋(하단 밴드)까지 영역 채움
-      backgroundColor: 'rgba(135, 206, 235, 0.1)', // 옅은 브라운 색 (투명도 20%)
+      backgroundColor: 'rgba(80, 188, 223, 0.1)', // 옅은 브라운 색 (투명도 20%)
       type: 'line',
       xAxisID: 'x',
       pointRadius: 0,
@@ -997,7 +1046,7 @@
     });
     const envelopeLabel = document.getElementById("envelopeLabel");
     if (document.getElementById("toggleenvelope").checked) {
-      envelopeLabel.innerHTML = `<span style="color:rgba(135, 180, 255, 1); font-weight:bold;">Envelope 상단/하단 밴드</span>`;
+      envelopeLabel.innerHTML = `<span style="color:rgba(80, 188, 223, 1); font-weight:bold;">Envelope 상단/하단 밴드</span>`;
       envelopeLabel.style.visibility = "visible";
     } else {
       envelopeLabel.style.visibility = "hidden";
@@ -1039,10 +1088,61 @@
   }
   
   // ========== ichimoku Band ==========
+  const ichimokuFillPlugin = {
+    id: 'ichimokuFillPlugin',
+    afterDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      // 선행스팬A와 B 데이터셋 인덱스 찾기
+      const spanAIndex = chart.data.datasets.findIndex(ds => ds.label === '선행스팬A');
+      const spanBIndex = chart.data.datasets.findIndex(ds => ds.label === '선행스팬B');
+      if (spanAIndex === -1 || spanBIndex === -1) return;
+  
+      const metaA = chart.getDatasetMeta(spanAIndex).data;
+      const metaB = chart.getDatasetMeta(spanBIndex).data;
+      // 데이터 길이가 다르면 중단
+      const len = Math.min(metaA.length, metaB.length);
+      if (len < 2) return;
+  
+      ctx.save();
+      for (let i = 0; i < len - 1; i++) {
+        // 두 구간의 선 A, B의 값 (차트 데이터 값)
+        const aVal1 = chart.data.datasets[spanAIndex].data[i];
+        const aVal2 = chart.data.datasets[spanAIndex].data[i + 1];
+        const bVal1 = chart.data.datasets[spanBIndex].data[i];
+        const bVal2 = chart.data.datasets[spanBIndex].data[i + 1];
+  
+        // 구간 내 평균값으로 조건 판단
+        const avgA = (aVal1 + aVal2) / 2;
+        const avgB = (bVal1 + bVal2) / 2;
+        const fillColor = avgA > avgB ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,255,0.1)';
+  
+        // 좌표 계산: 각 포인트의 x, y (이미 계산된 캔버스 좌표 사용)
+        const x1 = metaA[i].x;
+        const x2 = metaA[i + 1].x;
+        const yA1 = metaA[i].y;
+        const yA2 = metaA[i + 1].y;
+        const yB1 = metaB[i].y;
+        const yB2 = metaB[i + 1].y;
+  
+        ctx.beginPath();
+        ctx.moveTo(x1, yA1); // 선 A의 시작점
+        ctx.lineTo(x2, yA2); // 선 A의 끝점
+        ctx.lineTo(x2, yB2); // 선 B의 끝점
+        ctx.lineTo(x1, yB1); // 선 B의 시작점
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+  Chart.register(ichimokuFillPlugin);
+
   function updateichimoku(dates, ichimoku1, ichimoku2, ichimoku3, ichimoku4, ichimoku5) {
 
     const chikouLen = ichimoku5.length;
     const SHIFT = 26; 
+
     for (let i = chikouLen - SHIFT; i < chikouLen; i++) {
       ichimoku5[i] = null;
     }
@@ -1126,6 +1226,7 @@
     } else {
       ichimokuLabel.style.visibility = "hidden";
     }
+    
     AppState.charts.main.update();
   }
 
@@ -1160,7 +1261,72 @@
     const ichimokuLabel = document.getElementById("ichimokuLabel");
     if (ichimokuLabel) ichimokuLabel.style.visibility = "hidden";
     AppState.charts.main.update();
-  }  
+  }
+  
+  // ========== psar Band ==========
+  function updatepsar(dates, psar) {
+
+    // 기존 psar 데이터셋 제거    
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== 'psar'
+    );
+    // psar 데이터셋 추가 
+    AppState.charts.main.data.datasets.push({
+      label: 'psar',
+      data: psar,
+      borderColor: 'green',
+      borderWidth: 1,
+      type: 'scatter',
+      backgroundColor: 'green',
+      pointRadius: 1,
+      pointStyle: 'circle',
+      xAxisID: 'x',
+      spanGaps: false
+    });
+
+    const psarLabel = document.getElementById("psarLabel");
+    if (document.getElementById("togglepsar").checked) {
+      psarLabel.innerHTML = `<span style="color:green; font-weight:bold;">Parabolic SAR</span>`;
+      psarLabel.style.visibility = "visible";
+    } else {
+      psarLabel.style.visibility = "hidden";
+    }
+    
+    AppState.charts.main.update();
+  }
+
+  function addpsar() {
+    if (!AppState.currentCode) return;
+    const daysValue = document.getElementById('daysInput').value.trim();
+    if (!daysValue || isNaN(daysValue) || daysValue < 1 || daysValue > 365) return;
+    fetch('/get_ohlc_history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `code=${AppState.currentCode}&days=${daysValue}&psar=true`
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (json.error) {
+        alert('에러: ' + json.error);
+        return;
+      }
+      if (!json.psar) {
+        alert('psar 데이터를 불러올 수 없습니다.');
+        return;
+      }
+      updatepsar(json.dates, json.psar);
+    })
+    .catch(err => alert('에러: ' + err));
+  }
+
+  function removepsar() {
+    AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
+      ds.label !== 'psar'
+    );
+    const psarLabel = document.getElementById("psarLabel");
+    if (psarLabel) psarLabel.style.visibility = "hidden";
+    AppState.charts.main.update();
+  }    
 
   // ========== 거래대금 Chart ==========
   function initTradingvalueChart() {
@@ -2179,7 +2345,7 @@
             const size = (freq / maxFrequency) * (Math.min(canvas.width, canvas.height) / 2);
             return Math.min(size, maxFontSize);
           },
-          fontFamily: 'Arial, sans-serif', // 원하는 웹 폰트로 변경 가능
+          fontFamily: "'Paperlogy', Arial, sans-serif", // 원하는 웹 폰트로 변경 가능
           color: 'random-dark',
           rotateRatio: 0,
           backgroundColor: '#f9f9f9'

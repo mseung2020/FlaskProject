@@ -13,7 +13,8 @@ from indicators import (
     calculate_ma, calculate_macd, calculate_rsi, calculate_stoch,
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
     calculate_roc, calculate_uo, calculate_adx, calculate_bollinger,
-    calculate_tradingvalue, calculate_envelope, calculate_ichimoku
+    calculate_tradingvalue, calculate_envelope, calculate_ichimoku,
+    calculate_psar
     )
 from finance import get_financial_indicators
 from wordclouds import get_word_frequencies
@@ -186,7 +187,8 @@ def prepare_full_ohlc_data(code):
         df_bollinger = calculate_bollinger(df.copy())
         df_tradingvalue = calculate_tradingvalue(df.copy())
         df_envelope = calculate_envelope(df.copy())
-        df_ichimoku = calculate_ichimoku(df.copy())        
+        df_ichimoku = calculate_ichimoku(df.copy())
+        df_psar = calculate_psar(df.copy())                
         
         # 이동평균선
         df['ma5'] = df_ma['ma5']
@@ -233,6 +235,8 @@ def prepare_full_ohlc_data(code):
         df['ichimoku3'] = df_ichimoku['선행스팬1']  # 선행스팬1
         df['ichimoku4'] = df_ichimoku['선행스팬2']  # 선행스팬2
         df['ichimoku5'] = df_ichimoku['후행스팬']  # 후행스팬
+        # psar
+        df['psar'] = df_psar['psar'] 
         
     except Exception as e:
         logging.error("전체 보조지표 계산 중 오류: %s", e)
@@ -260,7 +264,8 @@ def get_ohlc_history():
         'bollinger': request.form.get('bollinger', 'false').strip().lower() == 'true',
         'tradingvalue': request.form.get('tradingvalue', 'false').strip().lower() == 'true',
         'envelope': request.form.get('envelope', 'false').strip().lower() == 'true',
-        'ichimoku': request.form.get('ichimoku', 'false').strip().lower() == 'true'        
+        'ichimoku': request.form.get('ichimoku', 'false').strip().lower() == 'true',
+        'psar': request.form.get('psar', 'false').strip().lower() == 'true'        
     }
     if not code:
         return jsonify({'error': '종목코드가 없습니다.'}), 400
@@ -456,7 +461,17 @@ def get_ohlc_history():
             'ichimoku3': [None]*days,
             'ichimoku4': [None]*days,
             'ichimoku5': [None]*days
-        })   
+        })
+    
+    if indicators_flags['psar']:
+        response_data.update({
+            'psar': list(df_slice['psar'])          
+        })
+    else:
+        response_data.update({
+            'psar': [None]*days,
+        })
+       
         
     return jsonify(response_data)
 

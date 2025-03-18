@@ -130,20 +130,35 @@ h1 {
   align-items: center;
   gap: 10px;
 }
+
+.search-wrapper {
+  position: relative;
+  display: inline-block; 
+  width: 100%; /* 필요한 경우 크기 조절 */
+}
   
 #searchInput {
   flex: 1;
+  width: 100%;
   min-width: 0;
+  height: 25px;
+  padding-right: 40px;
   background-color: var(--third-color);
   color: var(--text-color);
+  font-family: 'Paperlogy';
   border: 0;
+  box-sizing: border-box;
 }
 
 .searchbutton {
+  position: absolute;
   height: 15px;
   width: 15px;
+  right: 5px;
+  transform: translateY(35%); 
   vertical-align: middle; 
   cursor: pointer;
+  background-color: var(--secondary-color);
 }
 
 /* ========== 2. 일수 검색 및 옵션 박스 ========== */
@@ -182,20 +197,45 @@ h1 {
   margin: 0;                /* 버튼 간격 */
 }
 
-/* 마우스 오버 시 */
 .chart-btn:hover {
   background-color: #f0f0f0;    /* 조금 더 진한 배경색 */
 }
 
-/* 클릭(활성) 시 */
 .chart-btn:active {
   background-color: #e0e0e0;
+}
+
+#toggleSections1 input[type="checkbox"] {
+  display: none;
+}
+
+#toggleSections1 label {
+  width: 65px;
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  /* transition: background-color 0.3s ease, color 0.3s ease;*/
+}
+
+#toggleSections1 input[type="checkbox"]:checked + label {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-color: var(--primary-color);
+}
+
+/* 마우스 오버 시 효과 */
+#toggleSections1 label:hover {
+  background-color: #f0f0f0;
 }
 
 .daysearchrightContainer {
   display: flex;
   align-items: center;
-  gap: 10px;               /* 초기화 버튼과 조회기준 간격 */
+  gap: 5px;               /* 초기화 버튼과 조회기준 간격 */
   margin-left: auto;       /* 나머지 공간을 밀어내고 오른쪽으로 이동 */
 }
 
@@ -289,6 +329,16 @@ h1 {
 .ichimoku_label {
   position: absolute;
   top: 81px;
+  right: 15px;
+  font-size: 10px;
+  color: var(--text-color);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.psar_label {
+  position: absolute;
+  top: 95px;
   right: 15px;
   font-size: 10px;
   color: var(--text-color);

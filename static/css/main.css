@@ -13,6 +13,27 @@
   --transition-speed: 0.3s;
 }
 
+/* Paperlogy */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* GmarketSansMedium */
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-style: normal;
+}
+
+/* Tenada */
+@font-face {
+  font-family: 'Tenada';
+  src: url('../fonts/Tenada.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ----- 기본 스타일 ----- */
 body {
   font-family: var(--font-family);
@@ -22,7 +43,7 @@ body {
   color: var(--text-color);
 }
 
-/* ----- 헤더 ----- */
+/* ========== 헤더 ========== */
 header {
   background-color: var(--primary-color);
   height: var(--header-height);
@@ -31,28 +52,29 @@ header {
   justify-content: space-between;
   padding: 0 var(--padding-base);
   color: var(--white);
-  box-shadow: var(--shadow);
 }
+
 .header-left {
   display: flex;
   align-items: center;
+  font-family: 'Tenada';
 }
+
 .header-logo {
   height: 40px;
   margin-left: 5px;
-  vertical-align: middle;
+  vertical-align: middle; 
   cursor: pointer;
 }
+
 header .logo {
   font-size: 30px;
   font-weight: bold;
   cursor: pointer;
   margin: 10px;
-  color: var(--white);
+  margin-bottom: 0;
 }
-header .header-right {
-  flex: 1;
-}
+
 header nav {
   display: flex;
   gap: 30px;
@@ -60,7 +82,9 @@ header nav {
   margin: 10px;
   flex: 1;
 }
+
 header .header-link {
+  font-family: 'Paperlogy';
   color: var(--white);
   text-decoration: none;
   font-size: 20px;
@@ -73,8 +97,13 @@ header .header-link:hover {
   border-radius: 4px;
 }
 
+h1 {
+  cursor: pointer;
+}
+
 /* ----- 히어로 섹션 ----- */
 #hero {
+  font-family: 'Paperlogy';
   position: relative;
   height: calc(100vh - var(--header-height));
   background: linear-gradient(135deg, rgba(39,76,119,0.8), rgba(249,249,249,0.8)),
@@ -106,6 +135,7 @@ header .header-link:hover {
   margin-bottom: 30px;
 }
 .cta-button {
+  font-family: 'Paperlogy';
   background-color: var(--primary-color);
   color: var(--white);
   border: none;
@@ -124,6 +154,7 @@ header .header-link:hover {
 
 /* ----- 특징 소개 섹션 ----- */
 #features {
+  font-family: 'Paperlogy';
   width: 90%;
   max-width: 1200px;
   margin: 40px auto;

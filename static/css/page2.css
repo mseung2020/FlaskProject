@@ -12,6 +12,7 @@ html {
   --text-color: #666;
   --text-color2: #191919;
   --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --font-family: Arial, sans-serif;
   --header-height: 70px;
   --padding-base: 20px;
   --box-radius: 5px;
@@ -40,7 +41,7 @@ html {
 
 /* ----- 바디 ----- */
 body {
-  font-family: 'Paperlogy';
+  font-family: var(--font-family);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -110,6 +111,7 @@ h1 {
 /* ----- 메인 컨테이너 ----- */
 /* 좌측 1fr, 우측 3fr로 배치 */
 #mainContainer {
+  font-family: 'Paperlogy';
   display: grid;
   grid-template-rows: auto;
   grid-template-columns: 1fr 3fr;
@@ -142,7 +144,7 @@ h1 {
   cursor: pointer;
 }
 .stockItem:hover {
-  background-color: var(--secondary-color);
+  background-color: #f0f0f0;
 }
 .selectedStockItem {
   background-color: var(--primary-color) !important;

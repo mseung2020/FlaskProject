@@ -354,3 +354,29 @@ def calculate_ichimoku(df, p1=26, p2=9):
         raise
     df.fillna(0, inplace=True)
     return df
+
+def calculate_psar(df, step=0.02, max_step=0.2):
+    """
+    Parabolic SAR(PSAR)을 계산합니다.
+    - step: 가속인자(AF) 초기값 (기본 0.02)
+    - max_step: 가속인자(AF) 최대값 (기본 0.2)
+    """
+    df = _prepare_df(df)
+    try:
+        from ta.trend import PSARIndicator
+
+        psar_indicator = PSARIndicator(
+            high=df['고가'],
+            low=df['저가'],
+            close=df['종가'],
+            step=step,
+            max_step=max_step
+        )
+        # psar() 메서드만으로도 모든 시점의 PSAR 값을 얻어 연속된 점 형태로 표시 가능
+        df['psar'] = psar_indicator.psar()
+
+    except Exception as e:
+        logging.error("psar 계산 오류: %s", e)
+        raise
+    df.fillna(0, inplace=True)
+    return df
