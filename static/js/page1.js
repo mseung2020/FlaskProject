@@ -628,7 +628,12 @@
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: requestBody
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`서버 오류: ${res.status}`);
+      }
+      return res.json();
+    })
     .then(json => {
       if (json.error) {
         alert('에러: ' + json.error);
