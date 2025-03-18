@@ -18,6 +18,7 @@ from indicators import (
     )
 from finance import get_financial_indicators
 from wordclouds import get_word_frequencies
+from ta.trend import PSARIndicator
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

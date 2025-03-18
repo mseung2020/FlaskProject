@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import logging
+from ta.trend import PSARIndicator
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -363,7 +364,6 @@ def calculate_psar(df, step=0.02, max_step=0.2):
     """
     df = _prepare_df(df)
     try:
-        from ta.trend import PSARIndicator
 
         psar_indicator = PSARIndicator(
             high=df['고가'],
