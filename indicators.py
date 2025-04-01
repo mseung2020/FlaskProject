@@ -14,8 +14,8 @@ def _prepare_df(df):
         df_sorted = df.sort_values(by='날짜', ascending=True).copy()
         
         # (1) 종가가 0이면 np.nan으로 바꾸고, 그걸 이전 유효값으로 채움
-        df_sorted['종가'].replace(0, np.nan, inplace=True)
-        df_sorted['종가'].ffill(inplace=True)  # forward fill
+        df_sorted['종가'].replace(0, np.nan, inplace=False)
+        df_sorted['종가'] = df_sorted['종가'].ffill()  # forward fill
 
         # (2) 시가/고가/저가가 0이면, 그 날짜의 종가로 대체
         #     (이미 종가가 0이었던 경우는 위에서 직전 유효 종가로 바뀌었을 것)

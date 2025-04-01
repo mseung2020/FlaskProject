@@ -88,11 +88,12 @@ header .header-link {
     font-size: 20px;
     font-weight: bold;
     padding: 5px 10px; /* 호버 효과를 위한 패딩 */
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
-header .header-link:hover {
+  header .header-link:hover {
     background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
     border-radius: 4px;
+    transform: scale(1.05);
 }
   
 h1 {

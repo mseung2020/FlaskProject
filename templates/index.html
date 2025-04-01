@@ -14,6 +14,7 @@
 
     <!-- wordcloud2.js CDN 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.1/wordcloud2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
     <script>
       const searchIconUrl = "{{ url_for('static', filename='image/search.png') }}";
@@ -80,6 +81,10 @@
         <div id="toggleSections1">
           <input type="checkbox" id="togglepsar" unchecked>
           <label for="togglepsar">PSAR</label>
+        </div>
+        <div class="question-wrapper">
+          <img src="{{ url_for('static', filename='image/question.png') }}" alt="question" class="question" onclick="location.href='/page2'">
+          <p class="arrow_box">각 지표가 궁금하다면 여기를 눌러보세요!</p>
         </div>              
 
         <div class="daysearchrightContainer">
@@ -230,6 +235,8 @@
 
       <!-- 별도의 컨테이로 가로비율 조정(1:1) -->
       <div id="bottomRow1">
+
+        <!-- 7. 재무비율 지표 -->
         <section id="tempBox1" class="box" aria-label="임시 차트1">
           <div id="tempContainer1">
             <div class="table-wrapper">
@@ -305,24 +312,62 @@
             </div>
           </div>
         </section>
+
+        <!-- 8. ??? 지표 -->
         <section id="tempBox2" class="box" aria-label="임시 차트2">
-          <div id="tempContainer2">
-            <h3 style= "margin-left: 10px; margin-top: 10px;">재무 비율(안정성, 수익성, 성장성, 활동성, 시장성)</h3>
-            <img src="{{ url_for('static', filename='image/wheel2.gif') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+          <div class="table-wrapper">
+            <div class="financial-header">
+              <h3 id="undicisionedTitle">"현재 준비중인 항목입니다."</h3>
+            </div>
+            <div id="undicisionedContainer">
+              <img src="{{ url_for('static', filename='image/wheel2.gif') }}" 
+              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+            </div>
           </div>
         </section>
+        
       </div>
 
+      <!-- 마지막 줄 1:1 비율 -->
       <div id="bottomRow2">
-        <section id="tempBox3" class="box" aria-label="임시 차트3">
-          <div id="tempContainer3">
-            <h3 style= "margin-left: 10px; margin-top: 10px;">재무 비율(미정)</h3>
-            <img src="{{ url_for('static', filename='image/wheel2.gif') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+
+        <!-- 9. 투자자 지표 -->  
+        <section id="sentimentIndexBox" class="box" aria-label="투자자 지표">
+          <!-- 공통 헤더 -->
+          <div class="financial-header">
+            <h3 id="sentimentIndexHeader">"선택된 종목 정보가 없습니다."</h3>
+            <p class="unit-info">(최신 주요 투자자 심리)</p>
+          </div>
+          <!-- 좌우 컨테이너 -->
+          <div class="investor-indicator-container">
+            <!-- 왼쪽: 고수 인덱스 (기관/외국인 가로 바 차트) -->
+            <div class="left-indicator">
+              <div class="gosu-index-container">
+                <div class="gosu-header">
+                  <span class="gosu-title">기관/외국인 순매매 강도</span>
+                </div>
+                <div class="bar-chart-container">
+                  <!-- updateGosuIndex 함수에서 생성한 가로 바 차트들이 들어갑니다 -->
+                  <div id="gosuIndexContent">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 오른쪽: 하수 인덱스 (개인 민심 파이 그래프) -->
+            <div class="right-indicator">
+              <div class="hasu-index-container">
+                <div class="hasu-header">
+                  <span class="hasu-title">개인 투자자 감정 분석</span>
+                </div>
+                <div class="pie-chart-container">
+                  <canvas id="sentimentChart" aria-label="민심지표 차트"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
+        <!-- 10. 워드 클라우드 -->        
         <section id="wordCloudBox" class="box" aria-label="워드 클라우드 영역">
           <div class="table-wrapper">
             <div class="wordcloud-header">
@@ -337,6 +382,7 @@
             </div>
           </div>
         </section>
+
       </div>
 
     </main>

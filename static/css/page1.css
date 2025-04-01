@@ -90,11 +90,12 @@ header .header-link {
   font-size: 20px;
   font-weight: bold;
   padding: 5px 10px; /* 호버 효과를 위한 패딩 */
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 header .header-link:hover {
   background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
   border-radius: 4px;
+  transform: scale(1.05);
 }
 
 h1 {
@@ -170,6 +171,7 @@ h1 {
   padding: 10px;
   gap: 10px;
   color: #191919;
+  z-index: 9999;
 }
 
 #daysInput {
@@ -218,7 +220,7 @@ h1 {
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
-  /* transition: background-color 0.3s ease, color 0.3s ease;*/
+  transition: color 0.3s ease;
 }
 
 #toggleSections1 input[type="checkbox"]:checked + label {
@@ -230,6 +232,10 @@ h1 {
 /* 마우스 오버 시 효과 */
 #toggleSections1 label:hover {
   background-color: #f0f0f0;
+} 
+
+#toggleSections1 label:active {
+  transform: scale(0.95);
 }
 
 .daysearchrightContainer {
@@ -243,6 +249,55 @@ h1 {
   height: 17px;
   width: 17px;
   margin: 0;
+}
+
+.question-wrapper {
+  position: relative;       /* 자식 요소(.arrow_box)를 절대 위치시키기 위해 필요 */
+  display: inline-block;    /* 인라인 컨텍스트에서도 말풍선을 띄울 수 있도록 함 */
+  overflow: visible;        /* 말풍선이 컨테이너 밖으로 나가더라도 잘리지 않도록 함 */
+}
+
+.question {
+  height: 17px;
+  width: 17px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.arrow_box {
+  display: none;
+  position: absolute;
+  width: 230px;
+  padding: 8px 12px;
+  top: 120%;                /* 물음표 아래로 말풍선을 내리기 위해 top을 아이콘 높이보다 크게 설정 */
+  left: 50%;                /* 부모 요소 기준 수평 가운데 정렬 */
+  transform: translateX(-50%);  
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  background: #333;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+
+.arrow_box:after {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -10px;
+  border: solid transparent;
+  border-color: rgba(51, 51, 51, 0);
+  border-bottom-color: #333;
+  border-width: 10px;
+  pointer-events: none;
+  content: ' ';
+}
+
+.question:hover + p.arrow_box {
+  display: block;
 }
 
 /* ========== 3. 종목 리스트 ========== */
@@ -261,16 +316,18 @@ h1 {
   cursor: pointer;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  color: var(--text-color2);
+  color: var(--text-color2); 
 }
 
 .stockItem:hover {
   background-color: #f0f0f0;
+  transform: scale(0.98);
 }
 
 .selectedStockItem {
   background-color: var(--primary-color) !important;
   color: var(--white);
+  transform: scale(1) !important;
 }
 
 /* ========== 4. 상단 차트 영역 (캔들차트) ========== */
@@ -371,13 +428,15 @@ h1 {
   box-sizing: border-box;
 }
 
-#toggleSections2 .indicatorItem:hover {
+#toggleSections2 .indicatorItem label:hover {
+  transform: scale(0.98);
   background-color: #f0f0f0;
 }
 
 #toggleSections2 input[type="checkbox"]:checked + label {
   background-color: var(--primary-color);
   color: var(--white);
+  transform: scale(1) !important;
 }
 
 #toggleSections2 .indicatorItem label {
@@ -561,12 +620,6 @@ h1 {
   position: relative;
 }
 
-#tempContainer2 {
-  height: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
-}
-
 /* ========== 아래 영역 (1:1) ========== */
 #bottomRow2 {
   grid-column: 1 / -1;
@@ -577,22 +630,163 @@ h1 {
 
 }
 
-/* ========== 9. @@@ 영역 (@@@) ========== */
-#tempBox3 {
-  position: relative;
-  height: 280px;
+/* ========== 9. 투자자 지표 ========== */
+
+#sentimentIndexBox {
+  min-height: 320px;
+}
+#sentimentIndexBox .financial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--primary-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+#sentimentIndexBox .financial-header h3 {
+  font-size: 16px;
+  color: var(--white);
+  margin: 0;
+  font-weight: bold;
+  border-radius: 4px;
+}
+#sentimentIndexBox .financial-header .unit-info {
+  color: var(--white);
+  margin: 0;
+  border-radius: 4px;
 }
 
-#tempContainer3 {
-  height: 100%;
-  border: 1px solid var(--border-color);
+/* 투자자 지표 좌우 컨테이너 */
+.investor-indicator-container {
+  display: flex;
+  gap: 10px;
+  min-height: 280px;
+}
+.investor-indicator-container > .left-indicator,
+.investor-indicator-container > .right-indicator {
+  flex: 1;
+  background-color: var(--third-color);
   border-radius: var(--box-radius);
+  padding: 15px;
+  box-shadow: var(--shadow);
+
 }
 
-/* ========== 10. @@@ 영역 (@@@) ========== */
+/* 고수 인덱스 영역 (좌측) */
+.gosu-index-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.gosu-index-container .gosu-header {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: var(--text-color2);
+  font-weight: bold;
+}
+.gosu-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  margin-left: 50px;
+  gap: 60px; 
+}
+.footer-label {
+  margin: 0 20px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* 하수 인덱스 영역 (우측) */
+.hasu-index-container {
+  display: flex;
+  flex-direction: column;
+}
+.hasu-index-container .hasu-header {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: var(--text-color2);
+  font-weight: bold;
+}
+.pie-chart-container {
+  width: 220px;   /* 원하는 고정 너비 (예: 200px) */
+  height: 220px;  /* 원하는 고정 높이 (예: 200px) */
+  margin: 0 auto;
+  position: relative;
+
+}
+#sentimentChart {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  align-items: center;
+  margin-top: 5px;
+  margin-left: auto;
+  margin-right: 5px;
+}
+
+/* 각 행: 왼쪽에 요일, 중앙에 기관 바, 오른쪽에 외국인 바 */
+.combined-bar-row {
+  display: flex; 
+  align-items: center;
+  margin-bottom: 15px; /* 각 행 간격 */
+}
+.day-label {
+  width: 40px;      /* 날짜 표시 넓이 (원하는 값으로 조정) */
+  text-align: right;  
+  margin-right: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.bar-container {
+  flex: 1;
+  background-color: #eee;
+  margin: 0 5px;
+  height: 24px;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+.bar-container:hover {
+  transform: scale(1.05);
+}
+.bar {
+  height: 100%;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
+  box-sizing: border-box;
+  position: relative;
+}
+.bar .bar-text {
+  display: none;
+  font-size: 12px;
+  color: #fff;
+  font-weight: bold;
+  white-space: nowrap;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+.bar-container:hover .bar-text {
+  display: block;
+}
+.net-buy {
+  background-color: #ff4f4f; /* 취향에 맞게 변경 */
+}
+.net-sell {
+  background-color: #4f4fff; /* 취향에 맞게 변경 */
+}
+.net-neutral {
+  background-color: #999;
+}
+
+/* ========== 10. 워드 클라우드 ========== */
 #wordCloudBox {
   position: relative;
-  height: 280px;
+  min-height: 320px;
 }
 
 #wordCloudBox .table-wrapper {
@@ -623,6 +817,7 @@ h1 {
   font-weight: bold;
   font-size: 16px;
 }
+
 .wordcloud-header .unit-info {
   font-size: 14px;
   color: #ffffff;
@@ -638,6 +833,7 @@ h1 {
   align-items: flex-start;
   position: relative;
   background-color: var(--secondary-color);
+  margin-top: 10px;
 }
 
 #wordCloudCanvas {

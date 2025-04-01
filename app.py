@@ -18,6 +18,8 @@ from indicators import (
     )
 from finance import get_financial_indicators
 from wordclouds import get_word_frequencies
+from hasuindex import get_sentiment_index
+from gosuindex import get_gosu_index
 from ta.trend import PSARIndicator
 import lxml 
 
@@ -83,6 +85,7 @@ def page3():
     return render_template('page3.html')
 
 # ------------------ 종목 리스트 API ------------------
+@cache.cached(timeout=3600, query_string=True)
 @app.route('/get_stock_list', methods=['GET'])
 def get_stock_list():
     logging.info("종목 리스트 API 호출.")
@@ -506,7 +509,7 @@ def get_financial_data():
         return jsonify({'error': '재무 데이터 로드 중 오류가 발생했습니다.'}), 500
 
 # ------------------ 워드 클라우드 API ------------------
-@cache.cached(timeout=3600, query_string=True)  # <=== 결과 캐싱 (1시간)
+@cache.cached(timeout=3600, query_string=True)  
 @app.route('/get_wordcloud_data', methods=['GET'])
 def get_wordcloud_data():
     code = request.args.get('code', '').strip()
@@ -517,8 +520,30 @@ def get_wordcloud_data():
         return jsonify(frequencies)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
     
+# ------------------ 종목 토론실 점수 API ------------------
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/get_sentiment_data', methods=['GET'])
+def sentiment_data_route():
+    code = request.args.get('code', '').strip()
+    if not code:
+        return jsonify({'error': '종목코드가 필요합니다.'}), 400
+    sentiment = get_sentiment_index(code)
+    return jsonify(sentiment)
+
+# ------------------ 기관 및 외인 점수 API ------------------
+@app.route('/get_gosu_index', methods=['GET'])
+def api_get_gosu_index():
+    stock_code = request.args.get('code', type=str)
+    if not stock_code:
+        return jsonify({"error": "종목 코드를 입력해주세요."}), 400
+    try:
+        data = get_gosu_index(stock_code)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+       
 # ------------------ 서버 실행 ------------------
 def keep_alive():
     while True:

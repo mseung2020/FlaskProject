@@ -5,13 +5,8 @@ from collections import Counter
 import re
 from io import BytesIO
 from wordcloud import WordCloud
-import matplotlib
 from collections import Counter
 import re
-
-# matplotlib 한글 및 마이너스 기호 설정
-matplotlib.rcParams['font.family'] = 'Malgun Gothic'
-matplotlib.rcParams['axes.unicode_minus'] = False
 
 def get_stock_name(code: str) -> str:
     """

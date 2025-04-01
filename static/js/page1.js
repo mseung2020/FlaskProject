@@ -39,7 +39,7 @@
       if (v > 0) {
         lastNonZeroClose = c;
         barData.push([o, c]);
-        barColors.push(c > o ? 'red' : (c < o ? 'blue' : 'black'));
+        barColors.push(c > o ? '#ff4f4f' : (c < o ? '#4f4fff' : 'black'));
         extraData.push({ open: o, close: c, high: h, low: l, volume: v });
       } else {
         barData.push([c, c]);
@@ -254,7 +254,7 @@
           const yM = yScale.getPixelForValue(cm.maxHigh);
           ctx.save();
           ctx.font = '12px';
-          ctx.fillStyle = 'red';
+          ctx.fillStyle = '#ff4f4f';
           const txt = `최고 ${formatNumber(cm.maxHigh)} (${formatDate(cm.maxHighDate)})`;
           ctx.fillText(txt, xM + 5, yM - 5);
           ctx.restore();
@@ -267,7 +267,7 @@
           const yM = yScale.getPixelForValue(cm.minLow);
           ctx.save();
           ctx.font = '12px';
-          ctx.fillStyle = 'blue';
+          ctx.fillStyle = '#4f4fff';
           const txt = `최저 ${formatNumber(cm.minLow)} (${formatDate(cm.minLowDate)})`;
           ctx.fillText(txt, xM + 5, yM + 15);
           ctx.restore();
@@ -327,7 +327,7 @@
   const HorizontalLinePlugin0 = createHorizontalLinePlugin([0]);
 
   // ========== 초기화 함수 ==========
-  let currentDays = 242;
+  let currentDays = 122;
   function init() {
     document.getElementById('daysInput').value = currentDays;
     document.getElementById("toggleVolume").checked = true;
@@ -499,8 +499,8 @@
 
   function ResetChart() {
     if (!AppState.currentCode) return;
-    if (currentDays != 242) {
-      currentDays = 242;
+    if (currentDays != 122) {
+      currentDays = 122;
       document.getElementById('daysInput').value = currentDays;
       requestChart(); // 차트 재요청
     }
@@ -534,6 +534,9 @@
         updateFinancialTable(AppState.currentCode);
         updateWordCloud(AppState.currentCode);
         updateWordCloudHeader(item.회사명);
+        updateSentimentHeader(item.회사명);
+        updateSentimentData(AppState.currentCode);
+        updateGosuIndex(AppState.currentCode);        
       });
       container.appendChild(div);
     });
@@ -773,8 +776,8 @@
         lastNonZeroClose = c;
         barData.push([o, c]);
         let color = 'black';
-        if (c > o) color = 'red';
-        else if (c < o) color = 'blue';
+        if (c > o) color = '#ff4f4f';
+        else if (c < o) color = '#4f4fff';
         barColors.push(color);
         extraData.push({ open: o, close: c, high: h, low: l, volume: v, color, isZeroVolume: false, zeroVolumeLinePrice: null });
       } else {
@@ -851,8 +854,8 @@
     const volArr = volumes.map(v => +v || 0);
     const barColors = volumes.map((_, i) => {
       const open = +opens[i], close = +closes[i];
-      if (Number.isNaN(open) || Number.isNaN(close)) return 'blue';
-      return close >= open ? 'red' : 'blue';
+      if (Number.isNaN(open) || Number.isNaN(close)) return '#4f4fff';
+      return close >= open ? '#ff4f4f' : '#4f4fff';
     });
     const volumeChart = AppState.charts.volume;
     volumeChart.data.labels = dates;
@@ -1041,7 +1044,7 @@
     AppState.charts.main.data.datasets.push({
       label: '인벨롭 하단 밴드',
       data: E_lower,
-      borderColor: 'rgba(135, 180, 235, 1)',
+      borderColor: 'rgba(80, 188, 223, 1)',
       borderWidth: 1,
       fill: false,
       type: 'line',
@@ -1382,8 +1385,8 @@
 
     const barColors = dates.map((_, i) => {
       const o = +opens[i], c = +closes[i];
-      if (Number.isNaN(o) || Number.isNaN(c)) return 'blue';
-      return c >= o ? 'red' : 'blue';
+      if (Number.isNaN(o) || Number.isNaN(c)) return '#4f4fff';
+      return c >= o ? '#ff4f4f' : '#4f4fff';
     });
 
     tradingvalueChart.data.datasets[0].data = tradingvalue;
@@ -1439,7 +1442,7 @@
           { type: "line", label: "Signal", data: [], borderColor: "blue", borderWidth: 1.5, fill: false, pointRadius: 0 },
           { type: "bar", label: "histogram", data: [], backgroundColor: ctx => {
               const values = ctx.chart.data.datasets[2].data;
-              return values.map(value => value >= 0 ? "rgba(255, 0, 0, 0.5)" : "rgba(0, 0, 255, 0.5)");
+              return values.map(value => value >= 0 ? "#ff4f4f" : "#4f4fff");
             }, borderWidth: 0 }
         ]
       },
@@ -2369,7 +2372,203 @@
       titleEl.textContent = `${stockName} 워드클라우드`;
     }
   }
+
+  // ========== 투자자 지표 로드 ============
+  function updateSentimentChart(sentimentData) {
+    // sentimentData 예시: { positive: 40.23, negative: 35.12, neutral: 24.65 }
+    const ctx = document.getElementById('sentimentChart').getContext('2d');
+    const labels = ['긍정', '부정', '중립'];
+    const dataValues = [sentimentData.positive, sentimentData.negative, sentimentData.neutral];
   
+    // 이전에 생성된 차트가 있으면 파괴
+    if(window.sentimentChartInstance) {
+      window.sentimentChartInstance.destroy();
+    }
+  
+    window.sentimentChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: dataValues,
+          backgroundColor: ['#4caf50', '#ff4f4f', '#ffc107'] // 긍정(녹색), 부정(빨간색), 중립(회색)
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            display: false // 범례 숨김
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = labels[context.dataIndex] || '';
+                return label + ': ' + context.parsed + '%';
+              }
+            }
+          },
+          datalabels: {
+            // 10% 미만 슬라이스는 라벨 표시 X
+            formatter: function(value, context) {
+              if (value < 10) {
+                return '';
+              }
+              return labels[context.dataIndex];
+            },
+            color: '#fff',
+            font: {
+              weight: 'bold',
+              size: 20
+            }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+  
+  function updateSentimentData(stockCode) {
+    fetch(`/get_sentiment_data?code=${stockCode}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert('에러: ' + data.error);
+          return;
+        }
+        updateSentimentChart(data);
+      })
+      .catch(err => alert('에러: ' + err));
+  }
+
+  function updateSentimentHeader(stockName) {
+    const titleST = document.getElementById('sentimentIndexHeader');
+  
+    if (!stockName) {
+      // 아직 종목이 선택되지 않음
+      titleST.textContent = "선택된 종목 정보가 없습니다.";
+    } else {
+      titleST.textContent = `${stockName} 투자자 지표`;
+    }
+  }
+
+  function updateGosuIndex(stockCode) {
+    fetch('/get_gosu_index?code=' + stockCode)
+      .then(res => res.json())
+      .then(data => {
+        let dates = data.dates;
+        let instNetVolume = data.institution.net_volume;
+        let instStrength = data.institution.strength_percent;
+        let foreignNetVolume = data.foreign.net_volume;
+        let foreignStrength = data.foreign.strength_percent;
+  
+        // 역순 정렬 (최신 날짜가 맨 위)
+        dates = dates.reverse();
+        instNetVolume = instNetVolume.reverse();
+        instStrength = instStrength.reverse();
+        foreignNetVolume = foreignNetVolume.reverse();
+        foreignStrength = foreignStrength.reverse();
+  
+        // 날짜 포맷 변환 (YYYY.MM.DD → MM/DD)
+        const formattedDates = dates.map(d => {
+          const parts = d.split('.');
+          return parts.length === 3 ? parts[1].padStart(2, '0') + '/' + parts[2].padStart(2, '0') : d;
+        });
+  
+        // 기관+외국인 전체 강도 최대값(100% 기준)
+        let maxStrength = Math.max(...instStrength, ...foreignStrength);
+        if (maxStrength === 0) maxStrength = 1;
+  
+        const container = document.getElementById('gosuIndexContent');
+        if (!container) {
+          console.error("고수지표 컨테이너(gosuIndexContent)를 찾을 수 없습니다.");
+          return;
+        }
+        container.innerHTML = '';
+  
+        // 각 날짜별 행 생성
+        for (let i = 0; i < formattedDates.length; i++) {
+          const row = document.createElement('div');
+          row.className = 'combined-bar-row';
+  
+          // 날짜 레이블
+          const dateLabel = document.createElement('div');
+          dateLabel.className = 'day-label';
+          dateLabel.textContent = formattedDates[i];
+          row.appendChild(dateLabel);
+  
+          // 기관 막대
+          const instBarContainer = document.createElement('div');
+          instBarContainer.className = 'bar-container';
+          const instBar = document.createElement('div');
+          instBar.className = 'bar';
+          instBar.classList.add(getVolumeColorClass(instNetVolume[i]));
+          const instWidth = (instStrength[i] / maxStrength) * 100;
+          instBar.style.width = instWidth + '%';
+          const instBarText = document.createElement('div');
+          instBarText.className = 'bar-text';
+          if (instNetVolume[i] > 0) {
+            instBarText.textContent = `${instStrength[i]}% (매수)`;
+          } else if (instNetVolume[i] < 0) {
+            instBarText.textContent = `${instStrength[i]}% (매도)`;
+          } else {
+            instBarText.textContent = `${instStrength[i]}%`;
+          }
+          instBar.appendChild(instBarText);
+          instBarContainer.appendChild(instBar);
+          row.appendChild(instBarContainer);
+  
+          // 외국인 막대
+          const foreignBarContainer = document.createElement('div');
+          foreignBarContainer.className = 'bar-container';
+          const foreignBar = document.createElement('div');
+          foreignBar.className = 'bar';
+          foreignBar.classList.add(getVolumeColorClass(foreignNetVolume[i]));
+          const foreignWidth = (foreignStrength[i] / maxStrength) * 100;
+          foreignBar.style.width = foreignWidth + '%';
+          const foreignBarText = document.createElement('div');
+          foreignBarText.className = 'bar-text';
+          if (foreignNetVolume[i] > 0) {
+            foreignBarText.textContent = `${foreignStrength[i]}% (매수)`;
+          } else if (foreignNetVolume[i] < 0) {
+            foreignBarText.textContent = `${foreignStrength[i]}% (매도)`;
+          } else {
+            foreignBarText.textContent = `${foreignStrength[i]}%`;
+          }
+          foreignBar.appendChild(foreignBarText);
+          foreignBarContainer.appendChild(foreignBar);
+          row.appendChild(foreignBarContainer);
+  
+          container.appendChild(row);
+        }
+  
+        // 하단에 "기관"과 "외국인" 레이블 추가
+        const footer = document.createElement('div');
+        footer.className = 'gosu-footer';
+  
+        const instLabel = document.createElement('div');
+        instLabel.className = 'footer-label';
+        instLabel.textContent = '기관';
+  
+        const foreignLabel = document.createElement('div');
+        foreignLabel.className = 'footer-label';
+        foreignLabel.textContent = '외국인';
+  
+        footer.appendChild(instLabel);
+        footer.appendChild(foreignLabel);
+        container.appendChild(footer);
+      })
+      .catch(err => console.error("고수지표 업데이트 오류:", err));
+  }
+  
+  function getVolumeColorClass(netVolume) {
+    if (netVolume > 0) {
+      return 'net-buy';
+    } else if (netVolume < 0) {
+      return 'net-sell';
+    } else {
+      return 'net-neutral';
+    }
+  }
   
   // ========== Initialize on window load ==========
   window.onload = init;
