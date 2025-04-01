@@ -184,7 +184,7 @@ def get_sentiment_index(code):
         df_comments = label_comments(df_comments, pos_words, neg_words)
         
         # 디버깅용: 토큰과 라벨 정보를 CSV로 저장
-        df_comments[['정제된 댓글', '매칭된 토큰', 'label']].to_csv(os.path.join(DATA_DIR, 'tokens.csv'), index=False, encoding='utf-8-sig')
+        #df_comments[['정제된 댓글', '매칭된 토큰', 'label']].to_csv(os.path.join(DATA_DIR, 'tokens.csv'), index=False, encoding='utf-8-sig')
         
         sentiment_result = calculate_weighted_sentiment(df_comments)
         return sentiment_result
