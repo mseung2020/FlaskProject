@@ -2402,8 +2402,8 @@
           tooltip: {
             callbacks: {
               label: function(context) {
-                const label = labels[context.dataIndex] || '';
-                return label + ': ' + context.parsed + '%';
+                //const label = labels[context.dataIndex] || '';
+                return context.parsed + '%';
               }
             }
           },
