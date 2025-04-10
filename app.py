@@ -20,7 +20,6 @@ from finance import get_financial_indicators
 from wordclouds import get_word_frequencies
 from hasuindex import get_sentiment_index
 from gosuindex import get_gosu_index
-from ta.trend import PSARIndicator
 import lxml 
 
 # ------------------ 설정 및 로깅 ------------------
@@ -166,6 +165,8 @@ def get_latest_ohlc_data(code, num_days):
     return result
 
 # ------------------ 새로운 함수: 전체 OHLC 데이터 및 지표 미리 계산 ------------------
+from concurrent.futures import ThreadPoolExecutor  # 파일 상단에 추가
+
 def prepare_full_ohlc_data(code):
     dates, opens, closes, highs, lows, volumes = get_latest_ohlc_data(code, PRECOMPUTE_DAYS)
     df = pd.DataFrame({
@@ -177,75 +178,79 @@ def prepare_full_ohlc_data(code):
         '거래량': list(map(float, volumes))
     })
     try:
-        # 각 지표 계산 후, 해당 열을 병합
-        df_ma = calculate_ma(df.copy())
-        df_macd = calculate_macd(df.copy())
-        df_rsi = calculate_rsi(df.copy())
-        df_stoch = calculate_stoch(df.copy())
-        df_stochrsi = calculate_stochrsi(df.copy())
-        df_williams = calculate_williams(df.copy())
-        df_cci = calculate_cci(df.copy())
-        df_atr = calculate_atr(df.copy())
-        df_roc = calculate_roc(df.copy())
-        df_uo = calculate_uo(df.copy())
-        df_adx = calculate_adx(df.copy())
-        df_bollinger = calculate_bollinger(df.copy())
-        df_tradingvalue = calculate_tradingvalue(df.copy())
-        df_envelope = calculate_envelope(df.copy())
-        df_ichimoku = calculate_ichimoku(df.copy())
-        df_psar = calculate_psar(df.copy())                
+        # [변경된 부분] 여러 지표 계산을 병렬로 실행하여 처리 속도를 단축합니다.
+        with ThreadPoolExecutor(max_workers=7) as executor:
+            future_ma          = executor.submit(calculate_ma, df.copy())
+            future_macd        = executor.submit(calculate_macd, df.copy())
+            future_rsi         = executor.submit(calculate_rsi, df.copy())
+            future_stoch       = executor.submit(calculate_stoch, df.copy())
+            future_stochrsi    = executor.submit(calculate_stochrsi, df.copy())
+            future_williams    = executor.submit(calculate_williams, df.copy())
+            future_cci         = executor.submit(calculate_cci, df.copy())
+            future_atr         = executor.submit(calculate_atr, df.copy())
+            future_roc         = executor.submit(calculate_roc, df.copy())
+            future_uo          = executor.submit(calculate_uo, df.copy())
+            future_adx         = executor.submit(calculate_adx, df.copy())
+            future_bollinger   = executor.submit(calculate_bollinger, df.copy())
+            future_tradingvalue= executor.submit(calculate_tradingvalue, df.copy())
+            future_envelope    = executor.submit(calculate_envelope, df.copy())
+            future_ichimoku    = executor.submit(calculate_ichimoku, df.copy())
+            future_psar        = executor.submit(calculate_psar, df.copy())
+            
+            # 각 지표 계산 결과를 받습니다.
+            df_ma          = future_ma.result()
+            df_macd        = future_macd.result()
+            df_rsi         = future_rsi.result()
+            df_stoch       = future_stoch.result()
+            df_stochrsi    = future_stochrsi.result()
+            df_williams    = future_williams.result()
+            df_cci         = future_cci.result()
+            df_atr         = future_atr.result()
+            df_roc         = future_roc.result()
+            df_uo          = future_uo.result()
+            df_adx         = future_adx.result()
+            df_bollinger   = future_bollinger.result()
+            df_tradingvalue= future_tradingvalue.result()
+            df_envelope    = future_envelope.result()
+            df_ichimoku    = future_ichimoku.result()
+            df_psar        = future_psar.result()
         
-        # 이동평균선
-        df['ma5'] = df_ma['ma5']
-        df['ma20'] = df_ma['ma20']
-        df['ma60'] = df_ma['ma60']
-        df['ma120'] = df_ma['ma120']
-        # MACD
-        df['macd'] = df_macd['macd']
-        df['signal'] = df_macd['signal']
-        df['oscillator'] = df_macd['oscillator']
-        # RSI
-        df['rsi'] = df_rsi['rsi']
-        # Stochastic Oscillator
-        df['stoch_K'] = df_stoch['%K']
-        df['stoch_D'] = df_stoch['%D']
-        # Stochastic RSI
-        df['stochrsi_K'] = df_stochrsi['%K']
-        df['stochrsi_D'] = df_stochrsi['%D']
-        # Williams %R
-        df['williams'] = df_williams['%R']
-        # CCI
-        df['CCI'] = df_cci['CCI']
-        # ATR
-        df['ATR'] = df_atr['ATR']
-        # ROC
-        df['ROC'] = df_roc['ROC']
-        # Ultimate Oscillator
-        df['UO'] = df_uo['UO']
-        # ADX
-        df['DI'] = df_adx['+DI']
-        df['DIM'] = df_adx['-DI']
-        df['ADX'] = df_adx['ADX']
-        # Bollinger Bands (상단 및 하단 밴드)
-        df['BB_upper'] = df_bollinger['BU']  # 볼린저 상단
-        df['BB_lower'] = df_bollinger['BL']  # 볼린저 하단
-        # Trading Value (거래대금)
-        df['tradingvalue'] = df_tradingvalue['tradingvalue']
-        # envelope (상단 및 하단 밴드)
-        df['E_upper'] = df_envelope['EU']  # envelope 상단
-        df['E_lower'] = df_envelope['EL']  # envelope 하단
-        # ichimoku (기준선, 전환선, 선행스팬1,2, 후행스팬)
-        df['ichimoku1'] = df_ichimoku['기준선']  # 기준선
-        df['ichimoku2'] = df_ichimoku['전환선']  # 전환선
-        df['ichimoku3'] = df_ichimoku['선행스팬1']  # 선행스팬1
-        df['ichimoku4'] = df_ichimoku['선행스팬2']  # 선행스팬2
-        df['ichimoku5'] = df_ichimoku['후행스팬']  # 후행스팬
-        # psar
-        df['psar'] = df_psar['psar'] 
-        
+        # 반환 변수 명칭은 그대로 유지하여, JS와 연동에 문제가 없도록 합니다.
+        df['ma5']         = df_ma['ma5']
+        df['ma20']        = df_ma['ma20']
+        df['ma60']        = df_ma['ma60']
+        df['ma120']       = df_ma['ma120']
+        df['macd']        = df_macd['macd']
+        df['signal']      = df_macd['signal']
+        df['oscillator']  = df_macd['oscillator']
+        df['rsi']         = df_rsi['rsi']
+        df['stoch_K']     = df_stoch['%K']
+        df['stoch_D']     = df_stoch['%D']
+        df['stochrsi_K']  = df_stochrsi['%K']
+        df['stochrsi_D']  = df_stochrsi['%D']
+        df['williams']    = df_williams['%R']
+        df['CCI']         = df_cci['CCI']
+        df['ATR']         = df_atr['ATR']
+        df['ROC']         = df_roc['ROC']
+        df['UO']          = df_uo['UO']
+        df['DI']          = df_adx['+DI']
+        df['DIM']         = df_adx['-DI']
+        df['ADX']         = df_adx['ADX']
+        df['BB_upper']    = df_bollinger['BU']
+        df['BB_lower']    = df_bollinger['BL']
+        df['tradingvalue']= df_tradingvalue['tradingvalue']
+        df['E_upper']     = df_envelope['EU']
+        df['E_lower']     = df_envelope['EL']
+        df['ichimoku1']   = df_ichimoku['기준선']
+        df['ichimoku2']   = df_ichimoku['전환선']
+        df['ichimoku3']   = df_ichimoku['선행스팬1']
+        df['ichimoku4']   = df_ichimoku['선행스팬2']
+        df['ichimoku5']   = df_ichimoku['후행스팬']
+        df['psar']        = df_psar['psar']
     except Exception as e:
         logging.error("전체 보조지표 계산 중 오류: %s", e)
     return df
+
 
 # ------------------ 주가 데이터 및 보조지표 API ------------------
 @cache.cached(timeout=3600, query_string=True)
@@ -549,7 +554,7 @@ def keep_alive():
     while True:
         now = datetime.datetime.now()
         print("서버 유지 중..." + now.strftime("%y%m%d %H:%M"))
-        time.sleep(300)  # 5분마다 실행
+        time.sleep(180)  # 3분마다 실행
 
 threading.Thread(target=keep_alive, daemon=True).start()
 

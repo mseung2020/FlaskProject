@@ -4,6 +4,7 @@ import requests
 import numpy as np
 from bs4 import BeautifulSoup
 import io
+from concurrent.futures import ThreadPoolExecutor
 
 def get_financial_indicators(code):
     # 세션을 사용하면 여러 요청 간 연결을 재사용할 수 있어 효율적입니다.
@@ -46,7 +47,13 @@ def get_financial_indicators(code):
     }
     
     # 각 URL에 대해 BeautifulSoup 객체를 미리 가져와 캐시합니다.
-    soups = { key: BeautifulSoup(session.get(url).content, 'lxml') for key, url in urls.items() }
+    from concurrent.futures import ThreadPoolExecutor  # 파일 상단에 추가
+
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        futures = { key: executor.submit(session.get, url, timeout=10) for key, url in urls.items() }
+        responses = { key: future.result() for key, future in futures.items() }
+    soups = { key: BeautifulSoup(response.content, 'lxml') for key, response in responses.items() }
+
     
     # 각 표를 가져올 때 캐시한 soup를 전달하여 중복 요청을 줄입니다.
     df_finance_ratio = get_dataframe(urls['finance_ratio'], 0, -3, soup_cache=soups['finance_ratio'])

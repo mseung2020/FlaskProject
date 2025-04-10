@@ -131,6 +131,7 @@
         ticks: {
           align: 'start',
           maxTicksLimit: 5,
+          font: {size: 12},
           callback: function(value) {
             return this.getLabelForValue(value);
           }
@@ -140,6 +141,7 @@
         display: false,
         beginAtZero: false,
         ticks: {
+          font: {size: 12},
           callback: function(value) {
             return value.toLocaleString();
           }
@@ -164,6 +166,7 @@
         barPercentage: 0.9,
         grid: { display: false },
         ticks: {
+          font: {size: 12},
           align: 'start',
           maxTicksLimit: 5,
           callback: function(value) {
@@ -175,6 +178,7 @@
         display: false,
         beginAtZero: true,
         ticks: {
+          font: {size: 12},
           callback: function(value) {
             return Math.abs(value) >= 1000 ? (value / 1000).toLocaleString() : value.toLocaleString();
           }
@@ -182,6 +186,24 @@
       }
     }
   };
+
+  function updateMobileChartPadding() {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      // 메인 차트 업데이트
+      AppState.charts.main.options.layout.padding = 20;
+      AppState.charts.main.update();
+  
+      // 보조(지표) 차트들도 동일하게 업데이트
+      const indicatorCharts = ['volume', 'tradingvalue', 'macd', 'rsi', 'stoch', 'stochrsi', 'williams', 'cci', 'atr', 'roc', 'uo', 'adx'];
+      indicatorCharts.forEach(key => {
+        if (AppState.charts[key]) {
+          AppState.charts[key].options.layout.padding = 0;
+          AppState.charts[key].update();
+        }
+      });
+    }
+  }
+    
 
   // ========== Chart.js 플러그인 ==========
   // 캔들 차트용 플러그인: 고가/저가 선, 거래량 0인 경우 표시, 최고/최저가 마커 그리기
@@ -253,7 +275,7 @@
           const xM = bElem.getProps(['x'], false).x;
           const yM = yScale.getPixelForValue(cm.maxHigh);
           ctx.save();
-          ctx.font = '12px';
+          ctx.font = '0.75rem';
           ctx.fillStyle = '#ff4f4f';
           const txt = `최고 ${formatNumber(cm.maxHigh)} (${formatDate(cm.maxHighDate)})`;
           ctx.fillText(txt, xM + 5, yM - 5);
@@ -266,7 +288,7 @@
           const xM = bElem.getProps(['x'], false).x;
           const yM = yScale.getPixelForValue(cm.minLow);
           ctx.save();
-          ctx.font = '12px';
+          ctx.font = '0.75rem';
           ctx.fillStyle = '#4f4fff';
           const txt = `최저 ${formatNumber(cm.minLow)} (${formatDate(cm.minLowDate)})`;
           ctx.fillText(txt, xM + 5, yM + 15);
@@ -339,6 +361,7 @@
     updateIndicatorVisibility();
     fetchLatestTradingDate();
     setupSearchIconToggle();
+    updateMobileChartPadding();
   }
 
   function loadStockList() {
@@ -527,16 +550,20 @@
         if (AppState.selectedItemElement) {
           AppState.selectedItemElement.classList.remove('selectedStockItem');
         }
+        if (window.matchMedia('(max-width: 767px)').matches) {
+          document.getElementById('chartBox').style.display = 'block';
+          document.getElementById('IndexBox').style.display = 'block';
+        }
         div.classList.add('selectedStockItem');
         AppState.selectedItemElement = div;
         AppState.currentCode = item.종목코드;
         requestChart();
-        updateFinancialTable(AppState.currentCode);
-        updateWordCloud(AppState.currentCode);
-        updateWordCloudHeader(item.회사명);
-        updateSentimentHeader(item.회사명);
-        updateSentimentData(AppState.currentCode);
-        updateGosuIndex(AppState.currentCode);        
+        //updateFinancialTable(AppState.currentCode);
+        //updateWordCloud(AppState.currentCode);
+        //updateWordCloudHeader(item.회사명);
+        //updateSentimentHeader(item.회사명);
+        //updateSentimentData(AppState.currentCode);
+        //updateGosuIndex(AppState.currentCode);        
       });
       container.appendChild(div);
     });
@@ -544,18 +571,31 @@
 
   function searchByName() {
     const term = document.getElementById('searchInput').value.trim().toLowerCase();
-    if (!term) {
-      renderStockList(AppState.allStocks);
-      return;
-    }
-    const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
-    if (filtered.length === 0) {
-      //alert('검색 결과가 없습니다.');
-      document.getElementById('stockContainer').innerHTML = '';
+    const stockListBox = document.getElementById('stockListBox');
+  
+    // 모바일 환경인지 체크 (최대 폭 767px)
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      if (!term) {
+        // 검색어가 없으면 리스트 숨김
+        stockListBox.style.display = 'none';
+        renderStockList(AppState.allStocks);
+        return;
+      }
+      // 검색어가 있으면 리스트 보임
+      stockListBox.style.display = 'block';
+      const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
+      if (filtered.length === 0) {
+        document.getElementById('stockContainer').innerHTML = '';
+      } else {
+        renderStockList(filtered);
+      }
     } else {
+      // 데스크탑 환경에서는 기본 동작 (예: 항상 보이거나 별도 처리)
+      const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
       renderStockList(filtered);
     }
   }
+  
 
   function setupSearchIconToggle() {
     const searchInput = document.getElementById('searchInput');
@@ -579,6 +619,9 @@
       if (searchIcon.alt === 'clearbutton') {
         searchInput.value = '';
         updateIcon();
+        if (window.matchMedia('(max-width: 767px)').matches) {
+          document.getElementById('stockListBox').style.display = 'none';
+        }
         renderStockList(AppState.allStocks);
       } else {
         searchByName();
@@ -741,6 +784,13 @@
       AppState.charts.volume.resetZoom();
       AppState.charts.main.update();
       AppState.charts.volume.update();
+
+      updateFinancialTable(AppState.currentCode);
+      updateWordCloud(AppState.currentCode);
+      updateWordCloudHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
+      updateSentimentHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
+      updateSentimentData(AppState.currentCode);
+      updateGosuIndex(AppState.currentCode)
     })
     .catch(err => alert('에러:' + err));
   }
@@ -762,6 +812,11 @@
       options: { ...commonChartOptions },
       plugins: [highLowLinePlugin, customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.main.options.scales.x.ticks.font.size = 6;
+      AppState.charts.main.options.scales.y.ticks.font.size = 6;
+      AppState.charts.main.update();
+    }
   }
 
   function updateMainChart(dates, opens, closes, highs, lows, volumes) {
@@ -848,6 +903,11 @@
       options: { ...volumeChartOptions },
       plugins: [customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.volume.options.scales.x.ticks.font.size = 6;
+      AppState.charts.volume.options.scales.y.ticks.font.size = 6;
+      AppState.charts.volume.update();
+    }
   }
 
   function updateVolumeChart(dates, volumes, opens, closes) {
@@ -1359,6 +1419,7 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
@@ -1367,6 +1428,7 @@
           y: { 
             display: true,
             ticks: {
+              font: {size: 12},
               callback: function(value) { 
                 return (value / 1000000).toLocaleString(); 
               }
@@ -1377,6 +1439,11 @@
       },
       plugins: [customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.tradingvalue.options.scales.x.ticks.font.size = 6;
+      AppState.charts.tradingvalue.options.scales.y.ticks.font.size = 6;
+      AppState.charts.tradingvalue.update();
+    }
   }
 
   function updateTradingvalueChart(dates, tradingvalue, opens, closes) {
@@ -1458,17 +1525,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.macd.options.scales.x.ticks.font.size = 6;
+      AppState.charts.macd.options.scales.y.ticks.font.size = 6;
+      AppState.charts.macd.update();
+    }
   }
 
   function updateMacdChart(dates, macd, signal, oscillator) {
@@ -1541,17 +1614,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin3070]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.rsi.options.scales.x.ticks.font.size = 6;
+      AppState.charts.rsi.options.scales.y.ticks.font.size = 6;
+      AppState.charts.rsi.update();
+    }
   }
 
   function updateRsiChart(dates, rsi) {
@@ -1620,17 +1699,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin2080]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.stoch.options.scales.x.ticks.font.size = 6;
+      AppState.charts.stoch.options.scales.y.ticks.font.size = 6;
+      AppState.charts.stoch.update();
+    }
   }
 
   function updateStochChart(dates, K, D) {
@@ -1701,17 +1786,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin2080]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.stochrsi.options.scales.x.ticks.font.size = 6;
+      AppState.charts.stochrsi.options.scales.y.ticks.font.size = 6;
+      AppState.charts.stochrsi.update();
+    }
   }
 
   function updateStochrsiChart(dates, KK, DD) {
@@ -1783,17 +1874,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin2080M]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.williams.options.scales.x.ticks.font.size = 6;
+      AppState.charts.williams.options.scales.y.ticks.font.size = 6;
+      AppState.charts.williams.update();
+    }
   }
 
   function updateWilliamsChart(dates, R) {
@@ -1863,17 +1960,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin100]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.cci.options.scales.x.ticks.font.size = 6;
+      AppState.charts.cci.options.scales.y.ticks.font.size = 6;
+      AppState.charts.cci.update();
+    }
   }
 
   function updateCciChart(dates, CCI) {
@@ -1943,17 +2046,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.atr.options.scales.x.ticks.font.size = 6;
+      AppState.charts.atr.options.scales.y.ticks.font.size = 6;
+      AppState.charts.atr.update();
+    }
   }
 
   function updateAtrChart(dates, ATR) {
@@ -2023,17 +2132,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin0]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.roc.options.scales.x.ticks.font.size = 6;
+      AppState.charts.roc.options.scales.y.ticks.font.size = 6;
+      AppState.charts.roc.update();
+    }
   }
 
   function updateRocChart(dates, ROC) {
@@ -2103,17 +2218,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin, HorizontalLinePlugin3070]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.uo.options.scales.x.ticks.font.size = 6;
+      AppState.charts.uo.options.scales.y.ticks.font.size = 6;
+      AppState.charts.uo.update();
+    }
   }
 
   function updateUoChart(dates, UO) {
@@ -2182,17 +2303,23 @@
             offset: true,
             grid: { display: false },
             ticks: {
+              font: {size: 12},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true }
+          y: { display: true, ticks: {font: {size: 12} }}
         },
         plugins: { legend: { display: false } }
       },
       plugins: [customXTicksPlugin]
     });
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      AppState.charts.adx.options.scales.x.ticks.font.size = 6;
+      AppState.charts.adx.options.scales.y.ticks.font.size = 6;
+      AppState.charts.adx.update();
+    }
   }
 
   function updateAdxChart(dates, ADX, DI, DIM) {
@@ -2319,8 +2446,8 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = viewW * dpr;
     canvas.height = viewH * dpr;
-    canvas.style.width = viewW + 'px';
-    canvas.style.height = viewH + 'px'
+    canvas.style.width = viewW/16 + 'rem';
+    canvas.style.height = viewH/16 + 'rem'
 
   
     fetch(`/get_wordcloud_data?code=${stockCode}`)

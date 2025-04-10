@@ -94,7 +94,7 @@ def get_word_frequencies(stock_code: str, num_pages: int = 10) -> tuple[str, Byt
     stock_name = get_stock_name(stock_code)
 
     # 동시성(멀티스레드) 조정: 기존 max_workers=10 -> 5
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
         texts = list(executor.map(lambda p: fetch_news_text(stock_code, p), range(1, num_pages + 1)))
 
     all_text = " ".join(texts)

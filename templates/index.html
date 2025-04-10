@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <!-- 반응형 디자인을 위한 viewport 설정 -->
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>NewCandle™</title>
     <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
     <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
@@ -32,14 +32,19 @@
         <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
         <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
       </div>
+      <!-- 모바일 메뉴 아이콘(햄버거) -->
+      <div class="menu-icon">&#9776;</div>
       <div class="header-right">
-        <nav aria-label="메인 네비게이션">
+        <nav id="main-nav" aria-label="메인 네비게이션">
           <a href="/index" class="header-link">• 종목 분석</a>
           <a href="/page2" class="header-link">• 투자 정보 </a>
           <a href="/page3" class="header-link">• AI 연구</a>
         </nav>
       </div>
     </header>
+
+    <!-- 오버레이 -->
+    <div id="overlay"></div>
     
     <!-- 메인 컨테이너: 그리드 레이아웃으로 구성 -->
     <main id="mainContainer">
@@ -116,7 +121,14 @@
       
       <!-- 5. 보조지표 옵션 체크박스 영역 -->
       <section id="emptyBox" class="box" aria-label="보조지표 옵션 선택">
-        <div id="toggleSections2">
+
+        <!-- 모바일 전용 아코디언 헤더 -->
+        <div class="accordion-header" onclick="toggleAccordion()">
+          <span class="accordion-title">지표 목록</span>
+          <span class="accordion-toggle">&#9660;</span>
+        </div>
+
+        <div id="toggleSections2" class="accordion-content">
           <div class="indicatorItem">
             <input type="checkbox" id="toggleVolume" checked>
             <label for="toggleVolume">거래량</label>
@@ -321,7 +333,7 @@
             </div>
             <div id="undicisionedContainer">
               <img src="{{ url_for('static', filename='image/wheel2.gif') }}" 
-              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 3.125rem; height: auto;">
             </div>
           </div>
         </section>
@@ -333,25 +345,31 @@
 
         <!-- 9. 투자자 지표 -->  
         <section id="sentimentIndexBox" class="box" aria-label="투자자 지표">
-          <!-- 공통 헤더 -->
-          <div class="financial-header">
-            <h3 id="sentimentIndexHeader">"선택된 종목 정보가 없습니다."</h3>
-            <p class="unit-info">(최신 주요 투자자 심리)</p>
-          </div>
-          <!-- 좌우 컨테이너 -->
-          <div class="investor-indicator-container">
-            <!-- 왼쪽: 고수 인덱스 (기관/외국인 가로 바 차트) -->
-            <div class="left-indicator">
-              <div class="gosu-index-container">
-                <div class="gosu-header">
-                  <span class="gosu-title">기관/외국인 순매매 강도</span>
-                </div>
-                <div class="bar-chart-container">
-                  <!-- updateGosuIndex 함수에서 생성한 가로 바 차트들이 들어갑니다 -->
-                  <div id="gosuIndexContent">
+          <div id="tempContainer3">
+            <!-- 공통 헤더 -->
+            <div class="financial-header">
+              <h3 id="sentimentIndexHeader">"선택된 종목 정보가 없습니다."</h3>
+              <p class="unit-info">(최신 주요 투자자 심리)</p>
+            </div>
+            <!-- 모바일 전용 탭 메뉴 (모바일에서만 보임) -->
+            <div class="investor-tabs" id="investorTabs">
+              <button id="gosuTab" class="active" aria-pressed="true">기관/외국인 순매매 강도</button>
+              <button id="hasuTab" aria-pressed="false">개인 투자자 감정 분석</button>
+            </div>
+            <!-- 좌우 컨테이너 -->
+            <div class="investor-indicator-container">
+              <!-- 왼쪽: 고수 인덱스 (기관/외국인 가로 바 차트) -->
+              <div class="left-indicator">
+                <div class="gosu-index-container">
+                  <div class="gosu-header">
+                    <span class="gosu-title">기관/외국인 순매매 강도</span>
+                  </div>
+                  <div class="bar-chart-container">
+                    <!-- updateGosuIndex 함수에서 생성한 가로 바 차트들이 들어갑니다 -->
+                    <div id="gosuIndexContent">
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
             <!-- 오른쪽: 하수 인덱스 (개인 민심 파이 그래프) -->
             <div class="right-indicator">
@@ -394,5 +412,79 @@
     
     <!-- script.js 파일 로드: 기능과 차트 업데이트를 담당 -->
     <script src="{{ url_for('static', filename='js/page1.js') }}"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.menu-icon').addEventListener('click', function() {
+          toggleMenu();
+        });
+        document.getElementById('overlay').addEventListener('click', function() {
+          toggleMenu();
+        });
+      });
+      
+      function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        const overlay = document.getElementById('overlay');
+        
+        nav.classList.toggle('nav-active');
+        overlay.classList.toggle('active');
+      }
+
+      function toggleAccordion() {
+        const header = document.querySelector('.accordion-header');
+        const content = document.querySelector('.accordion-content');
+        const toggleIcon = header.querySelector('.accordion-toggle');
+        
+        if (content.classList.contains('active')) {
+          content.classList.remove('active');
+          toggleIcon.style.transform = 'rotate(0deg)';
+        } else {
+          content.classList.add('active');
+          toggleIcon.style.transform = 'rotate(180deg)';
+        }
+      }
+
+      function setupMobileIndicatorTabs() {
+        if (window.matchMedia('(max-width: 767px)').matches) {
+          const gosuTab = document.getElementById('gosuTab');
+          const hasuTab = document.getElementById('hasuTab');
+          // 기존 데스크탑 박스의 요소들
+          const leftIndicator = document.querySelector('.left-indicator');
+          const rightIndicator = document.querySelector('.right-indicator');
+          
+          // 초기 상태: 고수지표는 보이도록, 하수지표는 숨김
+          leftIndicator.style.display = 'block';
+          rightIndicator.style.display = 'none';
+          
+          gosuTab.addEventListener('click', () => {
+            gosuTab.classList.add('active');
+            gosuTab.setAttribute('aria-pressed', 'true');
+            hasuTab.classList.remove('active');
+            hasuTab.setAttribute('aria-pressed', 'false');
+            
+            leftIndicator.style.display = 'block';
+            rightIndicator.style.display = 'none';
+            
+            // 필요시 헤더나 박스 크기 조정 로직 추가 가능
+          });
+          
+          hasuTab.addEventListener('click', () => {
+            hasuTab.classList.add('active');
+            hasuTab.setAttribute('aria-pressed', 'true');
+            gosuTab.classList.remove('active');
+            gosuTab.setAttribute('aria-pressed', 'false');
+            
+            leftIndicator.style.display = 'none';
+            rightIndicator.style.display = 'block';
+            
+            // 필요시 헤더나 박스 크기 조정 로직 추가 가능
+          });
+        }
+      }
+      
+      document.addEventListener('DOMContentLoaded', setupMobileIndicatorTabs);
+      
+      
+    </script> 
   </body>
 </html>

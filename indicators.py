@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import logging
 from ta.trend import PSARIndicator
+from concurrent.futures import ThreadPoolExecutor
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -13,9 +13,10 @@ html {
   --text-color2: #191919;
   --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   --font-family: Arial, sans-serif;
-  --header-height: 70px;
-  --padding-base: 20px;
-  --box-radius: 5px;
+  --header-height: 4.375rem;   /* 70px */
+  --padding-base: 1.25rem;     /* 20px */
+  --box-radius: 0.3125rem;     /* 5px */
+  --transition-speed: 0.3s;
 }
 
 /* Paperlogy */
@@ -68,25 +69,25 @@ header {
 }
 
 .header-logo {
-  height: 40px;
-  margin-left: 5px;
+  height: 2.5rem; /* 40px */
+  margin-left: 0.3125rem; /* 5px */
   vertical-align: middle; 
   cursor: pointer;
 }
 
 header .logo {
-  font-size: 30px;
   font-weight: bold;
   cursor: pointer;
-  margin: 10px;
+  font-size: 1.875rem; /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
   margin-bottom: 0;
 }
 
 header nav {
   display: flex;
-  gap: 30px;
   justify-content: flex-end;
-  margin: 10px;
+  gap: 1.875rem;     /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
   flex: 1;
   font-family: 'Paperlogy';
 }
@@ -94,9 +95,9 @@ header nav {
 header .header-link {
   color: var(--white);
   text-decoration: none;
-  font-size: 20px;
+  font-size: 1.25rem; /* 20px */
   font-weight: bold;
-  padding: 5px 10px; /* 호버 효과를 위한 패딩 */
+  padding: 0.3125rem 0.625rem; /* 5px 10px */
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 header .header-link:hover {
@@ -116,15 +117,15 @@ h1 {
   display: grid;
   grid-template-rows: auto;
   grid-template-columns: 1fr 3fr;
-  gap: 15px;
-  padding: 20px;
+  gap: 0.9375rem; /* 기존 15px */
+  padding: 1.25rem; /* 기존 20px */
   background-color: var(--secondary-color);
   /* 높이는 내부 내용에 따라 자동 */
 }
 .box {
   background-color: var(--third-color);
   border-radius: 5px;
-  padding: 10px;
+  padding: 0.625rem; /* 10px */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   opacity: 0;
   transform: translateY(20px);
@@ -139,17 +140,19 @@ h1 {
   background-color: var(--third-color);
 }
 .stockItem {
-  padding: 10px;
+  padding: 0.625rem; /* 10px */
   /* border-bottom: 1px solid #eaeaea;*/
   color: var(--text-color2);
   cursor: pointer;
 }
 .stockItem:hover {
   background-color: #f0f0f0;
+  transform: scale(0.98);
 }
 .selectedStockItem {
   background-color: var(--primary-color) !important;
   color: white;
+  transform: scale(1) !important;
 }
 
 /* ----- 우측 차트 영역 박스 ----- */
@@ -162,7 +165,7 @@ h1 {
   /* border: 1px solid #ddd;
   border-radius: 5px;*/
   width: 100%;
-  height: 385px;
+  height: 24.0625rem; /* 385px */
   display: block;
   background-color: var(--third-color);
 }
@@ -171,14 +174,14 @@ h1 {
   /* border: 1px solid #ddd;
   border-radius: 5px; */
   /* 위쪽 여백 줄이고, 왼쪽 여백 늘림 */
-  padding: 20px 10px 10px 20px;
+  padding: 1.25rem 0.625rem 0.625rem 1.25rem; /* 20px 10px 10px 20px */
   background-color: var(--third-color);
   color: var(--text-color2);
   /* 내부 내용에 맞게 높이 자동 조절 */
 }
 /* 제목(섹션)용 CSS – 폰트 크기와 굵기 조절 */
 .section-title {
-  font-size: 24px;
+  font-size: 1.5rem; /* 24px */
   font-weight: bold;
 }
 .content-box p {
@@ -195,7 +198,7 @@ canvas {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(1.25rem); /* 20px */
   }
   to {
     opacity: 1;
@@ -217,9 +220,204 @@ footer {
   background-color: var(--primary-color);
   color: var(--white);
   text-align: center;
-  padding: 15px 0;
-  font-size: 14px;
+  padding: 0.9375rem 0;               /* 기존: 15px 0 (15/16) */
+  font-size: 0.875rem;                /* 기존: 14px (14/16) */
 }
 
-
 /* --------------------- CSS 끝 --------------------- */
+
+.menu-icon {
+  display: none; 
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--white);
+}
+
+@media (max-width: 767px) {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-icon {
+    display: block;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--white);
+    position: absolute;
+    right: 2rem;
+  }
+
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 30%; /* 필요에 따라 조정 */
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--white);
+    color: var(--primary-color) !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transition: right var(--transition-speed) ease-in-out;
+    z-index: 1000;
+    margin-top: 0;
+    margin-right: 0;
+  }
+
+  #main-nav a.header-link {
+    color: var(--primary-color);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  #main-nav.nav-active {
+    right: 0;
+  }
+
+  #overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+  }
+
+  #overlay.active {
+    display: block;
+  }
+
+  /* 메인 컨테이너를 한 열로 변경 */
+  #mainContainer {
+    display: block;
+    padding: 1rem; /* 필요에 따라 조정 */
+    gap: 1rem;
+  }
+  
+  #stockListBox {
+    margin-bottom: 1rem;
+
+  }
+  
+  #chartBox {
+    height: auto;
+  }
+  
+  .stockItem {
+    font-size: 1rem;  /* 예: 16px 기준 */
+    padding: 0.5rem;
+  }
+  
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+    cursor: pointer;
+    border-radius: var(--box-radius);
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  .accordion-toggle {
+    transition: transform 0.3s ease;
+  }
+  /* 아코디언 내용은 기본적으로 숨김 */
+  .accordion-content {
+    display: none;
+    padding: 0.5rem 1rem;
+    background-color: var(--third-color);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--box-radius) var(--box-radius);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  /* active 클래스가 있으면 보이게 */
+  .accordion-content.active {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  #mainContainer {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* 필요에 따라 비율 조정 */
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  #stockListBox {
+    max-height: 300px; /* 태블릿 화면에 맞게 조정 */
+    overflow-y: auto;
+  }
+  
+  .stockItem {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+  
+  #chartBox {
+    height: auto;
+  }
+
+  .accordion-header {
+    display: none;
+  }
+
+  .accordion-content {
+    display: block !important;
+    padding: 0;      /* 데스크탑 디자인에 맞게 조정 */
+    border: none;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* 데스크탑에서는 아코디언 헤더 숨김 */
+  .accordion-header {
+    display: none;
+  }
+  /* 아코디언 내용은 항상 보임 (기존 레이아웃과 동일하게) */
+  .accordion-content {
+    display: block !important;
+    padding: 0;      /* 데스크탑 디자인에 맞게 조정 */
+    border: none;
+    max-height: none;
+    overflow: visible;
+  }
+}
+

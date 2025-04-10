@@ -1,189 +1,92 @@
 ﻿정제된 댓글,매칭된 토큰,label
-일째 똑 같은 패턴 그러나 자리는 지켜,"{'positive': [], 'negative': []}",1
-한국웨이퍼홀딩스 사실상 경영권 분쟁,"{'positive': [], 'negative': []}",1
-세력,"{'positive': [], 'negative': ['세력']}",0
-경영권 분쟁공시해석 만주 웨,"{'positive': [], 'negative': []}",1
-최고가 원 개바닦 신세면하자,"{'positive': ['최고가'], 'negative': []}",2
-인수합병 아니네 임원 주요주주 특정증,"{'positive': [], 'negative': []}",1
-차라리 음전해라 주워담게 기회다,"{'positive': [], 'negative': []}",1
-탄핵선고 이재명 테마 올 상한가,"{'positive': ['상한가'], 'negative': []}",2
-바닥 체킹,"{'positive': ['바닥'], 'negative': []}",2
-바닥 첫 상승 재료 경영권분쟁 가능성,"{'positive': ['바닥', '상승', '재료'], 'negative': []}",2
-똑같은패턴,"{'positive': [], 'negative': []}",1
-종가에,"{'positive': [], 'negative': []}",1
-가긴 글렀다 폭락한다,"{'positive': [], 'negative': ['폭락한다']}",0
-어제 단일가 원 에 익절한게 신의,"{'positive': ['익절한게'], 'negative': []}",2
-에엥,"{'positive': [], 'negative': []}",1
-개뿔 아무일도 아니었네,"{'positive': [], 'negative': []}",1
-그러게,"{'positive': [], 'negative': []}",1
-차곡차곡,"{'positive': [], 'negative': []}",1
-일단 걸리고,"{'positive': [], 'negative': []}",1
-이주식 년 본 결과 무조건 윗꼬리임,"{'positive': [], 'negative': []}",1
-나스닥 폭락 어제 시외 산인간들 죽음,"{'positive': [], 'negative': ['폭락', '죽음']}",0
-어쩌냐 상방 인디,"{'positive': [], 'negative': []}",1
-얘 감사보고서 제출 안하니,"{'positive': [], 'negative': []}",1
-어째든 경쟁력은 입증이 된건가,"{'positive': [], 'negative': []}",1
-시외 만주씩 던지는거보니,"{'positive': [], 'negative': []}",1
-결국,"{'positive': [], 'negative': []}",1
-미지수 또 빠지면 낼장 조심해야 시초,"{'positive': [], 'negative': ['빠지면', '조심해야']}",0
-낼재미겠는데 난 익절 했고 낼보자,"{'positive': ['익절'], 'negative': []}",2
-시외 땡큐,"{'positive': [], 'negative': []}",1
-시외 상이면 내일 음봉인데,"{'positive': [], 'negative': []}",1
+이 주식은 죽었나요,"{'positive': [], 'negative': []}",1
+화요일날 원에 물렸는데 탈출기회주,"{'positive': [], 'negative': ['화요일날', '탈출기회주']}",0
+원 원사이 분할 매수 하,"{'positive': [], 'negative': []}",1
+아직 안가고 있네,"{'positive': [], 'negative': []}",1
+심상찮아 보이네,"{'positive': [], 'negative': []}",1
+이게 되네,"{'positive': [], 'negative': []}",1
+미국장 프로 대폭등,"{'positive': [], 'negative': []}",1
+한주도 안판다,"{'positive': [], 'negative': []}",1
+클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
+초장 조심해라 급락 시그널이다,"{'positive': [], 'negative': ['조심해라', '급락']}",0
+트럼프 관세 일 유예발표 반도체,"{'positive': [], 'negative': []}",1
+진짜 끝났다 진짜 상한가다,"{'positive': ['상한가다'], 'negative': []}",2
+오늘 입 닫고 조용히 잔다 낼,"{'positive': [], 'negative': []}",1
+숨은 이재명 관련주 로 등재해라 우리도,"{'positive': [], 'negative': []}",1
+가고안가고는,"{'positive': [], 'negative': []}",1
 감사보고서,"{'positive': [], 'negative': []}",1
-감사보고서,"{'positive': [], 'negative': []}",1
-요앞전 회차 랑 자배정증자보면,"{'positive': [], 'negative': []}",1
-프로 지분 매입햇는데 당연히 상한가,"{'positive': ['상한가'], 'negative': []}",2
-털린안티들 오늘내일,"{'positive': [], 'negative': ['털린안티들']}",0
-나주다 억대트레이더 돌팬티 종베,"{'positive': [], 'negative': []}",1
-겨우 억으로 주식분쟁 사면골로간다,"{'positive': [], 'negative': []}",1
-경영권 분쟁 가능성 높은 것이,"{'positive': ['높은'], 'negative': []}",2
-대주주 중국으로 바뀌고,"{'positive': [], 'negative': []}",1
-여기는 국장이여,"{'positive': [], 'negative': []}",1
-힌트를 줘도,"{'positive': [], 'negative': []}",1
-이거머,"{'positive': [], 'negative': []}",1
-천원대 물린애들은 별 감흥도 없을듯,"{'positive': [], 'negative': ['물린애들은']}",0
-에휴 그냥 팔사람들은 팔어,"{'positive': [], 'negative': ['에휴']}",0
-안티들 급증하는거보니,"{'positive': ['안티들'], 'negative': []}",2
-역시 젠장,"{'positive': [], 'negative': []}",1
-시외 종가,"{'positive': [], 'negative': []}",1
-근데 이런 개잡주에서 경영권 분쟁하겠,"{'positive': [], 'negative': ['개잡주에서']}",0
-시간외 위험해 보이네,"{'positive': [], 'negative': []}",1
-목금월 매집한거 허매수로 터는분위기네,"{'positive': [], 'negative': []}",1
-레기회사 먹어서 뭐하게,"{'positive': [], 'negative': []}",1
-뭔재료 인가요,"{'positive': [], 'negative': []}",1
-오늘 하루종일 뭣같은것들 때문에 기부니가,"{'positive': [], 'negative': []}",1
-근데 경영권 분쟁이 맞다는 가정 하에 말,"{'positive': [], 'negative': []}",1
-국장이여,"{'positive': [], 'negative': []}",1
-쩜상 방짜리다 못산게 한이구나,"{'positive': [], 'negative': []}",1
-시외상 낼 쩜상,"{'positive': ['시외상'], 'negative': []}",2
-근데 여태 소에서 경영권분쟁난다고,"{'positive': [], 'negative': []}",1
-경영권 참여네요,"{'positive': [], 'negative': []}",1
-콜마홀딩스 경영권분쟁에 폭등,"{'positive': ['폭등'], 'negative': []}",2
-내 일 정 보,"{'positive': [], 'negative': []}",1
-대주주 지분 투자에 참고해 다트에서 퍼,"{'positive': [], 'negative': []}",1
-대한민국 중국 이다,"{'positive': [], 'negative': []}",1
-경영권 분쟁 맞어,"{'positive': [], 'negative': []}",1
-설마 했는데,"{'positive': [], 'negative': []}",1
-오바아니고,"{'positive': [], 'negative': []}",1
-분위기가 왜 싸늘하누,"{'positive': [], 'negative': []}",1
-대주주 지분이 너무 적은데,"{'positive': [], 'negative': []}",1
-공시 뜸,"{'positive': [], 'negative': []}",1
-한국웨이퍼홀딩스 지분공시,"{'positive': [], 'negative': []}",1
-기타법인 만주 평단 원대,"{'positive': [], 'negative': []}",1
-공시 뜨면 대박인데 어찌되는거지,"{'positive': ['대박인데'], 'negative': []}",2
-좀 아 지만,"{'positive': [], 'negative': []}",1
-계속 하락하는 챠트네,"{'positive': [], 'negative': ['하락하는']}",0
+중국 관세,"{'positive': [], 'negative': []}",1
+낼 상한가 쳐도 이상치 않다 갈때 됐다,"{'positive': ['상한가'], 'negative': []}",2
+월 일 공매도 위 평단가,"{'positive': [], 'negative': ['공매도']}",0
+응 더 떨어져봐,"{'positive': [], 'negative': []}",1
+원 원사이 분할 매수 하,"{'positive': [], 'negative': []}",1
+손실이 천이네,"{'positive': [], 'negative': ['손실이']}",0
+조용하노,"{'positive': [], 'negative': []}",1
+중국 관세,"{'positive': [], 'negative': []}",1
+보다 시디즈 무증발표,"{'positive': [], 'negative': []}",1
+한덕수 트럼프 분통화 관세및안보 협의,"{'positive': [], 'negative': ['분통화']}",0
+속보 백악관 트럼프 무역협상 한일동맹 우,"{'positive': [], 'negative': []}",1
+내일도 꽤 오르겠는데,"{'positive': ['오르겠는데'], 'negative': []}",2
+낼 트럼프 반도체 말한마디만하면 상한가다,"{'positive': ['상한가다'], 'negative': []}",2
 클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
+달다 달어,"{'positive': [], 'negative': []}",1
+시외 원 낼 원 찍는다 저,"{'positive': [], 'negative': []}",1
+공매도가 주범이네요,"{'positive': [], 'negative': ['공매도가']}",0
+이주식 답없네요 내일도 폭락인가,"{'positive': [], 'negative': ['폭락인가']}",0
+이주식 답없네요 내일도 폭락인가,"{'positive': [], 'negative': ['폭락인가']}",0
+중국 관세,"{'positive': [], 'negative': []}",1
+삼에스는,"{'positive': [], 'negative': []}",1
+함 반등좀 주이소 아 증말 너무하네,"{'positive': ['반등좀'], 'negative': []}",2
+원대 오면 몰방 하세요,"{'positive': [], 'negative': []}",1
+무슨회사노,"{'positive': [], 'negative': []}",1
+내 말 맞제,"{'positive': [], 'negative': []}",1
+팔아먹기 위해 올렸네,"{'positive': [], 'negative': ['팔아먹기']}",0
+큰돈물렸어요 살려주세요,"{'positive': [], 'negative': []}",1
+구조대 요청,"{'positive': [], 'negative': []}",1
+아직 매집다 안됫나,"{'positive': [], 'negative': []}",1
+왜 안 가냐,"{'positive': [], 'negative': []}",1
+이거 이번달안에 천원 안가면 오,"{'positive': [], 'negative': []}",1
+하방 찍고 반등가자,"{'positive': ['반등가자'], 'negative': []}",2
+내가,"{'positive': [], 'negative': []}",1
 클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-과거 만도 갔던주네,"{'positive': [], 'negative': []}",1
-원까지 빠지겠다 대피하라,"{'positive': [], 'negative': ['빠지겠다']}",0
-주라도 더사고 기다리면됨,"{'positive': [], 'negative': []}",1
-보통 배,"{'positive': [], 'negative': []}",1
-주라도 더 매수,"{'positive': [], 'negative': []}",1
-기타법인 만주 매수 적대적,"{'positive': [], 'negative': ['적대적']}",0
-신규개미들에게,"{'positive': [], 'negative': []}",1
+말아,"{'positive': [], 'negative': []}",1
+이베스트,"{'positive': [], 'negative': []}",1
 클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-상한가 딱 초,"{'positive': ['상한가'], 'negative': []}",2
-늘 그래왔듯,"{'positive': [], 'negative': []}",1
-시간외때 조금씩 조깨들어갔다,"{'positive': [], 'negative': []}",1
-일단 원까지 빠진다,"{'positive': [], 'negative': ['빠진다']}",0
-개인들많이사면 계획이변경됩니다,"{'positive': [], 'negative': []}",1
-기법,"{'positive': [], 'negative': []}",1
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-주담통화 회사도 모른다,"{'positive': [], 'negative': []}",1
-주담통화 회사도 모른다,"{'positive': [], 'negative': []}",1
-이제는 대주주가,"{'positive': [], 'negative': []}",1
-조삼모사 원싱이들,"{'positive': [], 'negative': []}",1
-근데애는감사 왜안나옴,"{'positive': [], 'negative': []}",1
-투자주의 단일계좌 거래량 상위종목,"{'positive': [], 'negative': ['투자주의']}",0
-시간외 상한가다,"{'positive': ['상한가다'], 'negative': []}",2
-다음타임 상한가네,"{'positive': ['상한가네'], 'negative': []}",2
-어우야 님 세상의 각박함을 아직,"{'positive': [], 'negative': []}",1
-전 번째 탐 까지해서 다 털어욧,"{'positive': [], 'negative': ['털어욧']}",0
-이거 뭐지,"{'positive': [], 'negative': []}",1
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-아우야 이거 물량 정말 없다,"{'positive': [], 'negative': ['물량']}",0
-뭐가 큰게 있다,"{'positive': [], 'negative': []}",1
-어제 상한가 왜 갔다 풀리거임,"{'positive': ['상한가'], 'negative': []}",2
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-대물,"{'positive': [], 'negative': []}",1
-걍 궁금해서,"{'positive': [], 'negative': []}",1
-이 암캐 잡포련은 무료로 줍니다,"{'positive': ['무료로'], 'negative': []}",2
-망했네,"{'positive': [], 'negative': ['망했네']}",0
-패대기 슈팅,"{'positive': ['슈팅'], 'negative': ['패대기']}",1
-뭐야,"{'positive': [], 'negative': []}",1
-적대 공개,"{'positive': [], 'negative': ['적대']}",0
-이걸 안팔아,"{'positive': [], 'negative': []}",1
-매집 중인 아우들 고생좀하게,"{'positive': [], 'negative': []}",1
-껄껄껄,"{'positive': [], 'negative': []}",1
-어제 하수라고 시외상 좋아하던 벌레들 어,"{'positive': ['시외상', '좋아하던'], 'negative': ['벌레들']}",2
-호가창 밑에 깔아두면 들어가지말어 내려,"{'positive': [], 'negative': []}",1
-껄껄껄,"{'positive': [], 'negative': []}",1
-빼봐야 기타법인,"{'positive': [], 'negative': []}",1
-기법,"{'positive': [], 'negative': []}",1
-아마 유통량,"{'positive': [], 'negative': []}",1
-지분 좀 확보했다가,"{'positive': [], 'negative': []}",1
-기법 주체는 내부자랑,"{'positive': [], 'negative': []}",1
-개미들 어제 잘팔고 나갔으면 들어가면안돼,"{'positive': [], 'negative': []}",1
-기법,"{'positive': [], 'negative': []}",1
-어제 개미들 다팔고 나갔으면 절대 아직,"{'positive': [], 'negative': []}",1
-개미들 오늘은 들어가는날 아니라,"{'positive': [], 'negative': []}",1
-개미 꼬시기,"{'positive': [], 'negative': []}",1
-상폐되나,"{'positive': [], 'negative': ['상폐되나']}",0
-기타법인 안팔고 잇다,"{'positive': [], 'negative': []}",1
-개미들 들어가지말어,"{'positive': [], 'negative': []}",1
-조지네,"{'positive': [], 'negative': []}",1
-아직 시작도 안했는데,"{'positive': [], 'negative': []}",1
-감사보고서,"{'positive': [], 'negative': []}",1
-의심스러운 상,"{'positive': [], 'negative': ['의심스러운']}",0
-이상하게 골고루 나눠주네,"{'positive': [], 'negative': []}",1
-기타법인 오늘 단타치고 안나가면,"{'positive': [], 'negative': []}",1
-들어가자 천원까지,"{'positive': [], 'negative': []}",1
-이미 최대주주보다 지분 더 많은거 아님,"{'positive': [], 'negative': []}",1
-주주명부 기준일 이달 일 임,"{'positive': [], 'negative': []}",1
-어차피,"{'positive': [], 'negative': []}",1
-시외 누가 잘난질하냐 상 올려놔라,"{'positive': [], 'negative': []}",1
-천원간다,"{'positive': [], 'negative': []}",1
-회사 주담통화 내용,"{'positive': [], 'negative': []}",1
-작년 월에 경영권 분쟁 있었네,"{'positive': [], 'negative': []}",1
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-최소 원은 가야하는,"{'positive': [], 'negative': []}",1
-얘는 왜 매년,"{'positive': [], 'negative': []}",1
-기타머여 블럭딜여 머여,"{'positive': [], 'negative': []}",1
-투자주의 단일계좌 거래량 상위종목,"{'positive': [], 'negative': ['투자주의']}",0
-마이크론이 가격 올렸다고 오른건가,"{'positive': [], 'negative': []}",1
-오를때가 되서 오른거여 원이 뭐냐,"{'positive': ['오를때가'], 'negative': []}",2
-수익내고 얘기 하세요,"{'positive': ['수익내고'], 'negative': []}",2
-이걸 상보내네 털렸다,"{'positive': [], 'negative': ['털렸다']}",0
-를 위한 지분 확보,"{'positive': [], 'negative': []}",1
-낼 분봉 개만 본다,"{'positive': [], 'negative': []}",1
-기법뭐야,"{'positive': [], 'negative': []}",1
-와우,"{'positive': ['와우'], 'negative': []}",2
-삼성전자 한다했는데 올해,"{'positive': [], 'negative': []}",1
-껄껄껄,"{'positive': [], 'negative': []}",1
-적대적 또는 경영권지분확보,"{'positive': [], 'negative': ['적대적']}",0
-기타법인 만주 외인 만주,"{'positive': [], 'negative': []}",1
-껄껄껄,"{'positive': [], 'negative': []}",1
-시외상,"{'positive': ['시외상'], 'negative': []}",2
-시간외 상갈꺼같은느낌인데,"{'positive': [], 'negative': []}",1
-세력 형들도,"{'positive': [], 'negative': ['세력']}",0
-애 바부냐,"{'positive': [], 'negative': []}",1
-기타법인 미 네 외인이랑 먼가알고있다,"{'positive': [], 'negative': []}",1
-껄껄껄,"{'positive': [], 'negative': []}",1
-개월간 이었는데,"{'positive': [], 'negative': []}",1
-시외,"{'positive': [], 'negative': []}",1
-중국 디램 웨이퍼가 엄청컸어,"{'positive': [], 'negative': []}",1
-껄껄 키움 억리그 등안에 들어갑니더,"{'positive': [], 'negative': []}",1
-클린봇이 이용자 보호를 위해 숨긴 게시글입니다,"{'positive': [], 'negative': ['클린봇이']}",0
-오늘 수익 만원,"{'positive': ['수익'], 'negative': []}",2
-제가 적어놓은 글을 보세요,"{'positive': [], 'negative': []}",1
-난 빠질줄 알았음,"{'positive': [], 'negative': ['빠질줄']}",0
-지구를 살리는 탄소저감 기술 개발 천운,"{'positive': ['천운'], 'negative': []}",2
-자자 형님들 울지말고 보세요,"{'positive': [], 'negative': []}",1
-분남기고,"{'positive': [], 'negative': []}",1
-억 맛있게 잘먹었다,"{'positive': ['맛있게'], 'negative': []}",2
-껄껄껄 제가 말씀 드렸죠,"{'positive': [], 'negative': []}",1
-법인 만주매수,"{'positive': [], 'negative': []}",1
-무조건 매도하세요,"{'positive': [], 'negative': []}",1
-이거,"{'positive': [], 'negative': []}",1
+한국웨이퍼홀딩스로 최대주주 변경,"{'positive': [], 'negative': []}",1
+개베스트 붙어 있다 한순간에 나락간다,"{'positive': [], 'negative': ['나락간다']}",0
+대박 윗꼬리 달겠네,"{'positive': ['대박'], 'negative': []}",2
+속보 공시 공시 상한가,"{'positive': ['상한가'], 'negative': []}",2
+대선주는 초반에 잡아야 몇배먹는거 알지,"{'positive': [], 'negative': []}",1
+이베스트,"{'positive': [], 'negative': []}",1
+손아프겄어,"{'positive': [], 'negative': []}",1
+대주주로 들어온 펀드 실체,"{'positive': [], 'negative': []}",1
+경영권 분쟁 중,"{'positive': [], 'negative': []}",1
+이베스트,"{'positive': [], 'negative': []}",1
+이베스트 있습어 요기,"{'positive': [], 'negative': []}",1
+말고 시디즈 상갈듯,"{'positive': [], 'negative': []}",1
+이베스트 있읍니다,"{'positive': [], 'negative': []}",1
+역시 피뢰침,"{'positive': [], 'negative': []}",1
+쓰레기,"{'positive': [], 'negative': ['쓰레기']}",0
+재료가 뭔가요,"{'positive': ['재료가'], 'negative': []}",2
+앞에두고 모하노,"{'positive': [], 'negative': []}",1
+단주만 분째치고잇네,"{'positive': [], 'negative': []}",1
+프로 비중 탈출,"{'positive': [], 'negative': ['탈출']}",0
+층 가즈아,"{'positive': ['가즈아'], 'negative': []}",2
+매집임,"{'positive': [], 'negative': []}",1
+상이다,"{'positive': [], 'negative': []}",1
+시간외 웬일이래,"{'positive': [], 'negative': []}",1
+어종상,"{'positive': [], 'negative': []}",1
+장이 난리라,"{'positive': [], 'negative': []}",1
+경영권분쟁 강력호재 심심해서,"{'positive': [], 'negative': []}",1
+장난도 장난이지만,"{'positive': [], 'negative': ['장난도', '장난이지만']}",0
+시간외 대량 물량은 무조건 걸러라,"{'positive': [], 'negative': ['물량은']}",0
+경영권분쟁인가 시외 단일가봐라,"{'positive': [], 'negative': []}",1
+층에서 탑승했습니다,"{'positive': ['탑승했습니다'], 'negative': []}",2
+보다 시디즈 무증발표,"{'positive': [], 'negative': []}",1
+나무가에서 지분 추가매입해야됨,"{'positive': [], 'negative': []}",1
+코스피야간선물 폭락,"{'positive': [], 'negative': ['폭락']}",0
+세력이 없나보다,"{'positive': [], 'negative': ['세력이']}",0
+탄핵사태 종결되면,"{'positive': [], 'negative': []}",1
+천원이,"{'positive': [], 'negative': []}",1
+경영참여,"{'positive': [], 'negative': []}",1
+최대주주,"{'positive': [], 'negative': []}",1

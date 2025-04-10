@@ -1,15 +1,18 @@
 /* ========== 공통 변수 설정 ========== */
 :root {
-    --primary-color: #274c77;
-    --secondary-color: #f9f9f9;
-    --white: #ffffff;
-    --border-color: #ddd;
-    --text-color: #666;
-    --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    --font-family: Arial, sans-serif;
-    --header-height: 70px;
-    --padding-base: 20px;
-    --box-radius: 5px;
+  --primary-color: #274c77;
+  --secondary-color: #f9f9f9;
+  --third-color: #f9f9f9;
+  --white: #ffffff;
+  --border-color: #ddd;
+  --text-color: #666;
+  --text-color2: #191919;
+  --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --font-family: Arial, sans-serif;
+  --header-height: 4.375rem;   /* 70px */
+  --padding-base: 1.25rem;     /* 20px */
+  --box-radius: 0.3125rem;     /* 5px */
+  --transition-speed: 0.3s;
 }
 
 /* Paperlogy */
@@ -35,69 +38,72 @@
 
 /* ----- 바디 ----- */
 body {
-    font-family: var(--font-family);
-    margin: 0;
-    padding: 0;
-    background-color: var(--secondary-color);
+  font-family: var(--font-family);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background-color: var(--secondary-color);
 }
 
-/* ========== 헤더 ========== */
+/* ----- 헤더 ----- */
 header {
-    background-color: var(--primary-color);
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--padding-base);
-    color: var(--white);
+  background-color: var(--primary-color);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--padding-base);
+  color: var(--white);
 }
-  
+
 .header-left {
-    font-family: 'Tenada';
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  font-family: 'Tenada';
 }
-  
+
 .header-logo {
-    height: 40px;
-    margin-left: 5px;
-    vertical-align: middle; 
-    cursor: pointer;
+  height: 2.5rem; /* 40px */
+  margin-left: 0.3125rem; /* 5px */
+  vertical-align: middle; 
+  cursor: pointer;
 }
-  
+
 header .logo {
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 10px;
-    margin-bottom: 0;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1.875rem; /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
+  margin-bottom: 0;
 }
-  
+
 header nav {
-    font-family: 'Paperlogy';
-    display: flex;
-    gap: 30px;
-    justify-content: flex-end;
-    margin: 10px;
-    flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.875rem;     /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
+  flex: 1;
+  font-family: 'Paperlogy';
 }
-  
+
 header .header-link {
-    color: var(--white);
-    text-decoration: none;
-    font-size: 20px;
-    font-weight: bold;
-    padding: 5px 10px; /* 호버 효과를 위한 패딩 */
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  header .header-link:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
-    border-radius: 4px;
-    transform: scale(1.05);
+  color: var(--white);
+  text-decoration: none;
+  font-size: 1.25rem; /* 20px */
+  font-weight: bold;
+  padding: 0.3125rem 0.625rem; /* 5px 10px */
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
-  
+header .header-link:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
+  border-radius: 4px;
+  transform: scale(1.05);
+}
+
 h1 {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 #mainContainer {
@@ -163,3 +169,114 @@ footer {
     font-size: 14px;
   }
   
+/* --------------------- CSS 끝 --------------------- */
+
+.menu-icon {
+  display: none; 
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--white);
+}
+
+@media (max-width: 767px) {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-icon {
+    display: block;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--white);
+    position: absolute;
+    right: 2rem;
+  }
+
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 30%; /* 필요에 따라 조정 */
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--white);
+    color: var(--primary-color) !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transition: right var(--transition-speed) ease-in-out;
+    z-index: 1000;
+    margin-top: 0;
+    margin-right: 0;
+  }
+
+  #main-nav a.header-link {
+    color: var(--primary-color);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  #main-nav.nav-active {
+    right: 0;
+  }
+
+  #overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+  }
+
+  #overlay.active {
+    display: block;
+  }
+
+  /* 메인 컨테이너를 한 열로 변경 */
+  #mainContainer {
+    display: block;
+    padding: 1rem; /* 필요에 따라 조정 */
+    gap: 1rem;
+  }
+  .box {
+    margin-bottom: 1rem;
+  }
+
+  #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
+  #mainContainer > .box:nth-child(2) { animation-delay: 0.4s; }
+  #mainContainer > .box:nth-child(3) { animation-delay: 0.6s; }
+  #mainContainer > .box:nth-child(4) { animation-delay: 0.8s; }
+  #mainContainer > .box:nth-child(5) { animation-delay: 1.0s; }
+  #mainContainer > .box:nth-child(6) { animation-delay: 1.2s; }
+
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+
+}
+
+@media (min-width: 1024px) {
+
+}

@@ -2,10 +2,13 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>NewCandle™ - Your Market Insight</title>
     <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
-    <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
+    <!-- main1.png, main2.png, main3.png 이미지 preload -->
+    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main1.png') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main2.png') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main3.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
 
@@ -17,39 +20,47 @@
         <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
         <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
       </div>
+      <!-- 모바일 메뉴 아이콘(햄버거) -->
+      <div class="menu-icon">&#9776;</div>
       <div class="header-right">
-        <nav aria-label="메인 네비게이션">
+        <nav id="main-nav" aria-label="메인 네비게이션">
           <a href="/index" class="header-link">• 종목 분석</a>
           <a href="/page2" class="header-link">• 투자 정보 </a>
           <a href="/page3" class="header-link">• AI 연구</a>
         </nav>
       </div>
     </header>
+
+    <!-- 오버레이 -->
+    <div id="overlay"></div>
     
     <!-- 히어로 섹션 -->
-    <section id="hero">
-      <div class="hero-overlay">
-        <h2 class="hero-title">최신 투자 인사이트를 한눈에</h2>
-        <p class="hero-subtitle">주식, 금, 채권 등 다양한 자산의 분석과 정보를 NewCandle™과 함께 확인하세요.</p>
-        <button class="cta-button" onclick="location.href='/index'">종목 분석 바로가기 →</button>
+    <section id="hero-modern">
+      <div class="hero-modern-text">
+        <h2>  
+          <span class="highlight">캔들 그 너머의</span><br>
+          <span class="highlight-color">투자 인사이트</span>
+        </h2>
+        <p>
+          단순한 차트를 넘어, 지표의 흐름을 읽고 해석합니다.<br>
+          기술적 분석부터 심리, 수급, 이슈까지 하나로.<br>
+          투자 판단의 새로운 기준, 뉴캔들입니다.
+        </p>
+        <button class="cta-button" onclick="location.href='/index'">분석 보러가기</button>
+      </div>
+      <div class="hero-modern-image">
+        <div class="hero-modern-image-column">
+          <div class="row top-row">
+            <img src="{{ url_for('static', filename='image/main1.png') }}" class="angled-img angle1" alt="샘플1">
+            <img src="{{ url_for('static', filename='image/main2.png') }}" class="angled-img angle2" alt="샘플2">
+          </div>
+          <div class="row bottom-row">
+            <img src="{{ url_for('static', filename='image/main3.png') }}" class="angled-img angle3" alt="샘플3">
+          </div>
+        </div>
       </div>
     </section>
     
-    <!-- 특징 소개 섹션 -->
-    <section id="features">
-      <div class="feature">
-        <h3>정밀 분석</h3>
-        <p>차트와 데이터를 기반으로 한 정밀 분석 정보를 제공합니다.</p>
-      </div>
-      <div class="feature">
-        <h3>실시간 정보</h3>
-        <p>최신 시장 정보를 실시간으로 업데이트합니다.</p>
-      </div>
-      <div class="feature">
-        <h3>다양한 자산</h3>
-        <p>주식뿐만 아니라 금, 채권 등 다양한 자산의 분석 자료를 확인할 수 있습니다.</p>
-      </div>
-    </section>
     
     <!-- 푸터 -->
     <footer>
@@ -57,6 +68,24 @@
     </footer>
     
     <!--※ 현재 스크립트는 없음-->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/main.js') }}"></script> -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.menu-icon').addEventListener('click', function() {
+          toggleMenu();
+        });
+        document.getElementById('overlay').addEventListener('click', function() {
+          toggleMenu();
+        });
+      });
+      
+      function toggleMenu() {
+        const nav = document.getElementById('main-nav');
+        const overlay = document.getElementById('overlay');
+        
+        nav.classList.toggle('nav-active');
+        overlay.classList.toggle('active');
+      }
+    </script>       
   </body>
 </html>

@@ -7,9 +7,9 @@
   --text-color: #666;
   --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   --font-family: 'Arial', sans-serif;
-  --header-height: 70px;
-  --padding-base: 20px;
-  --box-radius: 5px;
+  --header-height: 4.375rem;   /* 기존: 70px (70/16) */
+  --padding-base: 1.25rem;     /* 기존: 20px (20/16) */
+  --box-radius: 0.3125rem;     /* 기존: 5px (5/16) */
   --transition-speed: 0.3s;
 }
 
@@ -61,25 +61,25 @@ header {
 }
 
 .header-logo {
-  height: 40px;
-  margin-left: 5px;
+  height: 2.5rem; /* 40px */
+  margin-left: 0.3125rem; /* 5px */
   vertical-align: middle; 
   cursor: pointer;
 }
 
 header .logo {
-  font-size: 30px;
   font-weight: bold;
   cursor: pointer;
-  margin: 10px;
+  font-size: 1.875rem; /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
   margin-bottom: 0;
 }
 
 header nav {
   display: flex;
-  gap: 30px;
   justify-content: flex-end;
-  margin: 10px;
+  gap: 1.875rem;     /* 기존: 30px (30/16) */
+  margin: 0.625rem;    /* 기존: 10px (10/16) */
   flex: 1;
 }
 
@@ -103,89 +103,115 @@ h1 {
 }
 
 /* ----- 히어로 섹션 ----- */
-#hero {
-  font-family: 'Paperlogy';
-  position: relative;
-  height: calc(100vh - var(--header-height));
-  background: linear-gradient(135deg, rgba(39,76,119,0.8), rgba(249,249,249,0.8)),
-              url("{{ url_for('static', filename='image/hero-bg.jpg') }}") no-repeat center center/cover;
+#hero-modern {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px;
-  height: 100%;
-  min-height: 600px;
-}
-.hero-overlay {
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 40px;
-  border-radius: var(--box-radius);
-  box-shadow: var(--shadow);
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 1s forwards;
-}
-.hero-title {
-  font-size: 48px;
-  margin-bottom: 20px;
-  color: var(--primary-color);
-}
-.hero-subtitle {
-  font-size: 20px;
-  margin-bottom: 30px;
-}
-.cta-button {
+  justify-content: space-between;
+  padding: 5rem var(--padding-base);  /* 기존: 80px (80/16) var(--padding-base) */
+  gap: 2.5rem;                        /* 기존: 40px (40/16) */
+  background-color: #fff;
+  position: relative;
+  overflow: hidden;
   font-family: 'Paperlogy';
-  background-color: var(--primary-color);
-  color: var(--white);
-  border: none;
-  padding: 15px 30px;
-  font-size: 18px;
-  border-radius: var(--box-radius);
-  cursor: pointer;
-  transition: background-color var(--transition-speed);
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 1s forwards;
+  z-index: 0;
 }
-.cta-button:hover {
-  background-color: #1f3a5e;
+.hero-modern-text {
+  flex: 1;
+  min-width: 300px;
+  margin-left: 3.125rem;              /* 기존: 50px (50/16) */
+  transform: translateY(-1.25rem);     /* 기존: -20px (-20/16) */
+}
+.hero-modern-text h2 {
+  font-size: 48px;
+  line-height: 1.4;
+  color: #222;
+}
+.hero-modern-text .highlight {
+  color: #111;
+  font-weight: 700;
+}
+.hero-modern-text .highlight-color{
+  color: var(--primary-color);
+  font-weight: 700;
+}
+.hero-modern-text p {
+  font-size: 18px;
+  color: #555;
+  margin-top: 20px;
+  line-height: 1.6;
+}
+#hero-modern::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 54%;
+  background-color: #e8f0fc; /* 연한 파란색 */
+  clip-path: polygon(0 39%, 100% 0%, 100% 100%, 0% 100%);
+  z-index: -1;
 }
 
-/* ----- 특징 소개 섹션 ----- */
-#features {
-  font-family: 'Paperlogy';
-  width: 90%;
-  max-width: 1200px;
-  margin: 40px auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
+/* 메인 화면 이미지 */
+.hero-modern-image {
+  flex: 1;
+  min-width: 300px;
   text-align: center;
+  transform: translateY(1.25rem);      /* 기존: 20px (20/16) */
 }
-.feature {
-  background-color: var(--white);
-  border: 1px solid var(--border-color);
-  border-radius: var(--box-radius);
-  padding: 20px;
+.hero-modern-image img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 20px;
   box-shadow: var(--shadow);
-  transition: transform var(--transition-speed);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s forwards;
 }
-.feature:hover {
-  transform: translateY(-5px);
+.hero-modern-image-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  margin-right: -6.25rem;              /* 기존: -100px (-100/16) */
+  transform: translateX(-11.875rem);    /* 기존: -190px (-190/16) */
+  flex-shrink: 0;
 }
-.feature h3 {
-  margin-top: 0;
-  color: var(--primary-color);
-  font-size: 24px;
+.hero-modern-image-column .row {
+  display: flex;
+  gap: 2.5rem;                       /* 기존: 40px (40/16) */
 }
-.feature p {
-  font-size: 16px;
-  line-height: 1.5;
+.hero-modern-image-column .bottom-row {
+  justify-content: center;
+  transform: translateX(3.125rem);     /* 기존: 50px (50/16) */ 
+}
+.angled-img {
+  width: 11.25rem;                    /* 기존: 180px (180/16) */
+  height: auto;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  opacity: 1;
+  transform-origin: center;
+  will-change: transform;
+}
+.angle1 { transform: rotate(-6deg); }
+.angle2 { transform: rotate(-6deg) translateY(-55px); }
+.angle3 { transform: rotate(-6deg); }
+
+/* CTA 버튼 세련되게 */
+.cta-button {
+  background-color: #d62828;
+  color: #fff;
+  border: none;
+  margin-top: 1.875rem;               /* 기존: 30px (30/16) */
+  padding: 0.9375rem 1.875rem;         /* 기존: 15px 30px (15/16, 30/16) */
+  font-size: 1rem;                    /* 기존: 16px (16/16) */
+  border-radius: 0.5rem;              /* 기존: 8px (8/16) */
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: 'Paperlogy';
+}
+.cta-button:hover {
+  background-color: #a61c1c;
 }
 
 /* ----- 푸터 ----- */
@@ -193,16 +219,16 @@ footer {
   background-color: var(--primary-color);
   color: var(--white);
   text-align: center;
-  padding: 15px 0;
-  margin-top: 40px;
-  font-size: 14px;
+  margin-top: auto;
+  padding: 0.9375rem 0;               /* 기존: 15px 0 (15/16) */
+  font-size: 0.875rem;                /* 기존: 14px (14/16) */
 }
 
 /* ----- 애니메이션 (fadeInUp) ----- */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(1.875rem);  /* 기존: 30px (30/16) */
   }
   to {
     opacity: 1;
@@ -211,12 +237,141 @@ footer {
 }
 
 /* (필요시 개별 애니메이션 딜레이 적용) */
-#features > .feature:nth-child(1) {
-  animation-delay: 0.4s;
+.hero-modern-text h2 {
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
 }
-#features > .feature:nth-child(2) {
+.hero-modern-text p {
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+.cta-button {
+  animation: fadeInUp 0.6s ease-out forwards;
   animation-delay: 0.8s;
+  opacity: 0;
 }
-#features > .feature:nth-child(3) {
-  animation-delay: 1.2s;
+
+
+/* 햄버거 아이콘 기본 숨기기(데스크탑에서는 필요 없으므로) */
+.menu-icon {
+  display: none; 
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--white);
 }
+
+@media (max-width: 767px) {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  .header-left, .header-right {
+    margin: 0.5rem 0;
+  }
+  
+  .menu-icon {
+    display: block;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--white);
+    position: absolute;
+    right: 2rem;
+  }
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: -100%; /* 기본 숨김 */
+    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--white);
+    color: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transition: right var(--transition-speed) ease-in-out;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    right: 0;
+  }
+  #main-nav a.header-link {
+    color: var(--primary-color);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  #hero-modern {
+    flex-direction: column;
+    padding: 3rem var(--padding-base);
+    gap: 1.5rem;
+  }
+  .hero-modern-text {
+    margin-left: 0;
+    text-align: center;
+    transform: none;
+  }
+  .hero-modern-image {
+    transform: none;
+    margin-top: 1rem;
+  }
+  .hero-modern-image-column {
+    margin-right: 0;
+    transform: none;
+    align-items: center;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  #hero-modern {
+    padding: 4rem var(--padding-base);
+    gap: 2rem;
+  }
+  .hero-modern-text {
+    margin-left: 1rem;
+  }
+  .hero-modern-image-column {
+    margin-right: 0.5rem;
+    transform: translateX(-5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* 필요에 따라 추가 조정 */
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999; /* nav보다 살짝 낮은 값 */
+}
+
+#overlay.active {
+  display: block;
+}
+

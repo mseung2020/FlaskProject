@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1200">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NewCandle™</title>
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
@@ -16,14 +16,19 @@
       <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
       <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
     </div>
+    <!-- 모바일 메뉴 아이콘 (햄버거) 추가 -->
+    <div class="menu-icon">&#9776;</div>
     <div class="header-right">
-      <nav aria-label="메인 네비게이션">
+      <nav id="main-nav" aria-label="메인 네비게이션">
         <a href="/index" class="header-link">• 종목 분석</a>
-        <a href="/page2" class="header-link">• 투자 정보 </a>
+        <a href="/page2" class="header-link">• 투자 정보</a>
         <a href="/page3" class="header-link">• AI 연구</a>
       </nav>
     </div>
   </header>
+  
+  <!-- 오버레이 (모바일 메뉴 토글용) -->
+  <div id="overlay"></div> 
   
   <!-- 메인 컨테이너 -->
   <div id="mainContainer">
@@ -77,6 +82,23 @@
     <p>&copy; 2025 NewCandle™. All rights reserved.</p>
   </footer>
   
-  <script> </script>
+  <script> 
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.menu-icon').addEventListener('click', function() {
+        toggleMenu();
+      });
+      document.getElementById('overlay').addEventListener('click', function() {
+        toggleMenu();
+      });
+    });
+    
+    function toggleMenu() {
+      const nav = document.getElementById('main-nav');
+      const overlay = document.getElementById('overlay');
+      
+      nav.classList.toggle('nav-active');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

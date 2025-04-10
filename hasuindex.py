@@ -6,6 +6,7 @@ import re
 import logging
 from bs4 import BeautifulSoup
 from soynlp.tokenizer import LTokenizer
+from concurrent.futures import ThreadPoolExecutor
 
 # ------------------ 전역 설정 ------------------
 MAX_PAGES = 10
@@ -88,9 +89,12 @@ def get_comment_page(code, page, min_date):
     return df, stop_flag
 
 def get_all_comments(code, max_pages, min_date):
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        futures = [executor.submit(get_comment_page, code, page, min_date) for page in range(1, max_pages + 1)]
+        results = [f.result() for f in futures]
+    
     all_comments = []
-    for page in range(1, max_pages + 1):
-        df_page, stop_flag = get_comment_page(code, page, min_date)
+    for df_page, stop_flag in results:
         if not df_page.empty:
             all_comments.append(df_page)
         if stop_flag:
@@ -99,9 +103,13 @@ def get_all_comments(code, max_pages, min_date):
 
 # ------------------ 댓글 정제 ------------------
 def clean_comments(df):
-    df['정제된 댓글'] = df['댓글'].apply(lambda x: PATTERN_DELETED.sub(' ', x))
-    df['정제된 댓글'] = df['정제된 댓글'].apply(lambda x: PATTERN_NON_KOREAN.sub(' ', x))
-    df['정제된 댓글'] = df['정제된 댓글'].apply(lambda x: PATTERN_MULTISPACE.sub(' ', x).strip())
+    def clean_text(x):
+        # 삭제 문구, 한글 이외 문자 제거, 다중 공백 정리 순차 적용
+        text = PATTERN_DELETED.sub(' ', x)
+        text = PATTERN_NON_KOREAN.sub(' ', text)
+        text = PATTERN_MULTISPACE.sub(' ', text).strip()
+        return text
+    df['정제된 댓글'] = df['댓글'].apply(clean_text)
     return df[df['정제된 댓글'].str.len() > 1]
 
 # ------------------ 간단한 명사 추출 (토큰화) ------------------
@@ -184,7 +192,7 @@ def get_sentiment_index(code):
         df_comments = label_comments(df_comments, pos_words, neg_words)
         
         # 디버깅용: 토큰과 라벨 정보를 CSV로 저장
-        #df_comments[['정제된 댓글', '매칭된 토큰', 'label']].to_csv(os.path.join(DATA_DIR, 'tokens.csv'), index=False, encoding='utf-8-sig')
+        df_comments[['정제된 댓글', '매칭된 토큰', 'label']].to_csv(os.path.join(DATA_DIR, 'tokens.csv'), index=False, encoding='utf-8-sig')
         
         sentiment_result = calculate_weighted_sentiment(df_comments)
         return sentiment_result
