@@ -10,6 +10,7 @@
     <link rel="preload" as="image" href="{{ url_for('static', filename='image/main2.png') }}">
     <link rel="preload" as="image" href="{{ url_for('static', filename='image/main3.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   </head>
 
   <body>
@@ -85,6 +86,13 @@
         
         nav.classList.toggle('nav-active');
         overlay.classList.toggle('active');
+      }
+    </script>
+    <!-- 서비스 워커 등록 -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}')
+          .then(() => console.log("✅ 서비스워커 등록됨"));
       }
     </script>       
   </body>

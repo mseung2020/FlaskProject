@@ -453,17 +453,19 @@
           const rightIndicator = document.querySelector('.right-indicator');
           
           // 초기 상태: 고수지표는 보이도록, 하수지표는 숨김
-          leftIndicator.style.display = 'block';
-          rightIndicator.style.display = 'none';
+          leftIndicator.classList.add('visible-indicator');
+          rightIndicator.classList.add('hidden-indicator');
           
-          gosuTab.addEventListener('click', () => {
+            gosuTab.addEventListener('click', () => {
             gosuTab.classList.add('active');
             gosuTab.setAttribute('aria-pressed', 'true');
             hasuTab.classList.remove('active');
             hasuTab.setAttribute('aria-pressed', 'false');
             
-            leftIndicator.style.display = 'block';
-            rightIndicator.style.display = 'none';
+            leftIndicator.classList.add('visible-indicator');
+            leftIndicator.classList.remove('hidden-indicator');
+            rightIndicator.classList.add('hidden-indicator');
+            rightIndicator.classList.remove('visible-indicator');
             
             // 필요시 헤더나 박스 크기 조정 로직 추가 가능
           });
@@ -474,8 +476,10 @@
             gosuTab.classList.remove('active');
             gosuTab.setAttribute('aria-pressed', 'false');
             
-            leftIndicator.style.display = 'none';
-            rightIndicator.style.display = 'block';
+            rightIndicator.classList.add('visible-indicator');
+            rightIndicator.classList.remove('hidden-indicator');
+            leftIndicator.classList.add('hidden-indicator');
+            leftIndicator.classList.remove('visible-indicator');
             
             // 필요시 헤더나 박스 크기 조정 로직 추가 가능
           });
