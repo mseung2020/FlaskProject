@@ -3,7 +3,7 @@
   "short_name": "NewCandle",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f9f9f9",
+  "background_color": "#274c77",
   "theme_color": "#274c77",
   "icons": [
     {
