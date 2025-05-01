@@ -16,16 +16,19 @@ from indicators import (
     calculate_tradingvalue, calculate_envelope, calculate_ichimoku,
     calculate_psar
     )
-from finance import get_financial_indicators
+from finance import get_financial_indicators, make_retry_session
 from wordclouds import get_word_frequencies
 from hasuindex import get_sentiment_index
 from gosuindex import get_gosu_index
+from cashflow import get_cashflow_data
+import requests
 import lxml 
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+shared_session = make_retry_session()
 
 # ------------------ 전역 상수 및 경로 ------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -507,7 +510,7 @@ def get_financial_data():
     if not code:
         return jsonify({'error': '종목코드가 없습니다.'}), 400
     try:
-        data = get_financial_indicators(code)
+        data = get_financial_indicators(code, session=shared_session)
         return jsonify(data)
     except Exception as e:
         logging.error("재무 데이터 로드 중 오류: %s", e)
@@ -549,7 +552,7 @@ def api_get_gosu_index():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-# ------------------ 기관 및 외인 점수 API ------------------    
+# ------------------ 현금흐름 API ------------------    
 @cache.cached(timeout=3600, query_string=True)
 @app.route('/get_cashflow', methods=['GET'])
 def get_cashflow():
@@ -557,13 +560,19 @@ def get_cashflow():
     if not code:
         return jsonify(error="code 파라미터가 필요합니다."), 400
 
-    data = get_financial_indicators(code)
+    data = get_cashflow_data(code, session=shared_session)
+    # 호출 중 예외가 터져도 빈 데이터로 방어
+    try:
+        data = get_cashflow_data(code, session=shared_session)
+    except Exception as e:
+        app.logger.error(f"get_cashflow 실패: {code} → {e}")
+        data = {}  # 빈 dict로 두면 아래 .get()이 default로 동작
 
     result = {
-        "labels": ['21년', '22년', '23년', '24년'],  # 최신 연도 순으로 맞춰도 됨
-        "operating": data.get('영업활동으로인한현금흐름', [None, None, None, None]),
-        "investing": data.get('투자활동으로인한현금흐름', [None, None, None, None]),
-        "financing": data.get('재무활동으로인한현금흐름', [None, None, None, None])
+        "labels": ['21년', '22년', '23년', '24년'],
+        "operating": data.get('영업활동으로인한현금흐름', [None]*4)[:4],
+        "investing": data.get('투자활동으로인한현금흐름', [None]*4)[:4],
+        "financing": data.get('재무활동으로인한현금흐름', [None]*4)[:4]
     }
 
     return jsonify(result)
