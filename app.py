@@ -537,6 +537,7 @@ def sentiment_data_route():
     return jsonify(sentiment)
 
 # ------------------ 기관 및 외인 점수 API ------------------
+@cache.cached(timeout=3600, query_string=True)
 @app.route('/get_gosu_index', methods=['GET'])
 def api_get_gosu_index():
     stock_code = request.args.get('code', type=str)
@@ -547,6 +548,25 @@ def api_get_gosu_index():
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# ------------------ 기관 및 외인 점수 API ------------------    
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/get_cashflow', methods=['GET'])
+def get_cashflow():
+    code = request.args.get('code')
+    if not code:
+        return jsonify(error="code 파라미터가 필요합니다."), 400
+
+    data = get_financial_indicators(code)
+
+    result = {
+        "labels": ['21년', '22년', '23년', '24년'],  # 최신 연도 순으로 맞춰도 됨
+        "operating": data.get('영업활동으로인한현금흐름', [None, None, None, None]),
+        "investing": data.get('투자활동으로인한현금흐름', [None, None, None, None]),
+        "financing": data.get('재무활동으로인한현금흐름', [None, None, None, None])
+    }
+
+    return jsonify(result)
 
        
 # ------------------ 서버 실행 ------------------

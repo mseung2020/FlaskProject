@@ -325,16 +325,15 @@
           </div>
         </section>
 
-        <!-- 8. ??? 지표 -->
-        <section id="tempBox2" class="box" aria-label="임시 차트2">
+        <!-- 8. 현금흐름 지표 -->
+        <section id="tempBox2" class="box" aria-label="현금흐름 지표">
           <div class="table-wrapper">
             <div class="financial-header">
-              <h3 id="undicisionedTitle">"현재 준비중인 항목입니다."</h3>
+              <h3 id="cashIndexHeader">"선택된 종목 정보가 없습니다."</h3>
+              <p class="unit-info">(단위: 억 원)</p>
             </div>
-            <div id="undicisionedContainer">
-              <img src="{{ url_for('static', filename='image/wheel2.gif') }}" 
-              style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 3.125rem; height: auto;">
-            </div>
+            <div id="undicisionedContainer"><!-- 여기로 렌더링 --></div>
+            <canvas id="cashflowChart"></canvas>
           </div>
         </section>
         

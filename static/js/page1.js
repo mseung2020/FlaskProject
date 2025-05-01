@@ -341,6 +341,35 @@
       ctx.restore();
     }
   });
+
+  // 현금흐름 레이블 플러그인
+  const cashflowLabelPlugin = {
+    id: 'cashflowLabelPlugin',
+    afterDatasetsDraw(chart, args, options) {
+      const { ctx } = chart;
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        const label = dataset.label; // '영업', '투자', '재무'
+        const meta = chart.getDatasetMeta(datasetIndex);
+        ctx.font = 'bold 18px Paperlogy';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+  
+        meta.data.forEach((point, index) => {
+          if (index !== dataset.data.length - 1) return;
+          const value = dataset.data[index];
+          const color = value >= 0 ? '#4caf50' : '#ff4f4f';
+          ctx.fillStyle = color;
+          ctx.font = 'bold 18px Paperlogy'
+
+
+
+          ctx.fillText(label, point.x + 15, point.y);
+        });
+      });
+    }
+  };
+
+  
   // 미리 정의된 플러그인들
   const HorizontalLinePlugin3070 = createHorizontalLinePlugin([30, 70]);
   const HorizontalLinePlugin2080 = createHorizontalLinePlugin([20, 80]);
@@ -557,13 +586,7 @@
         div.classList.add('selectedStockItem');
         AppState.selectedItemElement = div;
         AppState.currentCode = item.종목코드;
-        requestChart();
-        //updateFinancialTable(AppState.currentCode);
-        //updateWordCloud(AppState.currentCode);
-        //updateWordCloudHeader(item.회사명);
-        //updateSentimentHeader(item.회사명);
-        //updateSentimentData(AppState.currentCode);
-        //updateGosuIndex(AppState.currentCode);        
+        requestChart();      
       });
       container.appendChild(div);
     });
@@ -789,6 +812,8 @@
       updateWordCloud(AppState.currentCode);
       updateWordCloudHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
       updateSentimentHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
+      updateCashHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
+      updateCashChart(AppState.currentCode);
       updateSentimentData(AppState.currentCode);
       updateGosuIndex(AppState.currentCode)
     })
@@ -2428,7 +2453,7 @@
     // 제목 데이터 로드
     const stockInfo = AppState.allStocks.find(s => s.종목코드 === code);  
     if (stockInfo) {
-      document.getElementById('selectedStockName').textContent = stockInfo.회사명 + " 재무정보";
+      document.getElementById('selectedStockName').textContent = stockInfo.회사명 + " 재무비율";
     } else {
       document.getElementById('selectedStockName').textContent = "선택된 종목 정보가 없습니다.";
     }
@@ -2696,7 +2721,178 @@
       return 'net-neutral';
     }
   }
+
+
+  // ========== 현금흐름 지표 로드 ============
+  function updateCashHeader(stockName) {
+    const titleST = document.getElementById('cashIndexHeader');
   
+    if (!stockName) {
+      // 아직 종목이 선택되지 않음
+      titleST.textContent = "선택된 종목 정보가 없습니다.";
+    } else {
+      titleST.textContent = `${stockName} 현금흐름`;
+    }
+  }
+
+  function initCashflowChart() {
+    const ctx = document.getElementById("cashflowChart").getContext("2d");
+  
+    AppState.charts.cashflow = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['21년', '22년', '23년', '24년'],
+        datasets: [
+          {
+            label: '영업',
+            data: [], // 여기에 나중에 실제 값 들어감
+            borderColor: function(ctx) {
+              const data = ctx.chart.data.datasets[0].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBackgroundColor: function(ctx) {
+              const data = ctx.chart.data.datasets[0].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBorderColor: '#f0f0f0',    
+            pointBorderWidth: 0.5,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          },
+          {
+            label: '투자',
+            data: [],
+            borderColor: function(ctx) {
+              const data = ctx.chart.data.datasets[1].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBackgroundColor: function(ctx) {
+              const data = ctx.chart.data.datasets[1].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBorderColor: '#f0f0f0',    
+            pointBorderWidth: 0.5,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          },
+          {
+            label: '재무',
+            data: [],
+            borderColor: function(ctx) {
+              const data = ctx.chart.data.datasets[2].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBackgroundColor: function(ctx) {
+              const data = ctx.chart.data.datasets[2].data;
+              const last = data[data.length - 1];
+              return last >= 0 ? '#4caf50' : '#ff4f4f';
+            },
+            pointBorderColor: '#f0f0f0',    
+            pointBorderWidth: 0.5, 
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: { top: 20, bottom: 20, left: 10, right: 60 }
+        },
+        plugins: {
+          legend: {
+            display: false,
+            labels: {
+              color: '#333',
+              font: {
+                size: 14
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              drawOnChartArea: true,
+              color: (ctx) => {
+                const label = ctx.tick.label;
+                return (label === '21' || label === '21년') ? '#cccccc' : 'transparent';
+              }
+            },
+            ticks: {
+              font: { size: 12 }
+            }
+          },
+          y: {
+            grid: {
+              drawTicks: true,
+              drawOnChartArea: true,
+              color: function(context) {
+                return context.tick.value === 0 ? '#888' : 'transparent'; // ✅ 0이면 회색선, 나머지는 숨김
+              }
+            },
+            ticks: {
+              color: '#333', // 그대로
+              font: { size: 12 }
+            }
+          }
+        }
+      },
+      plugins: [cashflowLabelPlugin] 
+    });
+  }
+  
+  function updateCashflowChart(labels, data) {
+    if (typeof data !== 'object' || data === null) {
+      console.warn("❌ data가 유효한 객체가 아님", data);
+      return;
+    }
+  
+    if (!('operating' in data) || !('investing' in data) || !('financing' in data)) {
+      console.warn("❌ 현금흐름 키 누락", data);
+      return;
+    }
+  
+    const chart = AppState.charts.cashflow;
+    if (!chart || !chart.data || !chart.data.datasets || chart.data.datasets.length < 3) {
+      console.error("❌ 차트 초기화 오류 또는 datasets 누락", chart);
+      return;
+    }
+  
+    chart.data.labels = labels || ['21년', '22년', '23년', '24년'];
+    chart.data.datasets[0].data = data.operating;
+    chart.data.datasets[1].data = data.investing;
+    chart.data.datasets[2].data = data.financing;
+    chart.update();
+  }
+
+  function updateCashChart(code) {
+    fetch(`/get_cashflow?code=${code}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("📦 현금흐름 응답 데이터:", data)
+        if (!AppState.charts.cashflow) initCashflowChart();  // ✅ 여기!
+        updateCashflowChart(data.labels, data);  // 데이터 업데이트
+      })
+      .catch(err => console.error("현금흐름 fetch 실패:", err));
+  }
+  
+
   // ========== Initialize on window load ==========
   window.onload = init;
   window.searchByName = searchByName;
