@@ -14,7 +14,7 @@ from indicators import (
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
     calculate_roc, calculate_uo, calculate_adx, calculate_bollinger,
     calculate_tradingvalue, calculate_envelope, calculate_ichimoku,
-    calculate_psar
+    calculate_psar, prepare_df
     )
 from finance import get_financial_indicators, make_retry_session
 from wordclouds import get_word_frequencies
@@ -180,25 +180,27 @@ def prepare_full_ohlc_data(code):
         '저가': list(map(float, lows)),
         '거래량': list(map(float, volumes))
     })
+    
+    df = prepare_df(df)
     try:
         # [변경된 부분] 여러 지표 계산을 병렬로 실행하여 처리 속도를 단축합니다.
         with ThreadPoolExecutor(max_workers=7) as executor:
-            future_ma          = executor.submit(calculate_ma, df.copy())
-            future_macd        = executor.submit(calculate_macd, df.copy())
-            future_rsi         = executor.submit(calculate_rsi, df.copy())
-            future_stoch       = executor.submit(calculate_stoch, df.copy())
-            future_stochrsi    = executor.submit(calculate_stochrsi, df.copy())
-            future_williams    = executor.submit(calculate_williams, df.copy())
-            future_cci         = executor.submit(calculate_cci, df.copy())
-            future_atr         = executor.submit(calculate_atr, df.copy())
-            future_roc         = executor.submit(calculate_roc, df.copy())
-            future_uo          = executor.submit(calculate_uo, df.copy())
-            future_adx         = executor.submit(calculate_adx, df.copy())
-            future_bollinger   = executor.submit(calculate_bollinger, df.copy())
-            future_tradingvalue= executor.submit(calculate_tradingvalue, df.copy())
-            future_envelope    = executor.submit(calculate_envelope, df.copy())
-            future_ichimoku    = executor.submit(calculate_ichimoku, df.copy())
-            future_psar        = executor.submit(calculate_psar, df.copy())
+            future_ma          = executor.submit(calculate_ma, df.copy(), prepared=True)
+            future_macd        = executor.submit(calculate_macd, df.copy(), prepared=True)
+            future_rsi         = executor.submit(calculate_rsi, df.copy(), prepared=True)
+            future_stoch       = executor.submit(calculate_stoch, df.copy(), prepared=True)
+            future_stochrsi    = executor.submit(calculate_stochrsi, df.copy(), prepared=True)
+            future_williams    = executor.submit(calculate_williams, df.copy(), prepared=True)
+            future_cci         = executor.submit(calculate_cci, df.copy(), prepared=True)
+            future_atr         = executor.submit(calculate_atr, df.copy(), prepared=True)
+            future_roc         = executor.submit(calculate_roc, df.copy(), prepared=True)
+            future_uo          = executor.submit(calculate_uo, df.copy(), prepared=True)
+            future_adx         = executor.submit(calculate_adx, df.copy(), prepared=True)
+            future_bollinger   = executor.submit(calculate_bollinger, df.copy(), prepared=True)
+            future_tradingvalue= executor.submit(calculate_tradingvalue, df.copy(), prepared=True)
+            future_envelope    = executor.submit(calculate_envelope, df.copy(), prepared=True)
+            future_ichimoku    = executor.submit(calculate_ichimoku, df.copy(), prepared=True)
+            future_psar        = executor.submit(calculate_psar, df.copy(), prepared=True)
             
             # 각 지표 계산 결과를 받습니다.
             df_ma          = future_ma.result()

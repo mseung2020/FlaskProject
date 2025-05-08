@@ -34,7 +34,12 @@ def _prepare_df(df):
         logging.error("데이터프레임 정렬 오류: %s", e)
         raise
 
-def calculate_ma(df, p1=5, p2=20, p3=60, p4=120):
+def prepare_df(df):
+    """지표 계산 전에 한 번만 호출"""
+    return _prepare_df(df)
+
+# 시작
+def calculate_ma(df, p1=5, p2=20, p3=60, p4=120, prepared=False):
     """
     이동평균선(MA)을 계산합니다.
     - p1: 단기 (5일)
@@ -42,7 +47,9 @@ def calculate_ma(df, p1=5, p2=20, p3=60, p4=120):
     - p3: 장기 (60일)
     - p4: 장기 (120일)
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
+        
     try:
         df['ma5'] = df['종가'].rolling(window=p1, min_periods=p1).mean()
         df['ma20'] = df['종가'].rolling(window=p2, min_periods=p2).mean()
@@ -54,11 +61,12 @@ def calculate_ma(df, p1=5, p2=20, p3=60, p4=120):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_macd(df, p1=12, p2=26, signal=9):
+def calculate_macd(df, p1=12, p2=26, signal=9, prepared=False):
     """
     MACD, Signal 및 Oscillator를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['ema12'] = df['종가'].ewm(span=p1, min_periods=p1, adjust=False).mean()
         df['ema26'] = df['종가'].ewm(span=p2, min_periods=p2, adjust=False).mean()
@@ -71,11 +79,12 @@ def calculate_macd(df, p1=12, p2=26, signal=9):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_rsi(df, p=14):
+def calculate_rsi(df, p=14, prepared=False):
     """
     RSI(Relative Strength Index)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         delta = df['종가'].diff()
         Au = delta.where(delta > 0, 0).ewm(com=p-1, min_periods=p, adjust=False).mean()
@@ -89,11 +98,12 @@ def calculate_rsi(df, p=14):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_stoch(df, p1=14, p2=3):
+def calculate_stoch(df, p1=14, p2=3, prepared=False):
     """
     Stochastic Oscillator (%K, %D)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['L'] = df['저가'].rolling(window=p1, min_periods=p1).min()
         df['H'] = df['고가'].rolling(window=p1, min_periods=p1).max()
@@ -108,11 +118,12 @@ def calculate_stoch(df, p1=14, p2=3):
     df.replace([np.inf, -np.inf], 0, inplace=True)
     return df
 
-def calculate_stochrsi(df, p1=14, p2=14, p3=3):
+def calculate_stochrsi(df, p1=14, p2=14, p3=3, prepared=False):
     """
     Stochastic RSI (%K, %D)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         delta = df['종가'].diff()
         Au = delta.where(delta > 0, 0).ewm(com=p1-1, min_periods=p1, adjust=False).mean()
@@ -131,11 +142,12 @@ def calculate_stochrsi(df, p1=14, p2=14, p3=3):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_williams(df, p1=14):
+def calculate_williams(df, p1=14, prepared=False):
     """
     Williams %R을 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['L'] = df['저가'].rolling(window=p1, min_periods=p1).min()
         df['H'] = df['고가'].rolling(window=p1, min_periods=p1).max()
@@ -148,11 +160,12 @@ def calculate_williams(df, p1=14):
     df.replace([np.inf, -np.inf], 0, inplace=True)
     return df
 
-def calculate_cci(df, p1=20):
+def calculate_cci(df, p1=20, prepared=False):
     """
     Commodity Channel Index (CCI)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['M'] = (df['고가'] + df['저가'] + df['종가']) / 3
         df['N'] = df['M'].rolling(window=p1, min_periods=p1).mean()
@@ -167,11 +180,12 @@ def calculate_cci(df, p1=20):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_atr(df, p1=14):
+def calculate_atr(df, p1=14, prepared=False):
     """
     Average True Range (ATR)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['전일 종가'] = df['종가'].shift(1)
         df['TH'] = df[['고가', '전일 종가']].max(axis=1)
@@ -184,11 +198,12 @@ def calculate_atr(df, p1=14):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_roc(df, p1=9):
+def calculate_roc(df, p1=9, prepared=False):
     """
     Rate of Change (ROC)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         col_name = f'{p1}일전 종가'
         df[col_name] = df['종가'].shift(p1)
@@ -199,11 +214,12 @@ def calculate_roc(df, p1=9):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_uo(df, p1=7, p2=14, p3=28):
+def calculate_uo(df, p1=7, p2=14, p3=28, prepared=False):
     """
     Ultimate Oscillator (UO)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['전일 종가'] = df['종가'].shift(1)
         df['BP'] = df['종가'] - df[['저가', '전일 종가']].min(axis=1)
@@ -220,11 +236,12 @@ def calculate_uo(df, p1=7, p2=14, p3=28):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_adx(df, p1=14):
+def calculate_adx(df, p1=14, prepared=False):
     """
     Average Directional Index (ADX)를 계산합니다.
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['전일 종가'] = df['종가'].shift(1)
         df['전일 고가'] = df['고가'].shift(1)
@@ -260,13 +277,14 @@ def calculate_adx(df, p1=14):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_bollinger(df, p1=20, k=2):
+def calculate_bollinger(df, p1=20, k=2, prepared=False):
     """
     Bollinger Band를 계산합니다.
     - p1: 이동평균 기간 (기본 20일)
     - k: 표준편차 배수 (기본 2배)
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['ma20'] = df['종가'].rolling(window=p1, min_periods=p1).mean()
         df['std'] = df['종가'].rolling(window=p1, min_periods=p1).std()
@@ -279,12 +297,13 @@ def calculate_bollinger(df, p1=20, k=2):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_tradingvalue(df):
+def calculate_tradingvalue(df, prepared=False):
     """
     거래대금을 계산합니다.
     거래량 x 평균주가
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['평균주가'] = (df['시가'] + df['고가'] + df['저가'] + df['종가']) / 4
         df['tradingvalue'] = df['평균주가']*df['거래량']
@@ -294,13 +313,14 @@ def calculate_tradingvalue(df):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_envelope(df, p1=20, k=0.1):
+def calculate_envelope(df, p1=20, k=0.1, prepared=False):
     """
     envelope를 계산합니다.
     - p1: 이동평균 기간 (기본 20일)
     - k: 승수 (기본 0.1)
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
         df['ma20'] = df['종가'].rolling(window=p1, min_periods=p1).mean()
         
@@ -312,7 +332,7 @@ def calculate_envelope(df, p1=20, k=0.1):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_ichimoku(df, p1=26, p2=9):
+def calculate_ichimoku(df, p1=26, p2=9, prepared=False):
     """
     ichimoku를 계산합니다.
     반환되는 컬럼:
@@ -322,7 +342,8 @@ def calculate_ichimoku(df, p1=26, p2=9):
     - 선행스팬2 (leading_span2)
     - 후행스팬 (chikou_span)
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:         
         # 1) 전환선 (Conversion Line)
         df['전환선'] = (
@@ -357,13 +378,14 @@ def calculate_ichimoku(df, p1=26, p2=9):
     df.fillna(0, inplace=True)
     return df
 
-def calculate_psar(df, step=0.02, max_step=0.2):
+def calculate_psar(df, step=0.02, max_step=0.2, prepared=False):
     """
     Parabolic SAR(PSAR)을 계산합니다.
     - step: 가속인자(AF) 초기값 (기본 0.02)
     - max_step: 가속인자(AF) 최대값 (기본 0.2)
     """
-    df = _prepare_df(df)
+    if not prepared:
+        df = _prepare_df(df)
     try:
 
         psar_indicator = PSARIndicator(

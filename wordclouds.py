@@ -37,7 +37,8 @@ def get_stock_name(code: str) -> str:
         print(f"[get_stock_name] 오류 발생: {e}")
         return "종목명_오류"
 
-def fetch_news_text(code: str, page: int) -> str:
+shared_session = requests.Session()
+def fetch_news_text(code: str, page: int, session=shared_session) -> str:
     """
     https://finance.naver.com/item/news_news.naver 에서
     'td.title'(기사제목)와 'td.date'(날짜)만 추출.
@@ -59,7 +60,7 @@ def fetch_news_text(code: str, page: int) -> str:
     }
     
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response = session.get(url, headers=headers, params=params, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         news_table = soup.find("table", {"class": "type5", "summary": "종목뉴스의 제목, 정보제공, 날짜"})

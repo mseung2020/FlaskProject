@@ -1,12 +1,13 @@
 import os
 import pandas as pd
-import requests
+import requests, contextlib
 import datetime
 import re
 import logging
 from bs4 import BeautifulSoup
 from soynlp.tokenizer import LTokenizer
 from concurrent.futures import ThreadPoolExecutor
+
 
 # ------------------ 전역 설정 ------------------
 MAX_PAGES = 10
@@ -43,12 +44,14 @@ def load_sentiment_words():
 tokenizer = LTokenizer()
 
 # ------------------ 댓글 크롤링 ------------------
-def get_comment_page(code, page, min_date):
+shared_session = requests.Session()   
+
+def get_comment_page(code, page, min_date, session=shared_session):
     url = f'https://finance.naver.com/item/board.naver?code={code}&page={page}'
     headers = {'User-Agent': 'Mozilla/5.0'}
     
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = session.get(url, headers=headers, timeout=10) 
         res.raise_for_status()
     except Exception as e:
         logging.error(f"페이지 요청 오류 (code: {code}, page: {page}): {e}")
@@ -125,16 +128,18 @@ def compile_vocab_regex(vocab):
     return re.compile(pattern)
 
 # ------------------ 감성 분석 및 라벨링 (정규표현식 방식) ------------------
-def label_comments(df, pos_words, neg_words):
-    pos_regex = compile_vocab_regex(pos_words)
-    neg_regex = compile_vocab_regex(neg_words)
+pos_words, neg_words = load_sentiment_words()
+POS_REGEX  = compile_vocab_regex(pos_words)
+NEG_REGEX  = compile_vocab_regex(neg_words)
+
+def label_comments(df):
     
     labels = []
     matched_tokens_list = []  # 각 댓글별 매칭된 토큰 저장
     
     for comment in df['정제된 댓글']:
-        pos_matches = pos_regex.findall(comment)
-        neg_matches = neg_regex.findall(comment)
+        pos_matches = POS_REGEX.findall(comment)
+        neg_matches = NEG_REGEX.findall(comment)
         score = len(pos_matches) - len(neg_matches)
         
         if score > 0:
@@ -189,7 +194,7 @@ def get_sentiment_index(code):
         
         pos_words, neg_words = load_sentiment_words()
         df_comments = clean_comments(df_comments)
-        df_comments = label_comments(df_comments, pos_words, neg_words)
+        df_comments = label_comments(df_comments)
         
         # 디버깅용: 토큰과 라벨 정보를 CSV로 저장
         df_comments[['정제된 댓글', '매칭된 토큰', 'label']].to_csv(os.path.join(DATA_DIR, 'tokens.csv'), index=False, encoding='utf-8-sig')

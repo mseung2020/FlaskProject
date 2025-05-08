@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 import re
 from datetime import datetime
 
-def get_gosu_index(stock_code):
+shared_session = requests.Session()   
+def get_gosu_index(stock_code, session=shared_session):
     """
     주어진 종목 코드(stock_code)에 대해 네이버 금융의 외국인·기관 순매매 페이지를 크롤링하여,
     오늘을 포함한 최근 5영업일의 데이터를 바탕으로 기관과 외국인의 순매매강도를 계산합니다.
@@ -27,7 +28,7 @@ def get_gosu_index(stock_code):
     headers = {'User-Agent': 'Mozilla/5.0'}
     
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = session.get(url, headers=headers, timeout=10)
         response.encoding = 'cp949'  # 네이버 금융 페이지는 cp949 인코딩 사용
     except Exception as e:
         raise Exception(f"데이터 요청 실패: {e}")

@@ -868,6 +868,7 @@ h1 {
   background-color: var(--secondary-color);
   margin-top: 0.625rem;
   margin-bottom: 0.625rem;
+  padding-bottom: 0.5rem; 
 }
 
 #wordCloudCanvas {
@@ -1091,13 +1092,10 @@ footer {
     overflow-x: auto;
   }
   #tempBox2 {
-    height: 10rem;
+    overflow-x: hidden;
   }
   #undicisionedContainer {
-    position: absolute; 
-    top: 60%; 
-    left: 50%;
-    transform: translate(-50%, -50%)
+    overflow-x: hidden;
   }
   #sentimentIndexBox {
     max-height: 100%;
