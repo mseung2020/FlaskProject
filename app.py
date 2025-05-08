@@ -23,7 +23,6 @@ from gosuindex import get_gosu_index
 from cashflow import get_cashflow_data
 import requests
 import lxml 
-from keep_alive import keep_alive
 
 # ------------------ 설정 및 로깅 ------------------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -582,6 +581,10 @@ def get_cashflow():
 
        
 # ------------------ 서버 실행 ------------------
+@app.route('/ping')
+def ping():
+    return 'pong', 200 
+
 def console_heartbeat():
     """5분마다 콘솔에 '서버 유지 중...' 로그를 찍는 데몬 스레드"""
     while True:
@@ -590,6 +593,5 @@ def console_heartbeat():
         time.sleep(300) 
 
 if __name__ == '__main__':
-    keep_alive() 
     threading.Thread(target=console_heartbeat, daemon=True).start()
     app.run(host='0.0.0.0', port=8080, debug=True)
