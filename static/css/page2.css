@@ -241,7 +241,6 @@ footer {
     padding: 1rem;
     position: relative;
   }
-
   .header-left {
     display: flex;
     align-items: center;
@@ -255,30 +254,37 @@ footer {
     position: absolute;
     right: 2rem;
   }
-
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
   #main-nav {
     position: fixed;
     top: 0;
-    right: -100%;
-    width: 30%; /* 필요에 따라 조정 */
+    right: 0; /* 기본 숨김 */
+    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
     max-width: 300px;
     height: 100vh;
     background-color: var(--white);
-    color: var(--primary-color) !important;
+    color: var(--primary-color);
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
     box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
-    transition: right var(--transition-speed) ease-in-out;
+    transform: translateX(100%);
+    transition: transform var(--transition-speed) ease-out;
+    will-change: transform;
     z-index: 1000;
-    margin-top: 0;
+    margin-top: 0; /* 상단 틈 제거 */
     margin-right: 0;
   }
-
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
   #main-nav a.header-link {
     color: var(--primary-color);
     padding: 0.75rem 0;
@@ -288,10 +294,6 @@ footer {
     font-weight: 600;
     text-decoration: none;
     transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  #main-nav.nav-active {
-    right: 0;
   }
 
   #overlay {
@@ -304,7 +306,6 @@ footer {
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 999;
   }
-
   #overlay.active {
     display: block;
   }
@@ -315,30 +316,24 @@ footer {
     padding: 1rem; /* 필요에 따라 조정 */
     gap: 1rem;
   }
-  
   #stockListBox {
     margin-bottom: 1rem;
 
   }
-  
   #chartBox {
     height: auto;
   }
-  
   .stockItem {
     font-size: 1rem;  /* 예: 16px 기준 */
     padding: 0.5rem;
   }
-  
   canvas {
     width: 100% !important;
     height: auto !important;
   }
-
   body {
     overflow-x: hidden;
   }
-
   .accordion-header {
     display: flex;
     justify-content: space-between;
