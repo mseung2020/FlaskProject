@@ -1150,6 +1150,14 @@ footer {
     height: 100%; 
   }
 
+  #wordCloudBox{
+    height: 300px;   /* 필요에 따라 60~80vh 로 조정 */
+  }
+
+  #wordCloudContainer{
+    height: calc(100% - 45px); /* 위에서 수정한 문법 그대로 */
+  }
+
   #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
   #mainContainer > .box:nth-child(2) { animation-delay: 0.4s; }
   #mainContainer > .box:nth-child(3) { animation-delay: 0s; }
