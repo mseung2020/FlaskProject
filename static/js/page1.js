@@ -3,7 +3,7 @@
 (function(global) {
   'use strict';
 
-  Chart.defaults.font.family = "'Paperlogy', Arial, sans-serif";
+  Chart.defaults.font.family = "'Paperlogy', 'Eugro M', Arial, sans-serif";
 
    // 캔들 차트 클래스 정의
   function CandleChart(ctx) {
@@ -350,7 +350,7 @@
       chart.data.datasets.forEach((dataset, datasetIndex) => {
         const label = dataset.label; // '영업', '투자', '재무'
         const meta = chart.getDatasetMeta(datasetIndex);
-        ctx.font = 'bold 18px Paperlogy';
+        ctx.font = 'bold 18px Eugro L';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
   
@@ -359,7 +359,7 @@
           const value = dataset.data[index];
           const color = value >= 0 ? '#4caf50' : '#ff4f4f';
           ctx.fillStyle = color;
-          ctx.font = 'bold 18px Paperlogy'
+          ctx.font = 'bold 18px Eugro L'
 
 
 
@@ -2569,9 +2569,12 @@
             },
             color: '#fff',
             font: {
+              family: 'Eugro L',
               weight: 'bold',
               size: 20
-            }
+            },
+            textStrokeColor: 'rgba(0,0,0,0.35)',
+            textStrokeWidth: 1
           }
         }
       },

@@ -36,6 +36,18 @@
   font-style: normal;
 }
 
+/* Eugro */
+@font-face {
+  font-family: 'Eugro M';
+  src: url('../fonts/Eugro M.ttf') format('truetype');
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Eugro L';
+  src: url('../fonts/Eugro L.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ========== 기본 스타일 ========== */
 body {
   font-family: var(--font-family);
@@ -69,7 +81,7 @@ header {
 .header-left {
   display: flex;
   align-items: center;
-  font-family: 'Tenada';
+  font-family: 'Eugro M';
 }
 
 .header-logo {
@@ -96,7 +108,7 @@ header nav {
 }
 
 header .header-link {
-  font-family: 'Paperlogy';
+  font-family: 'Eugro L';
   color: var(--white);
   text-decoration: none;
   font-size: 20px;
@@ -198,6 +210,7 @@ h1 {
   color: var(--text-color);
   padding: 0.3125rem ;
   white-space: nowrap;
+  font-family: 'GmarketSansMedium';
 }
 
 .chart-btn {
@@ -581,6 +594,7 @@ h1 {
 .financial-header h3 {
   font-weight: bold;
   font-size: 1rem ;
+  font-family: 'GmarketSansMedium';
 }
 .financial-header .unit-info {
   font-size: 0.875rem;
@@ -604,7 +618,8 @@ h1 {
 #financialTable thead th {
   background-color: #f2f2f2;
   color: #333;
-  font-weight: bold;
+  font-family: 'Paperlogy';
+  font-weight: lighter;
   text-align: center;
   white-space: nowrap;
   border-bottom: 2px solid #274c77;
@@ -709,7 +724,7 @@ h1 {
   margin-bottom: 0.9375rem ;
   font-size: 1rem ;
   color: var(--text-color2);
-  font-weight: bold;
+  font-family: 'Eugro M';
 }
 .gosu-footer {
   display: flex;
@@ -721,8 +736,8 @@ h1 {
 .footer-label {
   margin: 0 1.25rem ;
   font-size: 1rem ;
-  font-weight: bold;
   white-space: nowrap;
+  font-family: 'Eugro M';
 }
 
 /* 하수 인덱스 영역 (우측) */
@@ -735,7 +750,7 @@ h1 {
   margin-bottom: 0.625rem ;
   font-size: 1rem ;
   color: var(--text-color2);
-  font-weight: bold;
+  font-family: 'Eugro M';
 }
 .pie-chart-container {
   width: 13.75rem ;   /* 원하는 고정 너비 (예: 200px) */
@@ -849,6 +864,7 @@ h1 {
 .wordcloud-header h3 {
   font-weight: bold;
   font-size: 1rem ;
+  font-family: 'GmarketSansMedium';
 }
 
 .wordcloud-header .unit-info {

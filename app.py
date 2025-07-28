@@ -44,24 +44,47 @@ PRECOMPUTE_DAYS = 370
 
 # ------------------ 종목 리스트 로드 (캐싱 및 다운로드) ------------------
 def load_stock_list():
+    """
+    KRX 종목 리스트를 로컬 캐시에서 읽거나 웹에서 다운로드해
+    [{'회사명': ..., '종목코드': ...}, ...] 형태로 반환한다.
+    숫자가 아닌 코드(예: '0004Y0')는 자동으로 제거한다.
+    """
     try:
         if os.path.exists(STOCK_CACHE_FILE):
-            # logging.info("로컬 캐시 파일에서 종목 리스트 로드: %s", STOCK_CACHE_FILE)
+            # ── 1) 캐시가 있으면 바로 사용 ─────────────
             df = pd.read_csv(STOCK_CACHE_FILE, dtype={'종목코드': str})
         else:
+            # ── 2) 없으면 웹에서 새로 다운로드 ────────
             logging.info("캐시 파일이 없으므로 종목 리스트 다운로드 시작.")
             df = pd.read_html(STOCK_LIST_URL, encoding='euc-kr')[0]
-            # 종목코드를 6자리 문자열로 포맷
-            df['종목코드'] = df['종목코드'].apply(lambda x: f"{int(x):06d}")
+
+            # (1) 숫자로만 구성된 코드만 남기기
+            df = df[df['종목코드'].astype(str).str.isdigit()].copy()
+
+            # (2) 6자리 0‑패딩 문자열로 변환
+            df['종목코드'] = (
+                df['종목코드']
+                  .astype(int)      # int → 오류 방지용
+                  .astype(str)
+                  .str.zfill(6)
+            )
+
+            # (3) 회사명 순 정렬 & 캐시 저장
             df = df.sort_values(by='회사명', ascending=True)
             df.to_csv(STOCK_CACHE_FILE, index=False)
             logging.info("종목 리스트 다운로드 및 저장 완료.")
-        # 리스트 형식으로 변환
-        stock_list = [{"회사명": row['회사명'], "종목코드": row['종목코드']} for _, row in df.iterrows()]
+
+        # ── 3) 딕셔너리 리스트로 변환 ────────────────
+        stock_list = [
+            {"회사명": row["회사명"], "종목코드": row["종목코드"]}
+            for _, row in df.iterrows()
+        ]
         return stock_list
+
     except Exception as e:
         logging.error("종목 리스트 로드 중 오류: %s", e)
         return []
+
 
 # 전역 변수로 종목 리스트 로드 (서버 시작 시 미리 로드)
 all_stocks = load_stock_list()

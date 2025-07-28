@@ -34,6 +34,18 @@
   font-style: normal;
 }
 
+/* Eugro */
+@font-face {
+  font-family: 'Eugro M';
+  src: url('../fonts/Eugro M.ttf') format('truetype');
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Eugro L';
+  src: url('../fonts/Eugro L.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ----- 기본 스타일 ----- */
 body {
   font-family: var(--font-family);
@@ -57,7 +69,7 @@ header {
 .header-left {
   display: flex;
   align-items: center;
-  font-family: 'Tenada';
+  font-family: 'Eugro M';
 }
 
 .header-logo {
@@ -84,7 +96,7 @@ header nav {
 }
 
 header .header-link {
-  font-family: 'Paperlogy';
+  font-family: 'Eugro L';
   color: var(--white);
   text-decoration: none;
   font-size: 20px;

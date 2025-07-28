@@ -40,6 +40,18 @@ html {
   font-style: normal;
 }
 
+/* Eugro */
+@font-face {
+  font-family: 'Eugro M';
+  src: url('../fonts/Eugro M.ttf') format('truetype');
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Eugro L';
+  src: url('../fonts/Eugro L.ttf') format('truetype');
+  font-style: normal;
+}
+
 /* ----- 바디 ----- */
 body {
   font-family: var(--font-family);
@@ -65,7 +77,7 @@ header {
 .header-left {
   display: flex;
   align-items: center;
-  font-family: 'Tenada';
+  font-family: 'Eugro M';
 }
 
 .header-logo {
@@ -89,7 +101,7 @@ header nav {
   gap: 1.875rem;     /* 기존: 30px (30/16) */
   margin: 0.625rem;    /* 기존: 10px (10/16) */
   flex: 1;
-  font-family: 'Paperlogy';
+  font-family: 'Eugro L';
 }
 
 header .header-link {
