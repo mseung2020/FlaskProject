@@ -549,12 +549,30 @@
     }
   }
 
+  // 오늘 날짜를 "YYYY.MM.DD" 형태로 돌려주는 헬퍼
+  function getTodayStr() {
+    return new Date().toISOString().slice(0,10).replace(/-/g,'.');
+  }
+
+  // 레이블과 오늘 날짜가 다른지 판단
+  function isStale() {
+    const label = document.getElementById('date_label').textContent.split(':')[1]?.trim();
+    const today = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+    return label?.replace(/[.\-]/g,'') !== today.replace(/[.\-]/g,'');
+  }
+
   function ResetChart() {
     if (!AppState.currentCode) return;
-    if (currentDays != 122) {
+
+    const needRefresh = isStale();           // 날짜가 오래됐는지
+    const daysChanged = currentDays !== 122; // 확대·축소 상태인지
+
+    if (daysChanged) {
       currentDays = 122;
-      document.getElementById('daysInput').value = currentDays;
-      requestChart(); // 차트 재요청
+      document.getElementById('daysInput').value = 122;
+    }
+    if (needRefresh || daysChanged) {
+      requestChart(true);             // 캐시 우회 여부 전달
     }
   }
 
@@ -663,7 +681,7 @@
   }
 
   // ========== Chart Data Request ==========
-  function requestChart() {
+  function requestChart(forceRefresh = false) {
     if (!AppState.currentCode) {
       alert('종목을 선택하세요.');
       return;
@@ -692,7 +710,13 @@
       adx: document.getElementById("toggleADX").checked ? 'true' : 'false'
     };
     const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&psar=${PSAR}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
-    fetch('/get_ohlc_history', {
+    
+    // 캐시 무시가 필요할 때만 URL 뒤에 timestamp를 붙여 새 주소로 호출
+    const url = forceRefresh
+              ? `/get_ohlc_history?ts=${Date.now()}`
+              : '/get_ohlc_history';
+
+    fetch(url, {            // fetchOpts 객체 대신 이렇게 간단히
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: requestBody
