@@ -1,0 +1,47 @@
+/* Paperlogy */
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('../fonts/Paperlogy.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* GmarketSansMedium */
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-style: normal;
+}
+
+/* Tenada */
+@font-face {
+  font-family: 'Tenada';
+  src: url('../fonts/Tenada.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* Eugro */
+@font-face {
+  font-family: 'Eugro M';
+  src: url('../fonts/Eugro M.ttf') format('truetype');
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Eugro L';
+  src: url('../fonts/Eugro L.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* esamanru */
+@font-face {
+  font-family: 'esamanru Medium';
+  src: url('../fonts/esamanru Medium.ttf') format('truetype');
+  font-style: normal;
+}
+
+/* samlip */
+@font-face {
+  font-family: 'samlip';
+  src: url('../fonts/samlip.ttf') format('truetype');
+  font-style: normal;
+}
+

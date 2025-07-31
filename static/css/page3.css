@@ -15,39 +15,6 @@
   --transition-speed: 0.3s;
 }
 
-/* Paperlogy */
-@font-face {
-  font-family: 'Paperlogy';
-  src: url('../fonts/Paperlogy.ttf') format('truetype');
-  font-style: normal;
-}
-
-/* GmarketSansMedium */
-@font-face {
-  font-family: 'GmarketSansMedium';
-  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
-  font-style: normal;
-}
-
-/* Tenada */
-@font-face {
-  font-family: 'Tenada';
-  src: url('../fonts/Tenada.ttf') format('truetype');
-  font-style: normal;
-}
-
-/* Eugro */
-@font-face {
-  font-family: 'Eugro M';
-  src: url('../fonts/Eugro M.ttf') format('truetype');
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Eugro L';
-  src: url('../fonts/Eugro L.ttf') format('truetype');
-  font-style: normal;
-}
-
 /* ----- 바디 ----- */
 body {
   font-family: var(--font-family);
@@ -73,11 +40,11 @@ header {
 .header-left {
   display: flex;
   align-items: center;
-  font-family: 'Eugro M';
+  font-family: 'esamanru Medium';
 }
 
 .header-logo {
-  height: 2.5rem; /* 40px */
+  height: 2.7rem; /* 40px */
   margin-left: 0.3125rem; /* 5px */
   vertical-align: middle; 
   cursor: pointer;
@@ -103,7 +70,7 @@ header nav {
 header .header-link {
   color: var(--white);
   text-decoration: none;
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.3rem; /* 20px */
   font-weight: bold;
   padding: 0.3125rem 0.625rem; /* 5px 10px */
   transition: background-color 0.3s ease, transform 0.3s ease;

@@ -347,29 +347,60 @@
     id: 'cashflowLabelPlugin',
     afterDatasetsDraw(chart, args, options) {
       const { ctx } = chart;
+      const labelPositions = [];
+      const labelHeight = 19; // 고정 높이
+      const paddingX = 4;
+      const paddingY = 0;
+
       chart.data.datasets.forEach((dataset, datasetIndex) => {
-        const label = dataset.label; // '영업', '투자', '재무'
+        const label = dataset.label;
         const meta = chart.getDatasetMeta(datasetIndex);
         ctx.font = 'bold 18px Eugro L';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-  
+
         meta.data.forEach((point, index) => {
           if (index !== dataset.data.length - 1) return;
+
           const value = dataset.data[index];
           const color = value >= 0 ? '#4caf50' : '#ff4f4f';
           ctx.fillStyle = color;
-          ctx.font = 'bold 18px Eugro L'
 
+          const x = point.x + 15;
+          const baseY = point.y;
 
+          // 위치 후보
+          const tryOffsets = [0, 10, -10, 20, -20];
 
-          ctx.fillText(label, point.x + 15, point.y);
+          let chosenY = baseY;
+          for (let offset of tryOffsets) {
+            const y = baseY + offset;
+            const overlaps = labelPositions.some(pos => Math.abs(pos.y - y) < labelHeight);
+            if (!overlaps) {
+              chosenY = y;
+              break;
+            }
+          }
+
+          labelPositions.push({ x, y: chosenY });
+
+          // === 배경 박스 ===
+          const textWidth = ctx.measureText(label).width;
+          const boxX = x - paddingX;
+          const boxY = chosenY - labelHeight / 2 - paddingY + 2;
+
+          ctx.fillStyle = '#f9f9f9'; // 배경색
+          ctx.fillRect(boxX, boxY, textWidth + paddingX * 2, labelHeight + paddingY * 2 - 2);
+
+          // === 텍스트 ===
+          ctx.fillStyle = color;
+          ctx.fillText(label, x, chosenY);
         });
       });
     }
   };
 
-  
+
   // 미리 정의된 플러그인들
   const HorizontalLinePlugin3070 = createHorizontalLinePlugin([30, 70]);
   const HorizontalLinePlugin2080 = createHorizontalLinePlugin([20, 80]);
@@ -549,30 +580,12 @@
     }
   }
 
-  // 오늘 날짜를 "YYYY.MM.DD" 형태로 돌려주는 헬퍼
-  function getTodayStr() {
-    return new Date().toISOString().slice(0,10).replace(/-/g,'.');
-  }
-
-  // 레이블과 오늘 날짜가 다른지 판단
-  function isStale() {
-    const label = document.getElementById('date_label').textContent.split(':')[1]?.trim();
-    const today = new Date().toISOString().slice(0,10).replace(/-/g,'.');
-    return label?.replace(/[.\-]/g,'') !== today.replace(/[.\-]/g,'');
-  }
-
   function ResetChart() {
     if (!AppState.currentCode) return;
-
-    const needRefresh = isStale();           // 날짜가 오래됐는지
-    const daysChanged = currentDays !== 122; // 확대·축소 상태인지
-
-    if (daysChanged) {
+    if (currentDays != 122) {
       currentDays = 122;
-      document.getElementById('daysInput').value = 122;
-    }
-    if (needRefresh || daysChanged) {
-      requestChart(true);             // 캐시 우회 여부 전달
+      document.getElementById('daysInput').value = currentDays;
+      requestChart(); // 차트 재요청
     }
   }
 
@@ -681,7 +694,7 @@
   }
 
   // ========== Chart Data Request ==========
-  function requestChart(forceRefresh = false) {
+  function requestChart() {
     if (!AppState.currentCode) {
       alert('종목을 선택하세요.');
       return;
@@ -710,13 +723,7 @@
       adx: document.getElementById("toggleADX").checked ? 'true' : 'false'
     };
     const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&psar=${PSAR}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
-    
-    // 캐시 무시가 필요할 때만 URL 뒤에 timestamp를 붙여 새 주소로 호출
-    const url = forceRefresh
-              ? `/get_ohlc_history?ts=${Date.now()}`
-              : '/get_ohlc_history';
-
-    fetch(url, {            // fetchOpts 객체 대신 이렇게 간단히
+    fetch('/get_ohlc_history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: requestBody

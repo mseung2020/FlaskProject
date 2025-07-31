@@ -7,6 +7,7 @@
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
   
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/page2.css') }}">
 </head>
 <body>
@@ -42,14 +43,14 @@
       </div>
 
       <div id="stockContainer" class="accordion-content">
-        <div id="adxBtn" class="stockItem" onclick="showIndicatorContent('ADX', this)">ADX</div>
-        <div class="stockItem" onclick="showIndicatorContent('ATR', this)">ATR</div>
-        <div class="stockItem" onclick="showIndicatorContent('CCI', this)">CCI</div>
-        <div class="stockItem" onclick="showIndicatorContent('MACD', this)">MACD</div>
-        <div class="stockItem" onclick="showIndicatorContent('ROC', this)">ROC</div>
-        <div class="stockItem" onclick="showIndicatorContent('RSI', this)">RSI</div>
-        <div class="stockItem" onclick="showIndicatorContent('STOCH', this)">STOCH</div>
-        <div class="stockItem" onclick="showIndicatorContent('STOCH RSI', this)">STOCH RSI</div>
+        <div id="adxBtn" class="stockItem" onclick="showIndicatorContent('ADX', this)">ADX (평균방향지수)</div>
+        <div class="stockItem" onclick="showIndicatorContent('ATR', this)">ATR (평균변동범위)</div>
+        <div class="stockItem" onclick="showIndicatorContent('CCI', this)">CCI (상품채널지수)</div>
+        <div class="stockItem" onclick="showIndicatorContent('MACD', this)">MACD (이동평균추세)</div>
+        <div class="stockItem" onclick="showIndicatorContent('ROC', this)">ROC (추세변동률)</div>
+        <div class="stockItem" onclick="showIndicatorContent('RSI', this)">RSI (상대강도지수)</div>
+        <div class="stockItem" onclick="showIndicatorContent('STOCH', this)">STOCH (스토캐스틱)</div>
+        <div class="stockItem" onclick="showIndicatorContent('STOCH RSI', this)">STOCHRSI (스토캐스틱+RSI)</div>
         <div class="stockItem" onclick="showIndicatorContent('Ultimate Oscillator', this)">Ultimate Oscillator</div>
         <div class="stockItem" onclick="showIndicatorContent('Williams %R', this)">Williams %R</div>
       </div>

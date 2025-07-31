@@ -25,7 +25,7 @@ if (contentBox) {
     if (indicator === 'ATR') {
     contentBox.innerHTML =
         '<h2 style="margin:0; padding:0; font-size: 40px;">ATR이란?</h2>' +
-        '<p>ATR(Average True Range, 평균 실제 범위)은 주가의 변동성을 측정하는 기술적 지표입니다.<br>' +
+        '<p>ATR(Average True Range, 평균 실질 변동 범위)은 주가의 변동성을 측정하는 기술적 지표입니다.<br>' +
         '쉽게 말해, <strong>"최근 일정 기간 동안 주가가 얼마나 크게 움직였는가?"</strong>를 분석하는 도구입니다.</p>' +
         '<p><strong>💡 ATR 값이 높으면 시장 변동성이 크고, ATR 값이 낮으면 시장 변동성이 작다는 의미입니다.</strong></p>' +
         '<p> <br></p>' +
