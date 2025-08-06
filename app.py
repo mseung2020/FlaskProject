@@ -21,6 +21,7 @@ from wordclouds import get_word_frequencies
 from hasuindex import get_sentiment_index
 from gosuindex import get_gosu_index
 from cashflow import get_cashflow_data
+from factor import process_factor_data
 import requests
 import lxml 
 
@@ -108,6 +109,10 @@ def page2():
 @app.route('/page3')
 def page3():
     return render_template('page3.html')
+
+@app.route('/factor')
+def factor():
+    return render_template('factor.html')
 
 # ------------------ 종목 리스트 API ------------------
 @cache.cached(timeout=3600, query_string=True)
@@ -278,7 +283,6 @@ def prepare_full_ohlc_data(code):
     except Exception as e:
         logging.error("전체 보조지표 계산 중 오류: %s", e)
     return df
-
 
 # ------------------ 주가 데이터 및 보조지표 API ------------------
 @cache.cached(timeout=3600, query_string=True)
@@ -602,7 +606,45 @@ def get_cashflow():
 
     return jsonify(result)
 
-       
+# ------------------ 팩터 연구 ------------------
+@cache.memoize(timeout=3600)
+def process_factor_data_cached(file_indices, condition_mode, duration_months):
+    from factor import process_factor_data
+    return process_factor_data(file_indices, condition_mode, duration_months)
+
+@app.route('/factor_result', methods=['POST'])
+def factor_result():
+
+    data = request.get_json()
+    selected_factors = data.get('selectedFactors', [])
+    
+    condition_type = data.get('mode', 'AND').upper()
+    slider_value = data.get('months', 3)
+
+    # factor.py 함수 실행
+    stock_data = process_factor_data_cached(
+        selected_factors, condition_type, slider_value
+    )
+    
+    avg_return = stock_data["average_return"]
+    condition_text = stock_data["condition_text"]
+    company_names = stock_data["companies"]
+
+    # 데이터 부족 처리  
+    if not stock_data:
+        return jsonify({'error': '데이터 부족'}), 400
+
+    return jsonify({
+        "condition_text": condition_text,
+        "average_return": avg_return,
+        "companies": company_names,
+        "company_returns": stock_data.get("company_returns", []),
+        "selected_names": stock_data.get("selected_names", []),
+        "months": stock_data.get("months", None),                
+        "mode": stock_data.get("mode", "AND")                    
+    })
+
+
 # ------------------ 서버 실행 ------------------
 @app.route('/ping')
 def ping():
