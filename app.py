@@ -607,11 +607,7 @@ def get_cashflow():
     return jsonify(result)
 
 # ------------------ 팩터 연구 ------------------
-@cache.memoize(timeout=3600)
-def process_factor_data_cached(file_indices, condition_mode, duration_months):
-    from factor import process_factor_data
-    return process_factor_data(file_indices, condition_mode, duration_months)
-
+@cache.cached(timeout=3600, query_string=True)
 @app.route('/factor_result', methods=['POST'])
 def factor_result():
 
@@ -622,7 +618,7 @@ def factor_result():
     slider_value = data.get('months', 3)
 
     # factor.py 함수 실행
-    stock_data = process_factor_data_cached(
+    stock_data = process_factor_data(
         selected_factors, condition_type, slider_value
     )
     
