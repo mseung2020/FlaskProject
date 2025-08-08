@@ -32,3 +32,6 @@ deactivate
 # 5. 서비스를 재시작하여 코드 적용
 sudo systemctl restart myflask
 sudo systemctl status  myflask -n 10   # 오류 없는지 확인
+
+# 6. 터미널 오류확인 방법 
+sudo journalctl -u myflask -n 50 --no-pager
