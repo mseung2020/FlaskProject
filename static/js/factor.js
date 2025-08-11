@@ -38,34 +38,19 @@
   document.addEventListener('DOMContentLoaded', () => {
     const knob = document.getElementById("sliderKnob");
     const track = document.getElementById("sliderTrack");
-
     const positions = [0, 33.33, 66.66, 100];
 
     let isDragging = false;
 
-    knob.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      document.body.style.userSelect = "none";
-    });
-
-    document.addEventListener("mouseup", () => {
-      if (isDragging) {
-        isDragging = false;
-        snapToClosest();
-        document.body.style.userSelect = "";
-      }
-    });
-
-    document.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
+    function setLeftByClientX(clientX) {
       const rect = track.getBoundingClientRect();
-      let x = e.clientX - rect.left;
+      let x = clientX - rect.left;
       x = Math.max(0, Math.min(x, rect.width));
       knob.style.left = `${(x / rect.width) * 100}%`;
-    });
+    }
 
     function snapToClosest() {
-      const currentLeft = parseFloat(knob.style.left);
+      const currentLeft = parseFloat(knob.style.left || '0');
       let closest = positions[0];
       let minDiff = Math.abs(currentLeft - closest);
       positions.forEach(pos => {
@@ -76,10 +61,60 @@
         }
       });
       knob.style.left = `${closest}%`;
-      // 여기서 원하는 텍스트(예: "3개월")를 표시할 수 있음
     }
 
-    // 초기 위치 설정
+    function startDrag() {
+      isDragging = true;
+      document.body.style.userSelect = "none";
+    }
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      snapToClosest();
+      document.body.style.userSelect = "";
+    }
+
+    // 마우스
+    knob.addEventListener("mousedown", (e) => {
+      startDrag();
+      e.preventDefault();
+    });
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      setLeftByClientX(e.clientX);
+    });
+    document.addEventListener("mouseup", endDrag);
+
+    // 터치
+    knob.addEventListener("touchstart", (e) => {
+      startDrag();
+      // 첫 터치 좌표 기준으로 바로 반영해도 됨
+      setLeftByClientX(e.touches[0].clientX);
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!isDragging) return;
+      setLeftByClientX(e.touches[0].clientX);
+      e.preventDefault(); // 스크롤/제스처 충돌 방지
+    }, { passive: false });
+
+    document.addEventListener("touchend", endDrag);
+
+    // 트랙을 탭(클릭/터치)했을 때도 그 위치로 이동 + 스냅
+    function jumpTo(clientX) {
+      setLeftByClientX(clientX);
+      snapToClosest();
+    }
+    track.addEventListener("mousedown", (e) => {
+      jumpTo(e.clientX);
+    });
+    track.addEventListener("touchstart", (e) => {
+      jumpTo(e.touches[0].clientX);
+      e.preventDefault();
+    }, { passive: false });
+
+    // 초기 위치
     knob.style.left = `${positions[0]}%`;
   });
 
