@@ -297,8 +297,21 @@ footer {
     margin-bottom: 1rem;
   }
 
-  .factor-image {
-    height: 190px !important;
+  #Box1 {
+    overflow: hidden;
+    padding: 0;
+    aspect-ratio: auto !important; /* 혹시 이전 규칙 무효화 */
+  }
+
+
+  #Box1 .factor-image {
+    width: 100%;
+    height: 100%;           /* 박스 높이를 가득 사용 */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
+    object-position: center;
+    display: block;
   }
 
   #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
