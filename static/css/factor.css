@@ -732,13 +732,33 @@ footer {
   }
 
   .factor-btn {
-    font-size: 10px;
-    padding: 16px 2px;
+    font-size: 8px;
+    padding: 16px 1px;
   }
 
   .slider-label {
     font-size: 12px;
   }
+
+  .box4-left .factor-btn {
+    width: 75px;
+    height: 100%;
+  }
+
+  .box4-right-btn {
+    padding: 14px 25px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Paperlogy';
+    font-weight: lighter;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background-color 0.2s ease;
+    margin-bottom: 10px;
+  }
+
 
 
   #Box2 { animation-delay: 0.2s !important; }
