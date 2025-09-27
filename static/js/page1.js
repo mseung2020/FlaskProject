@@ -2523,6 +2523,14 @@
           console.warn("워드 클라우드에 표시할 단어가 없습니다.");
           return;
         }
+
+        const totalFreq = wordArray.reduce((s, [,f]) => s + f, 0);
+        const top5Lines = [...wordArray]
+          .sort((a,b) => b[1] - a[1])
+          .slice(0,5)
+          .map(([w,f]) => `${w}: ${Math.round((f / totalFreq) * 100)}%`);
+        // 컨테이너 data에 보관 (리스너에서 사용)
+        container.dataset.wcTooltip = top5Lines.join('<br>');
   
         // 최대 빈도 계산
         const maxFrequency = Math.max(...wordArray.map(([_, freq]) => freq));
@@ -2541,6 +2549,46 @@
           rotateRatio: 0,
           backgroundColor: '#f9f9f9'
         });
+
+      // === 툴팁 바인딩(중복 방지) ===
+        if (!container.dataset.wcBound) {
+          let tip = document.getElementById('wordCloudTooltip');
+          if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'wordCloudTooltip';
+            tip.setAttribute('role','tooltip');
+            tip.setAttribute('aria-hidden','true');
+            // CSS 선택자와 맞추려면 굳이 클래스는 필요 없음(위 CSS 수정 시)
+            document.getElementById('wordCloudContainer').appendChild(tip);
+          }
+
+          let hideTimer = null;
+
+          const show = () => {
+            if (!container.dataset.wcTooltip) return;
+            tip.innerHTML = container.dataset.wcTooltip;
+            tip.classList.add('visible');
+            tip.setAttribute('aria-hidden', 'false');
+          };
+
+          const hide = () => {
+            tip.classList.remove('visible');
+            tip.setAttribute('aria-hidden', 'true');
+            if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+          };
+          
+          canvas.addEventListener('mouseenter', show);
+          canvas.addEventListener('mouseleave', hide);
+
+          // 모바일: 탭 시 확대 + 툴팁, 손 떼면 닫기
+          canvas.addEventListener('touchstart', () => {
+            container.classList.add('wc-touch');   // 확대 효과 유지용
+            show();
+            
+          }, { passive: true });
+
+          container.dataset.wcBound = '1';
+        }
       })
       .catch(error => console.error('워드클라우드 업데이트 실패:', error));
   }

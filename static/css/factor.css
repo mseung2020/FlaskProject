@@ -691,9 +691,21 @@ footer {
     margin: 0 0 2px 0;
   }
 
+  /* 중간 줄(팩터 문장)만 작게: 2번째 ~ 끝에서 두 번째 전까지 */
+  .condition-text > div:nth-child(n+2):not(:nth-last-child(2)):not(:last-child) {
+    font-size: 10px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* 중간 줄 안의 색상 스팬도 함께 축소 */
+  .condition-text > div:nth-child(n+2):not(:nth-last-child(2)):not(:last-child) span {
+    font-size: 10px !important;
+  }
+
+
   /* 괄호 안내 문구 (JS에서 마지막 div로 생성됨) */
   .condition-text div:last-child {
-    font-size: 8px !important;   /* 안내문 더 작게 */
+    font-size: 7px !important;   /* 안내문 더 작게 */
     margin-top: 6px !important;
     color: #888 !important;
   }

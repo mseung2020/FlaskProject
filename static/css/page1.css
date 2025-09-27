@@ -876,6 +876,37 @@ h1 {
   font-size: 0.875rem ;
 }
 
+#wordCloudTooltip {
+  position: absolute;
+  pointer-events: none;
+  max-width: 18rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  background: rgba(20, 20, 20, 0.8);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.98);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .20s ease, transform .20s ease;
+  z-index: 5;
+}
+
+#wordCloudTooltip.visible,
+.wc-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity .36s ease, transform .36s ease;
+}
+
 /* ========== 반응형 디자인 ==========
 @media (max-width: 1200px) {
   #mainContainer {
@@ -1080,6 +1111,7 @@ footer {
   }
   #tempBox2 {
     overflow-x: hidden;
+    height: 19.1rem !important;
   }
   #undicisionedContainer {
     overflow-x: hidden;

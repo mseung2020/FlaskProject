@@ -397,7 +397,7 @@
     container.appendChild(finalLine);
 
     const disclaimer = document.createElement('div');
-    disclaimer.textContent = '(일부 데이터는 포함되지 않았을 수 있습니다.)';
+    disclaimer.textContent = '(일부 데이터가 포함되지 않을 수 있습니다.)';
     disclaimer.style.fontSize = '12px';
     disclaimer.style.color = '#888';
     disclaimer.style.marginTop = '4px';
