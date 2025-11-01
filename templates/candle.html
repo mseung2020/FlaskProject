@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PGJ6TWV8');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NewCandle™</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}" />
+  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}" />
+
+  <!-- 공통 폰트 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}" />
+  <!-- 페이지 전용 CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/candle.css') }}" />
+
+  <!-- Chart.js & Plugins (모두 UMD 빌드) -->
+  <!-- 순서도 함께 정리: Chart.js -> date adapter -> financial -> zoom -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- 헤더: page1/index와 동일 구조 -->
+  <header role="banner">
+    <div class="header-left">
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo"
+           class="header-logo" onclick="location.href='/'" />
+      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+    </div>
+    <div class="menu-icon">&#9776;</div>
+    <div class="header-right">
+      <nav id="main-nav" aria-label="메인 네비게이션">
+        <a href="/index" class="header-link">• 종목 분석</a>
+        <a href="/page2"  class="header-link">• 투자 정보</a>
+        <a href="/page3"  class="header-link">• AI 연구</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 오버레이 -->
+  <div id="overlay"></div>
+
+  <!-- 메인 그리드 -->
+  <main id="mainContainer">
+    <!-- 좌: 종목/옵션 -->
+    <section id="leftPanel" class="box" aria-label="종목 선택 및 옵션">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" placeholder="코스피50 종목 검색" aria-label="회사명 검색" />
+        <button id="searchBtn" class="btn">검색</button>
+      </div>
+
+      <div class="days-wrapper">
+        <label for="daysInput" id="days">조회 일수</label>
+        <input type="number" id="daysInput" min="10" max="100" value="30" aria-label="조회 기간" />
+        <button id="refreshBtn" class="btn">조회</button>
+      </div>
+
+      <div class="pattern-filter">
+        <div class="pattern-grid" id="patternGrid">
+          <button type="button" class="pattern-btn active" data-value="bullish_reversal" aria-pressed="true">상승·반전</button>
+          <button type="button" class="pattern-btn" data-value="bullish_trend" aria-pressed="false">상승·지속</button>
+          <button type="button" class="pattern-btn" data-value="bearish_reversal" aria-pressed="false">하락·반전</button>
+          <button type="button" class="pattern-btn" data-value="bearish_trend" aria-pressed="false">하락·지속</button>
+        </div>
+        <button id="detectBtn" class="btn primary">패턴 검색</button>
+      </div>
+
+
+      <div class="stock-list" id="stockList" aria-label="코스피50 리스트"></div>
+    </section>
+
+    <!-- 중: 차트 -->
+    <section id="chartPanel" class="box" aria-label="캔들 차트">
+      <div class="chart-header">
+        <div id="chartLabel" class="chart_label" style="visibility:hidden;"></div>
+        <div id="maLabel"    class="ma_label"    style="visibility:hidden;"></div>
+        <div id="overlayBadges" class="overlay-badges"></div>
+      </div>
+
+      <canvas id="candleChart" aria-label="30일 일봉 차트"></canvas>
+
+      <div class="metric-bar" role="group" aria-label="심리 지표 토글">
+        <button class="metric-btn" id="btnBREADTH" data-key="breadth">Breadth</button>
+        <button class="metric-btn" id="btnLOWVOL"  data-key="lowvol">Low-Vol Greed</button>
+        <button class="metric-btn" id="btnMOM"     data-key="momentum">Momentum</button>
+        <button class="metric-btn" id="btnEQBOND"  data-key="eqbond">EQ-BOND</button>
+      </div>
+
+    </section>
+
+    <!-- 우: 기록/점수 -->
+    <section id="rightPanel" class="box" aria-label="패턴 기록 및 점수">
+      <div class="record-header">
+        <h3 class="record-title"><span class="dot"></span> 탐지된 패턴 <span id="patternCount" class="badge">0</span></h3>
+        <div id="latestDate" class="muted">조회 기준: -</div>
+      </div>
+
+      <div class="pattern-scroll">
+        <ul id="patternList" class="pattern-list" aria-live="polite"></ul>
+      </div>
+
+      <div id="scorePanel" class="score-panel hidden" role="dialog" aria-modal="true" aria-label="심리 점수">
+        <button id="scoreClose" class="close-btn" aria-label="닫기">&times;</button>
+        <div class="score-main">
+          <div class="score-value" id="scoreValue">—</div>
+          <div class="score-band"  id="scoreBand">—</div>
+        </div>
+        <div class="score-breakdown">
+          <canvas id="scoreBreakdownChart" aria-label="점수 구성 차트"></canvas>
+          <div id="scoreHelp" class="score-help">점수는 “패턴 방향이 맞을 확률(%)”로 해석됩니다.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 푸터 -->
+  <footer>
+    <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+  </footer>
+
+  <!-- 페이지 전용 JS -->
+  <script src="{{ url_for('static', filename='js/candle.js') }}"></script>
+
+  <!-- 공통: 메뉴 토글 (page1 구조 유지) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const menuIcon = document.querySelector('.menu-icon');
+      const overlay = document.getElementById('overlay');
+      const nav = document.getElementById('main-nav');
+      function toggleMenu(){ nav.classList.toggle('nav-active'); overlay.classList.toggle('active'); }
+      menuIcon.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', toggleMenu);
+    });
+  </script>
+</body>
+</html>

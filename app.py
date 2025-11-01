@@ -22,6 +22,8 @@ from hasuindex import get_sentiment_index
 from gosuindex import get_gosu_index
 from cashflow import get_cashflow_data
 from factor import process_factor_data
+from candle import find_patterns, get_kospi_marketcap_top
+from metrics import series_breadth,series_lowvol,series_momentum,series_eqbond
 import requests
 import lxml 
 
@@ -113,6 +115,10 @@ def page3():
 @app.route('/factor')
 def factor():
     return render_template('factor.html')
+
+@app.route('/candle')
+def candle_page():
+    return render_template('candle.html')
 
 # ------------------ 종목 리스트 API ------------------
 @cache.cached(timeout=3600, query_string=True)
@@ -639,7 +645,74 @@ def factor_result():
         "months": stock_data.get("months", None),                
         "mode": stock_data.get("mode", "AND")                    
     })
+    
+# ------------------ 캔들 연구 ------------------
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/get_kospi50', methods=['GET'])
+def get_kospi50():
+    try:
+        df = get_kospi_marketcap_top(50)
+        # 화면 요구사항: '이름순 정렬'로 전달
+        out = df.sort_values('회사명')[['회사명', '종목코드']].to_dict('records')
+        return jsonify(out)
+    except Exception as e:
+        app.logger.exception("KOSPI50 로드 실패")
+        # 안전망: 기존 전체 리스트 일부라도 반환 (원하면 변경)
+        return jsonify([]), 500
 
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/detect_patterns', methods=['POST'])
+def detect_patterns_api():
+    """
+    입력 JSON:
+      { "code":"005930", "days":30, "patterns":["bullish_reversal","bearish_trend", ...] }
+    반환:
+      { "matches":[{start_idx,end_idx,start_date,end_date,direction,clazz,name,explain}, ...] }
+    """
+    data = request.get_json(force=True)
+    code = data.get("code")
+    days = int(data.get("days", 30))
+    enabled = data.get("patterns", ["bullish_reversal","bullish_trend","bearish_reversal","bearish_trend"])
+
+    ohlc = request_ohlc_like_get_history(code, days)  # TODO: 실제 함수로 교체
+
+    # DataFrame 구성
+    df = pd.DataFrame({
+        "date": ohlc["dates"],
+        "open": ohlc["opens"],
+        "high": ohlc["highs"],
+        "low":  ohlc["lows"],
+        "close":ohlc["closes"],
+        "volume":ohlc["volumes"],
+    })
+    # 최근 days로 슬라이스 보장
+    df = df.tail(days).reset_index(drop=True)
+
+    matches = find_patterns(df, enabled)
+    return jsonify({ "matches": matches })
+
+def request_ohlc_like_get_history(code: str, days: int):
+    from flask import current_app
+    with current_app.test_request_context('/get_ohlc_history', method='POST', data={"code": code, "days": days, "ma":"false", "bollinger":"false", "psar":"false"}):
+        resp = current_app.full_dispatch_request()
+        return resp.get_json()
+
+@cache.cached(timeout=3600, query_string=True)
+@app.route('/get_metrics', methods=['GET'])
+def get_metrics_api():
+    code = (request.args.get('code') or '').strip()
+    days = int(request.args.get('days', '30'))
+    minp = int(request.args.get('minp', '5'))
+    if not code:
+        return jsonify({"series": {}})
+
+    series = {
+        "breadth":  series_breadth(code, days=days, lookback=252, minp=minp),
+        "lowvol":   series_lowvol(code,  days=days, lookback=252, minp=minp),
+        "momentum": series_momentum(code, days=days, lookback=252, minp=minp),
+        "eqbond":   series_eqbond(code,  days=days, lookback=252, minp=minp),
+    }
+    return jsonify({"series": series})
 
 # ------------------ 서버 실행 ------------------
 @app.route('/ping')

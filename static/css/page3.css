@@ -314,6 +314,25 @@ footer {
     display: block;
   }
 
+  #Box2 {
+    overflow: hidden;
+    display: flex;  
+    padding: 0;
+    aspect-ratio: auto !important; /* 혹시 이전 규칙 무효화 */
+    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
+    object-position: center;
+    align-items: center;
+  }
+
+  #Box2 .factor-image {
+    width: 100%;
+    max-width: 100%;
+    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
+    object-position: center;
+    align-items: center;
+    display: block;
+  }
+
   #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
   #mainContainer > .box:nth-child(2) { animation-delay: 0.4s; }
   #mainContainer > .box:nth-child(3) { animation-delay: 0.6s; }
