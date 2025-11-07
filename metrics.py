@@ -20,6 +20,114 @@ RANK_WIN              = 252   # 1y percentile window
 MINP                  = 5     # min points for percentile
 
 # ------------------------ utils -------------------------
+import os
+import pandas as pd
+from zoneinfo import ZoneInfo
+import threading, time, datetime
+
+# 스냅샷 저장 위치: 프로젝트/data/metrics_snapshots/<종목>.csv
+BASE_DIR = os.path.dirname(__file__)
+SNAP_DIR = os.path.join(BASE_DIR, "data", "metrics_snapshots")
+os.makedirs(SNAP_DIR, exist_ok=True)
+KST = ZoneInfo("Asia/Seoul")
+
+def _snap_path(code: str) -> str:
+    return os.path.join(SNAP_DIR, f"{code}.csv")
+
+def _filter_tail_by_latest(series_list: list[dict], days: int, latest: str | None):
+    if not series_list:
+        return []
+    if latest:
+        latest_dt = pd.to_datetime(str(latest).replace('.', '-'), errors="coerce")
+        if pd.notna(latest_dt):
+            def to_dt(s):
+                return pd.to_datetime(str(s).replace('.', '-'), errors="coerce")
+            series_list = [
+                x for x in series_list
+                if pd.notna(to_dt(x.get("date"))) and to_dt(x.get("date")) <= latest_dt
+            ]
+    return series_list[-days:]
+
+
+def save_metrics_snapshot(code: str, latest: str, days: int = 100, minp: int = 5) -> None:
+    """해당 code의 4지표(100일)를 latest 이하로 계산해 CSV로 저장(중복 제거, 100줄 유지)."""
+    latest_iso = str(latest).replace('.', '-')
+
+    # 기존 series_*가 latest 인자를 안 받더라도, 아래에서 latest로 필터링/슬라이스
+    b  = series_breadth(code,  days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    lv = series_lowvol(code,   days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    mo = series_momentum(code, days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    eb = series_eqbond(code,   days=max(days, 100), lookback=RANK_WIN, minp=minp)
+
+    b  = _filter_tail_by_latest(b,  days=days, latest=latest_iso)
+    lv = _filter_tail_by_latest(lv, days=days, latest=latest_iso)
+    mo = _filter_tail_by_latest(mo, days=days, latest=latest_iso)
+    eb = _filter_tail_by_latest(eb, days=days, latest=latest_iso)
+
+    def to_df(name, lst):
+        return pd.DataFrame(lst or [], columns=["date","value"]).rename(columns={"value": name})
+    df = to_df("breadth", b)
+    for name, lst in [("lowvol", lv), ("momentum", mo), ("eqbond", eb)]:
+        df = df.merge(to_df(name, lst), on="date", how="inner")
+
+    if df.empty:
+        return
+    # 오래된 파일과 합치고 중복 제거
+    path = _snap_path(code)
+    if os.path.exists(path):
+        prev = pd.read_csv(path, dtype=str)
+        df = pd.concat([prev, df], axis=0, ignore_index=True)
+
+    df = df.drop_duplicates(subset=["date"]).sort_values("date")
+    df = df[df["date"] <= latest_iso].tail(days)
+    df.to_csv(path, index=False)
+
+def load_metrics_snapshot(code: str, latest: str, days: int) -> dict:
+    """스냅샷에서 latest 이하 마지막 N일을 읽어 API 포맷으로 반환. 없으면 {}."""
+    latest_iso = str(latest).replace('.', '-')
+    path = _snap_path(code)
+    if not os.path.exists(path):
+        return {}
+    df = pd.read_csv(path, dtype={"date":str})
+    df = df[df["date"] <= latest_iso].tail(days).copy()
+    if df.empty:
+        return {}
+    def to_list(col):
+        return [{"date": str(d), "value": (None if pd.isna(v) else float(v))}
+                for d, v in df[["date", col]].itertuples(index=False)]
+    return {
+        "breadth":  to_list("breadth"),
+        "lowvol":   to_list("lowvol"),
+        "momentum": to_list("momentum"),
+        "eqbond":   to_list("eqbond"),
+    }
+
+
+
+def get_series_bundle(code: str, days: int = 30, minp: int = MINP, latest: str | None = None) -> dict:
+    """스냅샷 우선. 없으면 즉시 계산하되 latest로 컷팅 후 tail(days)."""
+    latest_iso = str(latest).replace('.', '-') if latest else None
+
+    # 1) 스냅샷 우선
+    if latest_iso:
+        snap = load_metrics_snapshot(code, latest_iso, days)
+        if snap:
+            return snap
+
+    # 2) 스냅샷이 없으면 즉시 계산 → latest로 필터 후 tail
+    b  = series_breadth(code,  days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    lv = series_lowvol(code,   days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    mo = series_momentum(code, days=max(days, 100), lookback=RANK_WIN, minp=minp)
+    eb = series_eqbond(code,   days=max(days, 100), lookback=RANK_WIN, minp=minp)
+
+    b  = _filter_tail_by_latest(b,  days=days, latest=latest_iso)
+    lv = _filter_tail_by_latest(lv, days=days, latest=latest_iso)
+    mo = _filter_tail_by_latest(mo, days=days, latest=latest_iso)
+    eb = _filter_tail_by_latest(eb, days=days, latest=latest_iso)
+
+    return {"breadth": b, "lowvol": lv, "momentum": mo, "eqbond": eb}
+
+
 def _sym_krx(code: str) -> str:
     """KRX code -> Yahoo symbol guess (.KS then .KQ)."""
     c = str(code).zfill(6)
@@ -84,10 +192,14 @@ def _ema(s: pd.Series, span=3) -> pd.Series:
     return pd.to_numeric(s, errors="coerce").ewm(span=span, adjust=False, min_periods=1).mean()
 
 def _payload(dates: pd.Series, series: pd.Series, tail_n: int) -> list[dict]:
-    x = pd.DataFrame({"date": dates, "value": series}).tail(tail_n).copy()
-    x["value"] = x["value"].round(1)
-    return [{"date": str(d), "value": (None if pd.isna(v) else float(v))}
+    x = pd.DataFrame({"date": dates, "value": series}).copy()
+    # 날짜를 ISO(YYYY-MM-DD)로 통일
+    x["date"] = pd.to_datetime(x["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    x = x.tail(tail_n).copy()
+    x["value"] = pd.to_numeric(x["value"], errors="coerce").round(1)
+    return [{"date": d, "value": (None if pd.isna(v) else float(v))}
             for d, v in x[["date", "value"]].itertuples(index=False)]
+
 
 def _logret(close: pd.Series) -> pd.Series:
     c = pd.to_numeric(close, errors="coerce")
@@ -190,3 +302,41 @@ def series_eqbond(code: str, days: int = 30, lookback: int = RANK_WIN, minp: int
     spread = r_eq - r_bd
     rank = _rolling_percentile(spread, win=lookback, minp=minp)  # 0~100 (higher = risk-on)
     return _payload(df["date"], rank, days)
+
+
+def _next_kst_2am(now=None):
+    now = now or datetime.datetime.now(tz=KST)
+    tgt = now.replace(hour=2, minute=0, second=0, microsecond=0)
+    if now >= tgt:
+        tgt = tgt + datetime.timedelta(days=1)
+    return tgt
+
+def start_metrics_snapshot_daemon(days: int = 100):
+    """02:00 KST마다 KOSPI50(시가총액 상위 50) 스냅샷 저장. CSV 없이 크롤링 사용."""
+    def _job():
+        from candle import get_kospi_marketcap_top  # 지연 임포트(순환 의존 회피)
+        while True:
+            try:
+                # 대기
+                target = _next_kst_2am()
+                time.sleep(max(1, (target - datetime.datetime.now(tz=KST)).total_seconds()))
+
+                # 실행 (전일 종가 확정 반영 가정)
+                latest_iso = datetime.datetime.now(tz=KST).date().isoformat()
+
+                # 크롤링으로 KOSPI50 확보
+                df = get_kospi_marketcap_top(50)
+                # '종목코드' 컬럼 기준으로 저장
+                codes = [str(c).zfill(6) for c in df['종목코드'].astype(str).tolist()]
+
+                for code in codes:
+                    try:
+                        save_metrics_snapshot(code, latest_iso, days=days, minp=5)
+                    except Exception:
+                        # 개별 종목 실패는 건너뛰고 계속
+                        pass
+            except Exception:
+                time.sleep(60)  # 오류 시 1분 후 재시도
+    t = threading.Thread(target=_job, daemon=True)
+    t.start()
+

@@ -371,3 +371,33 @@ def find_patterns(df: pd.DataFrame, enabled: List[str]) -> List[Dict]:
     # 중복(같은 구간의 다중 탐지) 정리: 시작/끝/이름 기준으로 정렬만
     matches.sort(key=lambda m: (m.start_idx, m.end_idx, m.name))
     return [m.__dict__ for m in matches]
+
+
+def detect_on_base_and_remap(df_base: pd.DataFrame, enabled: List[str], visible_days: int) -> List[Dict]:
+    """
+    베이스 전체(df_base)에서 패턴을 찾고 → 마지막 visible_days 구간으로만 필터 + 인덱스 재매핑.
+    반환: [{ start_idx, end_idx, start_date, end_date, direction, clazz, name, explain }, ...]
+    """
+    all_matches = find_patterns(df_base, enabled) or []
+
+    N = len(df_base)
+    start_idx = max(0, N - int(visible_days))
+    vis_dates = [str(d) for d in df_base.loc[start_idx:, "date"].tolist()]
+    if not vis_dates:
+        return []
+
+    vis_start, vis_end = vis_dates[0], vis_dates[-1]
+    date_to_local = {d: i for i, d in enumerate(vis_dates)}  # 가시구간: 0..visible_days-1
+
+    out = []
+    for m in all_matches:
+        ed = str(m.get("end_date", ""))
+        if not (vis_start <= ed <= vis_end):
+            continue
+        sd = str(m.get("start_date", ""))
+        out.append({
+            **m,
+            "start_idx": date_to_local.get(sd, 0),
+            "end_idx":   date_to_local.get(ed, len(vis_dates)-1),
+        })
+    return out

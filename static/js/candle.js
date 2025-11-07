@@ -14,6 +14,11 @@ async function initCandlePage() {
   await loadStockList();
 }
 
+function currentLatestISO(){
+  const lastLabel = candleChart?.data?.labels?.at(-1) || latestTradingDate || '';
+  return String(lastLabel).replace(/\./g, '-');
+}
+
 function bindBasicEvents() {
   // 검색/조회
   document.getElementById('searchBtn').addEventListener('click', filterStockList);
@@ -65,7 +70,8 @@ function bindBasicEvents() {
     const days = getDaysValidated() ?? 30;
 
     // 2) 메트릭 시리즈 확보 (이미 프리페치한 캐시 사용)
-    const series = await getMetricsSeries(code, days); // breadth | lowvol | momentum | eqbond
+    const latestISO = currentLatestISO();
+    const series = await getMetricsSeries(code, days, latestISO);
     // 시계열에서 해당 패턴 종료일자(또는 그 이전 최근 값)를 추출
     const endKR = (match.end_date || '').trim();       // 예: '2025.10.22'
     const endAPI = endKR.replace(/\./g, '-');          // '2025-10-22'
@@ -133,7 +139,7 @@ function bindBasicEvents() {
         if (!best || d > best._d) best = { v: clamp01(r.value), _d: d };
       }
     }
-    return best ? best.v : clamp01(rows.at(-1)?.value);
+    return best ? best.v : null;
   }
   const clamp01 = v => Math.max(0, Math.min(100, Number(v) || 0));
 
@@ -637,12 +643,13 @@ const metricsPending = new Map();
 
 
 // 이 함수 전체 교체
-async function getMetricsSeries(code, days) {
-  const k = `${code}-${days}`;
+async function getMetricsSeries(code, days, latestISO) {
+  if (!latestISO) latestISO = currentLatestISO();
+  const k = `${code}-${latestISO}-${days}`;
   if (metricsCache.has(k))   return metricsCache.get(k);
   if (metricsPending.has(k)) return metricsPending.get(k);
 
-  const url = `/get_metrics?code=${code}&days=${days}&minp=5`;
+  const url = `/get_metrics?code=${code}&days=${days}&minp=5&latest=${encodeURIComponent(latestISO)}`;
   const label = `[METRICS fetch] ${k}`;
   console.time(label);
 
@@ -664,7 +671,8 @@ async function getMetricsSeries(code, days) {
 }
 
 async function prefetchMetrics(code, days){
-  try { await getMetricsSeries(code, days); } catch(e){ console.warn('[METRICS] prefetch failed', e); }
+  const latestISO = currentLatestISO();
+  try { await getMetricsSeries(code, days, latestISO); } catch(e){}
 }
 
 
