@@ -119,15 +119,29 @@
   });
 
   function drawMidDividerLine(chart) {
+    // 1) chart 존재 여부 + 메서드 존재 여부 체크
+    if (!chart || typeof chart.getDatasetMeta !== 'function') {
+      console.warn('[drawMidDividerLine] chart.getDatasetMeta 사용 불가:', chart);
+      return;
+    }
+
     const meta = chart.getDatasetMeta(0);
+
+    if (!meta || !meta.data || meta.data.length < 6) {
+      // 막대가 최소 6개는 있어야 5,6번째 막대 기준으로 선을 그을 수 있음
+      return;
+    }
+
     const bar5 = meta.data[4];
     const bar6 = meta.data[5];
+    if (!bar5 || !bar6) return;
 
     const y1 = bar5.y;
     const y2 = bar6.y;
     const midY = (y1 + y2) / 2;
 
     const { ctx, chartArea } = chart;
+    if (!ctx || !chartArea) return;
 
     ctx.save();
     ctx.beginPath();
@@ -138,8 +152,8 @@
     ctx.setLineDash([6, 4]);
     ctx.stroke();
     ctx.restore();
-
   }
+
 
   document.querySelector('.box4-right-btn').addEventListener('click', async () => {
     const button = document.querySelector('.box4-right-btn');
@@ -276,9 +290,10 @@
             },
             animation: {
               duration: 1500,
-              onComplete: () => {
+              onComplete: (context) => {
+                const chart = context.chart;
                 if (returns.length > 10) {
-                  drawMidDividerLine(window.returnChart);
+                  drawMidDividerLine(chart);
                 }
               }
             },
