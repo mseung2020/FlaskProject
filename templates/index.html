@@ -25,11 +25,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.1/wordcloud2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
     <script>
       const searchIconUrl = "{{ url_for('static', filename='image/search.png') }}";
       const closeIconUrl = "{{ url_for('static', filename='image/close.png') }}";
     </script>
-    <script src="{{ url_for('static', filename='js/page1.js') }}"></script>    
 
     <!-- 외부 CSS 파일 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
@@ -45,16 +48,15 @@
     <!-- 헤더 영역: 사이트 로고 및 네비게이션 -->
     <header role="banner">
       <div class="header-left">
-        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
-        <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'" />
+        <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
       </div>
-      <!-- 모바일 메뉴 아이콘(햄버거) -->
       <div class="menu-icon">&#9776;</div>
       <div class="header-right">
-        <nav id="main-nav" aria-label="메인 네비게이션">
-          <a href="/index" class="header-link">• 종목 분석</a>
-          <a href="/page2" class="header-link">• 투자 정보 </a>
-          <a href="/page3" class="header-link">• AI 연구</a>
+        <nav id="main-nav">
+          <a href="/index" class="header-link active">종목 분석</a>
+          <a href="/page2"  class="header-link">투자 정보</a>
+          <a href="/page3"  class="header-link">AI 연구</a>
         </nav>
       </div>
     </header>
@@ -66,214 +68,442 @@
     <main id="mainContainer">
       <!-- 1. 종목 검색 박스 -->
       <section id="stockSearchBox" class="box" aria-label="종목 검색">
-        <div class="search-wrapper">
-          <input type="text" id="searchInput" placeholder="회사명 검색" aria-label="회사명 검색">
-          <img src="{{ url_for('static', filename='image/search.png') }}" alt="searchbutton" class="searchbutton" onclick="searchByName()" aria-label="검색">
-        </div>
+        <label class="control-label">STOCK SEARCH</label>
+          <div class="search-row">
+            <input type="text" id="searchInput" class="bento-input" placeholder="종목명 또는 코드" autocomplete="off" />
+            <button id="searchBtn" class="bento-btn-icon">⌫</button>
+          </div>
       </section>
       
       <!-- 2. 일수 검색 및 옵션 설정 박스 -->
       <section id="daysSearchBox" class="box" aria-label="조회 기간 및 옵션 설정">
-        <input type="text" id="daysInput" placeholder="242" aria-label="조회 기간 (1~365)">
-        <button class="chart-btn" onclick="PlusChart()" aria-label="확대" >+</button>
-        <button class="chart-btn" onclick="MinusChart()" aria-label="축소" >-</button>
-        <!-- 이동평균선 토글 -->
-        <div id="toggleSections1">
-          <input type="checkbox" id="toggleMovingAverage" checked>
-          <label for="toggleMovingAverage">이동평균선</label>
-        </div>
-        <!-- 볼린저밴드 토글 -->
-        <div id="toggleSections1">
-          <input type="checkbox" id="togglebollinger" unchecked>
-          <label for="togglebollinger">볼린저밴드</label>
-        </div>
-        <!-- envelope 토글 -->
-        <div id="toggleSections1">
-          <input type="checkbox" id="toggleenvelope" unchecked>
-          <label for="toggleenvelope">Envelope</label>
-        </div>
-        <!-- ichimoku 토글 -->
-        <div id="toggleSections1">
-          <input type="checkbox" id="toggleichimoku" unchecked>
-          <label for="toggleichimoku">일목균형표</label>
-        </div>
-        </div>
-        <!-- psar 토글 -->
-        <div id="toggleSections1">
-          <input type="checkbox" id="togglepsar" unchecked>
-          <label for="togglepsar">PSAR</label>
-        </div>
-        <div class="question-wrapper">
-          <img src="{{ url_for('static', filename='image/question.png') }}" alt="question" class="question" onclick="location.href='/page2'">
-          <p class="arrow_box">각 지표가 궁금하다면 여기를 눌러보세요!</p>
-        </div>              
+        <label class="control-label2">RANGE</label>
+        <div class="control-row">
+          <input type="text" id="daysInput" placeholder="242" aria-label="조회 기간 (1~365)">
+          <button class="chart-btn" onclick="PlusChart()" aria-label="확대" >+</button>
+          <button class="chart-btn" onclick="MinusChart()" aria-label="축소" >-</button>
+          <!-- 이동평균선 토글 -->
+          <div class="toggleSections1">
+            <input type="checkbox" id="toggleMovingAverage" checked>
+            <label for="toggleMovingAverage">이동평균선</label>
+          </div>
+          <!-- 볼린저밴드 토글 -->
+          <div class="toggleSections1">
+            <input type="checkbox" id="togglebollinger" unchecked>
+            <label for="togglebollinger">볼린저밴드</label>
+          </div>
+          <!-- envelope 토글 -->
+          <div class="toggleSections1">
+            <input type="checkbox" id="toggleenvelope" unchecked>
+            <label for="toggleenvelope">Envelope</label>
+          </div>
+          <!-- ichimoku 토글 -->
+          <div class="toggleSections1">
+            <input type="checkbox" id="toggleichimoku" unchecked>
+            <label for="toggleichimoku">일목균형표</label>
+          </div>
+          <!-- psar 토글 -->
+          <div class="toggleSections1">
+            <input type="checkbox" id="togglepsar" unchecked>
+            <label for="togglepsar">PSAR</label>
+          </div>
+          <div class="question-wrapper">
+            <img src="{{ url_for('static', filename='image/question.png') }}" alt="question" class="question" onclick="location.href='/page2'">
+            <p class="arrow_box">지표가 궁금하다면<br>여기를 눌러보세요!</p>
+          </div>              
 
-        <div class="daysearchrightContainer">
-          <!-- 초기화 버튼 -->
-          <button class="chart-btn" onclick="ResetChart()" aria-label="초기화">
-            <img src="{{ url_for('static', filename='image/reset.png') }}" 
-                 alt="resetbutton" class="resetbutton" aria-label="초기화">
-          </button>
-          <!-- 조회 기준 날짜 표시 -->
-          <div id="date_label">조회 기준: Loading......</div>
+          <div class="daysearchrightContainer">
+            <!-- 초기화 버튼 -->
+            <button class="chart-btn" onclick="ResetChart()" aria-label="초기화">
+              <img src="{{ url_for('static', filename='image/reset.png') }}" 
+                  alt="resetbutton" class="resetbutton" aria-label="초기화">
+            </button>
+            <!-- 조회 기준 날짜 표시 -->
+            <div id="date_label">조회 기준: Loading......</div>
+          </div>
         </div>
       </section>
-      
-      <!-- 3. 종목 리스트 박스 -->
-      <section id="stockListBox" class="box" aria-label="종목 리스트">
-        <div id="stockContainer"></div>
-      </section>
-      
-      <!-- 4. 상단 차트 영역 (캔들차트) -->
-      <section id="chartBox" class="box" aria-label="주가 차트">
-        <div id="chartLabel" class="chart_label" style="visibility: hidden;"></div>
-        <div id="maLabel" class="ma_label" style="visibility: hidden;"></div>
-        <div id="bollingerLabel" class="bollinger_label" style="visibility: hidden;"></div>
-        <div id="envelopeLabel" class="envelope_label" style="visibility: hidden;"></div>   
-        <div id="ichimokuLabel" class="ichimoku_label" style="visibility: hidden;"></div>
-        <div id="psarLabel" class="psar_label" style="visibility: hidden;"></div>                       
-        <canvas id="myChart" aria-label="주가 캔들 차트"></canvas>
-      </section>
-      
-      <!-- 5. 보조지표 옵션 체크박스 영역 -->
-      <section id="emptyBox" class="box" aria-label="보조지표 옵션 선택">
 
-        <!-- 모바일 전용 아코디언 헤더 -->
-        <div class="accordion-header" onclick="toggleAccordion()">
-          <span class="accordion-title">지표 목록</span>
-          <span class="accordion-toggle">&#9660;</span>
-        </div>
-
-        <div id="toggleSections2" class="accordion-content">
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleVolume" checked>
-            <label for="toggleVolume">거래량</label>
+      <div id="TopRow1">
+      
+        <!-- 3. 종목 리스트 박스 -->
+        <section id="stockListBox" class="box" aria-label="종목 리스트">
+          <div class="panel-header">
+            <span>STOCK LIST</span>
+            <span id="stockCountBadge" aria-label="표시 종목 수">0</span>
           </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleTradingvalue">
-            <label for="toggleTradingvalue">거래대금</label>
-          </div>          
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleADX">
-            <label for="toggleADX">ADX (평균방향지수)</label>
-          </div>          
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleATR">
-            <label for="toggleATR">ATR (평균변동범위)</label>
-          </div>          
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleCCI">
-            <label for="toggleCCI">CCI (상품채널지수)</label>
-          </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleMACD">
-            <label for="toggleMACD">MACD (이동평균추세)</label>
-          </div>          
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleROC">
-            <label for="toggleROC">ROC (추세변동률)</label>
-          </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleRSI">
-            <label for="toggleRSI">RSI (상대강도지수)</label>
-          </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleSTOCH">
-            <label for="toggleSTOCH">STOCH (스토캐스틱)</label>
-          </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleSTOCHRSI">
-            <label for="toggleSTOCHRSI">STOCHRSI (스토캐스틱+RSI)</label>
-          </div>          
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleUO">
-            <label for="toggleUO">Ultimate Oscillator</label>
-          </div>
-          <div class="indicatorItem">
-            <input type="checkbox" id="toggleWILLIAMS">
-            <label for="toggleWILLIAMS">Williams %R</label>
+          
+          <div id="stockContainer">
+            <div id="stockList">
+              <div class="placeholder-msg sm">코스피 상위 50 종목을<br>불러오는 중입니다...</div>
+            </div>
           </div>
 
-        </div>
-      </section>
-      
-      <!-- 6. 하단 차트 영역 (보조지표 차트들) -->
-      <section id="IndexBox" class="box" aria-label="보조지표 차트">
-        <!-- 거래량 차트 -->
-        <div id="volumeBox">
-          <div id="volumeLabel" class="volume_label" style="display: none;"></div>
-          <canvas id="myVolumeChart" aria-label="거래량 차트"></canvas>
-        <!-- 거래대금 차트 -->
-        </div>
-        <div id="tradingvalueBox">
-          <div id="tradingvalueLabel" class="tradingvalue_label" style="display: none;"></div>
-          <canvas id="tradingvalueChart" aria-label="거래대금 차트"></canvas>
-        </div>
-        <!-- RSI 차트 -->
-        <div id="rsiBox">
-          <div id="rsiLabel" class="rsi_label" style="display: none;"></div>
-          <canvas id="rsiChart" aria-label="RSI 차트"></canvas>
-        </div>
-        <!-- STOCH 차트 -->
-        <div id="stochBox">
-          <div id="stochLabel" class="stoch_label" style="display: none;"></div>
-          <canvas id="stochChart" aria-label="STOCH 차트"></canvas>
-        </div>
-        <!-- STOCHRSI 차트 -->
-        <div id="stochrsiBox">
-          <div id="stochrsiLabel" class="stochrsi_label" style="display: none;"></div>
-          <canvas id="stochrsiChart" aria-label="STOCHRSI 차트"></canvas>
-        </div>
-        <!-- MACD 차트 -->
-        <div id="macdBox">
-          <div id="macdLabel" class="macd_label" style="display: none;"></div>
-          <canvas id="macdChart" aria-label="MACD 차트"></canvas>
-        </div>
-        <!-- ADX 차트 -->
-        <div id="adxBox">
-          <div id="adxLabel" class="adx_label" style="display: none;"></div>
-          <canvas id="adxChart" aria-label="ADX 차트"></canvas>
-        </div>
-        <!-- Williams %R 차트 -->
-        <div id="williamsBox">
-          <div id="williamsLabel" class="williams_label" style="display: none;"></div>
-          <canvas id="williamsChart" aria-label="Williams %R 차트"></canvas>
-        </div>
-        <!-- CCI 차트 -->
-        <div id="cciBox">
-          <div id="cciLabel" class="cci_label" style="display: none;"></div>
-          <canvas id="cciChart" aria-label="CCI 차트"></canvas>
-        </div>
-        <!-- ATR 차트 -->
-        <div id="atrBox">
-          <div id="atrLabel" class="atr_label" style="display: none;"></div>
-          <canvas id="atrChart" aria-label="ATR 차트"></canvas>
-        </div>
-        <!-- Ultimate Oscillator 차트 -->
-        <div id="uoBox">
-          <div id="uoLabel" class="uo_label" style="display: none;"></div>
-          <canvas id="uoChart" aria-label="Ultimate Oscillator 차트"></canvas>
-        </div>
-        <!-- ROC 차트 -->
-        <div id="rocBox">
-          <div id="rocLabel" class="roc_label" style="display: none;"></div>
-          <canvas id="rocChart" aria-label="ROC 차트"></canvas>
-        </div>
-      </section>
+        </section>
+        
+        <!-- 4. 상단 차트 영역 (캔들차트) -->
+        <section id="chartBox" class="box" aria-label="주가 차트">
+          <div class="chart-wrapper">
+
+            <!-- (A) AI 계산중 로더(빨간 네모) : candle.html 구조 그대로 :contentReference[oaicite:3]{index=3} -->
+            <div id="loader-mainchart" class="loader hidden" aria-hidden="true">
+              <div class="loader-inner">
+                <div class="spinner"></div>
+                <div class="loader-text">AI ANALYZING...</div>
+              </div>
+            </div>
+
+            <!-- (B) 초기 대기 소나(SYSTEM READY) : candle.html 구조 그대로 :contentReference[oaicite:4]{index=4} -->
+            <div id="mainChartEmptyState" class="empty-state-container" aria-hidden="false">
+              <div class="sonar-wrapper">
+                <div class="sonar-emitter"></div>
+                <div class="sonar-wave"></div>
+                <div class="sonar-wave delay"></div>
+              </div>
+              <div class="empty-msg-text">
+                SYSTEM READY<br><span>SELECT A STOCK TO START</span>
+              </div>
+            </div>
+
+            <!-- (C) 좌상단 ‘동그라미 + 이름’ 배지(기존 오른쪽 라벨 대체) -->
+            <div id="mainOverlayLegend" class="main-overlay-legend" aria-live="polite"></div>
+
+            <!-- (D) 기존 chartLabel(id)은 유지: 단위/상태 텍스트용 -->
+            <div id="chartLabel" class="chart_unit" style="visibility:hidden;"></div>
+
+            <canvas id="myChart" aria-label="주가 캔들 차트"></canvas>
+          </div>
+        </section>
+
+
+        <!-- 9. 투자자 지표 -->  
+        <section id="sentimentIndexBox" class="box" aria-label="투자자 지표">
+
+          <div class="panel-header">SENTIMENT: 
+            <div id="sentimentHeader" class="financial-header">
+              <h3 id="sentimentIndexHeader">NO DATA</h3>
+              <p class="unit-info">(최신 투자자 심리)</p>
+            </div>
+          </div>
+          
+          <div id="tempContainer3">
+            <!-- 모바일 전용 탭 메뉴 (모바일에서만 보임) -->
+            <div class="investor-tabs" id="investorTabs">
+              <button id="gosuTab" class="active" aria-pressed="true">기관/외국인</button>
+              <button id="hasuTab" aria-pressed="false">개인 심리</button>
+            </div>
+            <!-- 좌우 컨테이너 -->
+            <!-- 좌우 컨테이너(교체본) -->
+            <div class="investor-indicator-container" id="investorStage">
+              <!-- 고수(기관/외국인) -->
+              <div class="left-indicator">
+                <div class="sentStage">
+                  <!-- ✅ 여기만 스크롤 (부모 높이 안에서 절대 안 뚫고 나옴) -->
+                  <div id="gosuIndexContent" class="sentScroll"></div>
+                  <!-- 상단 컬럼 라벨(1회만) -->
+                  <div class="sentCols">
+                    <span></span>
+                    <span>기관</span>
+                    <span>외국인</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 하수(개인 심리) -->
+              <div class="right-indicator">
+                <div class="hasu-index-container">
+
+                  <!-- ✅ 404×190 안에서 "좌:도넛 / 우:범례" -->
+                  <div class="sentimentRow">
+                    <div class="sentimentDonutFrame">
+                      <canvas id="sentimentChart" aria-label="개인 심리 차트"></canvas>
+                    </div>
+
+                    <div id="sentimentLegend" class="sentimentLegend" aria-label="개인 심리 범례">
+                      <!-- JS가 세로 범례를 채움 -->
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+        
+        <!-- 5. 보조지표 옵션 체크박스 영역 -->
+        <section id="emptyBox" class="box" aria-label="보조지표 옵션 선택">
+          
+          <div class="panel-header">
+            <span>INDICATOR LIST</span>
+            <span id="indicatorAbbrBadge" class="indicatorAbbrBadge">VOL</span>
+          </div>
+
+          <!-- 모바일 전용 아코디언 헤더 (기존 유지) -->
+          <div class="accordion-header" onclick="toggleAccordion()">
+            <span class="accordion-title">지표 목록</span>
+            <span class="accordion-toggle">&#9660;</span>
+          </div>
+          
+          <div id="toggleSections2" class="accordion-content">
+
+            <!-- GROUP: MARKET -->
+            <div class="groupTitle">
+              <span class="t">MARKET</span><span class="line"></span>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleVolume" checked>
+              <label for="toggleVolume" class="indCard" data-abbr="VOL">
+                <div class="indTop">
+                  <span class="abbr">VOL</span>
+                  <span class="name">거래량</span>
+                </div>
+                <div class="desc">Volume</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleTradingvalue">
+              <label for="toggleTradingvalue" class="indCard" data-abbr="TV">
+                <div class="indTop">
+                  <span class="abbr">TV</span>
+                  <span class="name">거래대금</span>
+                </div>
+                <div class="desc">Trading Value</div>
+              </label>
+            </div>
+
+            <!-- GROUP: TREND -->
+            <div class="groupTitle">
+              <span class="t">TREND</span><span class="line"></span>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleMACD">
+              <label for="toggleMACD" class="indCard" data-abbr="MACD">
+                <div class="indTop">
+                  <span class="abbr">MACD</span>
+                  <span class="name">MACD</span>
+                </div>
+                <div class="desc">이동평균추세</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleADX">
+              <label for="toggleADX" class="indCard" data-abbr="ADX">
+                <div class="indTop">
+                  <span class="abbr">ADX</span>
+                  <span class="name">ADX</span>
+                </div>
+                <div class="desc">평균방향지수</div>
+              </label>
+            </div>
+
+            <!-- GROUP: VOLATILITY -->
+            <div class="groupTitle">
+              <span class="t">VOLATILITY</span><span class="line"></span>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleATR">
+              <label for="toggleATR" class="indCard" data-abbr="ATR">
+                <div class="indTop">
+                  <span class="abbr">ATR</span>
+                  <span class="name">ATR</span>
+                </div>
+                <div class="desc">평균변동범위</div>
+              </label>
+            </div>
+
+            <!-- GROUP: OSCILLATORS -->
+            <div class="groupTitle">
+              <span class="t">OSCILLATORS</span><span class="line"></span>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleRSI">
+              <label for="toggleRSI" class="indCard" data-abbr="RSI">
+                <div class="indTop">
+                  <span class="abbr">RSI</span>
+                  <span class="name">RSI</span>
+                </div>
+                <div class="desc">상대강도지수</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleSTOCH">
+              <label for="toggleSTOCH" class="indCard" data-abbr="STO">
+                <div class="indTop">
+                  <span class="abbr">STO</span>
+                  <span class="name">STOCH</span>
+                </div>
+                <div class="desc">스토캐스틱</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleSTOCHRSI">
+              <label for="toggleSTOCHRSI" class="indCard" data-abbr="SRSI">
+                <div class="indTop">
+                  <span class="abbr">SRSI</span>
+                  <span class="name">STOCHRSI</span>
+                </div>
+                <div class="desc">스토캐스틱 + RSI</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleCCI">
+              <label for="toggleCCI" class="indCard" data-abbr="CCI">
+                <div class="indTop">
+                  <span class="abbr">CCI</span>
+                  <span class="name">CCI</span>
+                </div>
+                <div class="desc">상품채널지수</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleROC">
+              <label for="toggleROC" class="indCard" data-abbr="ROC">
+                <div class="indTop">
+                  <span class="abbr">ROC</span>
+                  <span class="name">ROC</span>
+                </div>
+                <div class="desc">추세변동률</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleUO">
+              <label for="toggleUO" class="indCard" data-abbr="UO">
+                <div class="indTop">
+                  <span class="abbr">UO</span>
+                  <span class="name">Ultimate Osc</span>
+                </div>
+                <div class="desc">Ultimate Oscillator</div>
+              </label>
+            </div>
+
+            <div class="indicatorItem">
+              <input type="checkbox" id="toggleWILLIAMS">
+              <label for="toggleWILLIAMS" class="indCard" data-abbr="W%R">
+                <div class="indTop">
+                  <span class="abbr">W%R</span>
+                  <span class="name">Williams %R</span>
+                </div>
+                <div class="desc">Williams %R</div>
+              </label>
+            </div>
+
+          </div>
+        </section>
+
+        
+        <!-- 6. 하단 차트 영역 (보조지표 차트들) -->
+        <section id="IndexBox" class="box" aria-label="보조지표 차트">
+          <!-- 거래량 차트 -->
+          <div id="volumeBox">
+            <div id="volumeLabel" class="volume_label" style="display: none;"></div>
+            <canvas id="myVolumeChart" class="indexchart" aria-label="거래량 차트"></canvas>
+          <!-- 거래대금 차트 -->
+          </div>
+          <div id="tradingvalueBox">
+            <div id="tradingvalueLabel" class="tradingvalue_label" style="display: none;"></div>
+            <canvas id="tradingvalueChart" class="indexchart" aria-label="거래대금 차트"></canvas>
+          </div>
+          <!-- RSI 차트 -->
+          <div id="rsiBox">
+            <div id="rsiLabel" class="rsi_label" style="display: none;"></div>
+            <canvas id="rsiChart" class="indexchart" aria-label="RSI 차트"></canvas>
+          </div>
+          <!-- STOCH 차트 -->
+          <div id="stochBox">
+            <div id="stochLabel" class="stoch_label" style="display: none;"></div>
+            <canvas id="stochChart" class="indexchart" aria-label="STOCH 차트"></canvas>
+          </div>
+          <!-- STOCHRSI 차트 -->
+          <div id="stochrsiBox">
+            <div id="stochrsiLabel" class="stochrsi_label" style="display: none;"></div>
+            <canvas id="stochrsiChart" class="indexchart" aria-label="STOCHRSI 차트"></canvas>
+          </div>
+          <!-- MACD 차트 -->
+          <div id="macdBox">
+            <div id="macdLabel" class="macd_label" style="display: none;"></div>
+            <canvas id="macdChart" class="indexchart" aria-label="MACD 차트"></canvas>
+          </div>
+          <!-- ADX 차트 -->
+          <div id="adxBox">
+            <div id="adxLabel" class="adx_label" style="display: none;"></div>
+            <canvas id="adxChart" class="indexchart" aria-label="ADX 차트"></canvas>
+          </div>
+          <!-- Williams %R 차트 -->
+          <div id="williamsBox">
+            <div id="williamsLabel" class="williams_label" style="display: none;"></div>
+            <canvas id="williamsChart" class="indexchart" aria-label="Williams %R 차트"></canvas>
+          </div>
+          <!-- CCI 차트 -->
+          <div id="cciBox">
+            <div id="cciLabel" class="cci_label" style="display: none;"></div>
+            <canvas id="cciChart" class="indexchart" aria-label="CCI 차트"></canvas>
+          </div>
+          <!-- ATR 차트 -->
+          <div id="atrBox">
+            <div id="atrLabel" class="atr_label" style="display: none;"></div>
+            <canvas id="atrChart" class="indexchart" aria-label="ATR 차트"></canvas>
+          </div>
+          <!-- Ultimate Oscillator 차트 -->
+          <div id="uoBox">
+            <div id="uoLabel" class="uo_label" style="display: none;"></div>
+            <canvas id="uoChart" class="indexchart" aria-label="Ultimate Oscillator 차트"></canvas>
+          </div>
+          <!-- ROC 차트 -->
+          <div id="rocBox">
+            <div id="rocLabel" class="roc_label" style="display: none;"></div>
+            <canvas id="rocChart" class="indexchart" aria-label="ROC 차트"></canvas>
+          </div>
+        </section>
+
+        <!-- 10. 워드 클라우드 -->        
+        <section id="wordCloudBox" class="box" aria-label="워드 클라우드 영역">
+
+          <div class="panel-header">WORDCLOUD: 
+            <div class="wordcloud-header">
+              <h3 id="wordCloudTitle">NO DATA</h3>
+              <div class="unit-info" id="wordCloudSubTitle">(최신 주요 키워드)</div>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <div id="wordCloudContainer">
+              <canvas id="wordCloudCanvas"></canvas>
+              <span id="wordCloudPlaceholder" style="display:none;">
+                현재 조회 가능한 데이터가 없습니다.
+              </span>
+            </div>
+          </div>
+        </section>
+
+      </div>
 
       <!-- 별도의 컨테이로 가로비율 조정(1:1) -->
       <div id="bottomRow1">
 
         <!-- 7. 재무비율 지표 -->
         <section id="tempBox1" class="box" aria-label="임시 차트1">
-          <div id="tempContainer1">
-            <div class="table-wrapper">
 
-              <div id="financialHeader" class="financial-header">
-                <h3 id="selectedStockName">"선택된 종목 정보가 없습니다."</h3>
+          <div class="panel-header"> FINANCIAL METRICS: 
+            <div id="financialHeader" class="financial-header">
+                <h3 id="selectedStockName">NO DATA</h3>
                 <p class="unit-info">(단위: %, 원, 배)</p>
               </div>
+          </div>
 
+          <div id="tempContainer1">
+            <div class="table-wrapper">
               <table id="financialTable">
                 <thead>
                   <tr>
@@ -343,13 +573,20 @@
 
         <!-- 8. 현금흐름 지표 -->
         <section id="tempBox2" class="box" aria-label="현금흐름 지표">
-          <div class="table-wrapper">
-            <div class="financial-header">
-              <h3 id="cashIndexHeader">"선택된 종목 정보가 없습니다."</h3>
+          <div class="panel-header"> CASH FLOW: 
+            <div id="cashHeader" class="financial-header">
+              <h3 id="cashIndexHeader">NO DATA</h3>
               <p class="unit-info">(단위: 억 원)</p>
             </div>
-            <div id="undicisionedContainer"><!-- 여기로 렌더링 --></div>
-            <canvas id="cashflowChart"></canvas>
+          </div>
+          <div class="table-wrapper cashflowWrap">
+            <!-- LEFT: 차트 프레임 -->
+            <div class="cashflowChartFrame">
+              <canvas id="cashflowChart"></canvas>
+            </div>
+
+            <!-- RIGHT: 세로 요약 카드(영업/투자/재무) -->
+            <div id="undicisionedContainer" class="cashflowSummary"></div>
           </div>
         </section>
         
@@ -357,73 +594,13 @@
 
       <!-- 마지막 줄 1:1 비율 -->
       <div id="bottomRow2">
-
-        <!-- 9. 투자자 지표 -->  
-        <section id="sentimentIndexBox" class="box" aria-label="투자자 지표">
-          <div id="tempContainer3">
-            <!-- 공통 헤더 -->
-            <div class="financial-header">
-              <h3 id="sentimentIndexHeader">"선택된 종목 정보가 없습니다."</h3>
-              <p class="unit-info">(최신 투자자 심리)</p>
-            </div>
-            <!-- 모바일 전용 탭 메뉴 (모바일에서만 보임) -->
-            <div class="investor-tabs" id="investorTabs">
-              <button id="gosuTab" class="active" aria-pressed="true">기관/외국인 순매매 강도</button>
-              <button id="hasuTab" aria-pressed="false">개인 투자자 감정 분석</button>
-            </div>
-            <!-- 좌우 컨테이너 -->
-            <div class="investor-indicator-container">
-              <!-- 왼쪽: 고수 인덱스 (기관/외국인 가로 바 차트) -->
-              <div class="left-indicator">
-                <div class="gosu-index-container">
-                  <div class="gosu-header">
-                    <span class="gosu-title">기관/외국인 순매매 강도</span>
-                  </div>
-                  <div class="bar-chart-container">
-                    <!-- updateGosuIndex 함수에서 생성한 가로 바 차트들이 들어갑니다 -->
-                    <div id="gosuIndexContent">
-                    </div>
-                  </div>
-                </div>
-            </div>
-            <!-- 오른쪽: 하수 인덱스 (개인 민심 파이 그래프) -->
-            <div class="right-indicator">
-              <div class="hasu-index-container">
-                <div class="hasu-header">
-                  <span class="hasu-title">개인 투자자 감정 분석</span>
-                </div>
-                <div class="pie-chart-container">
-                  <canvas id="sentimentChart" aria-label="민심지표 차트"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 10. 워드 클라우드 -->        
-        <section id="wordCloudBox" class="box" aria-label="워드 클라우드 영역">
-          <div class="table-wrapper">
-            <div class="wordcloud-header">
-              <h3 id="wordCloudTitle">"선택된 종목 정보가 없습니다."</h3>
-              <div class="unit-info" id="wordCloudSubTitle">(최신 주요 키워드)</div>
-            </div>
-            <div id="wordCloudContainer">
-              <canvas id="wordCloudCanvas"></canvas>
-              <div id="wordCloudTooltip" class="wc-tooltip" role="tooltip" aria-hidden="true"></div>
-              <span id="wordCloudPlaceholder" style="display:none;">
-                현재 조회 가능한 데이터가 없습니다.
-              </span>
-            </div>
-          </div>
-        </section>
-
       </div>
 
     </main>
 
     <!-- 푸터 -->
     <footer>
-      <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+      <p>&copy; 2026 NewCandle™. All rights reserved.</p>
     </footer>
     
     <!-- script.js 파일 로드: 기능과 차트 업데이트를 담당 -->
@@ -460,50 +637,33 @@
         }
       }
 
-      function setupMobileIndicatorTabs() {
-        if (window.matchMedia('(max-width: 767px)').matches) {
-          const gosuTab = document.getElementById('gosuTab');
-          const hasuTab = document.getElementById('hasuTab');
-          // 기존 데스크탑 박스의 요소들
-          const leftIndicator = document.querySelector('.left-indicator');
-          const rightIndicator = document.querySelector('.right-indicator');
-          
-          // 초기 상태: 고수지표는 보이도록, 하수지표는 숨김
-          leftIndicator.classList.add('visible-indicator');
-          rightIndicator.classList.add('hidden-indicator');
-          
-            gosuTab.addEventListener('click', () => {
-            gosuTab.classList.add('active');
-            gosuTab.setAttribute('aria-pressed', 'true');
-            hasuTab.classList.remove('active');
-            hasuTab.setAttribute('aria-pressed', 'false');
-            
-            leftIndicator.classList.add('visible-indicator');
-            leftIndicator.classList.remove('hidden-indicator');
-            rightIndicator.classList.add('hidden-indicator');
-            rightIndicator.classList.remove('visible-indicator');
-            
-            // 필요시 헤더나 박스 크기 조정 로직 추가 가능
-          });
-          
-          hasuTab.addEventListener('click', () => {
-            hasuTab.classList.add('active');
-            hasuTab.setAttribute('aria-pressed', 'true');
-            gosuTab.classList.remove('active');
-            gosuTab.setAttribute('aria-pressed', 'false');
-            
-            rightIndicator.classList.add('visible-indicator');
-            rightIndicator.classList.remove('hidden-indicator');
-            leftIndicator.classList.add('hidden-indicator');
-            leftIndicator.classList.remove('visible-indicator');
-            
-            // 필요시 헤더나 박스 크기 조정 로직 추가 가능
-          });
-        }
+      function setupInvestorTabsUnified() {
+        const gosuTab = document.getElementById('gosuTab');
+        const hasuTab = document.getElementById('hasuTab');
+        const stage = document.getElementById('investorStage');
+        if (!gosuTab || !hasuTab || !stage) return;
+
+        const setMode = (mode) => {
+          const isGosu = (mode === 'gosu');
+          gosuTab.classList.toggle('active', isGosu);
+          hasuTab.classList.toggle('active', !isGosu);
+          gosuTab.setAttribute('aria-pressed', isGosu ? 'true' : 'false');
+          hasuTab.setAttribute('aria-pressed', !isGosu ? 'true' : 'false');
+
+          stage.classList.toggle('show-hasu', !isGosu);
+
+          // ✅ 하수 뷰로 전환 시 Chart.js가 숨김 상태에서 만들어진 경우가 있어 resize
+          if (!isGosu && window.sentimentChartInstance) {
+            requestAnimationFrame(() => window.sentimentChartInstance.resize());
+          }
+        };
+
+        gosuTab.addEventListener('click', () => setMode('gosu'));
+        hasuTab.addEventListener('click', () => setMode('hasu'));
+
+        setMode('gosu'); // 초기
       }
-      
-      document.addEventListener('DOMContentLoaded', setupMobileIndicatorTabs);
-      
+      document.addEventListener('DOMContentLoaded', setupInvestorTabsUnified);      
       
     </script> 
   </body>

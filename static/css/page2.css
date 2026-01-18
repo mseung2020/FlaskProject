@@ -1,179 +1,98 @@
-/* --------------------- CSS 시작 --------------------- */
-html {
-  overflow-y: scroll;
-}
-/* ========== 공통 변수 설정 ========== */
+/* =========================================
+   [NewCandle Theme] Supernova Bento Style
+========================================= */
 :root {
-  --primary-color: #274c77;
-  --secondary-color: #f9f9f9;
-  --third-color: #f9f9f9;
+  --bg-color: #f8f9fa;
+  --bg-pattern: radial-gradient(#d1d5db 1px, transparent 1px);
   --white: #ffffff;
-  --border-color: #ddd;
-  --text-color: #666;
-  --text-color2: #191919;
-  --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  --font-family: Arial, sans-serif;
-  --header-height: 4.375rem;   /* 70px */
-  --padding-base: 1.25rem;     /* 20px */
-  --box-radius: 0.3125rem;     /* 5px */
-  --transition-speed: 0.3s;
+  --black: #111111;
+  
+  /* 포인트 컬러 */
+  --accent-yellow: #ffeb3b;
+  --accent-red: #ff7675;
+  --accent-blue: #74b9ff;
+  --accent-green: #55efc4;
+  
+  /* 벤토 아이덴티티 */
+  --border-width: 3px;
+  --border-radius: 12px;
+  --hard-shadow: 6px 6px 0px var(--black);
+  --btn-shadow: 4px 4px 0px var(--black);
+  
+  --header-height: 70px;
+  --font-main: 'Noto Sans KR', sans-serif;
+  --font-display: 'Black Han Sans', sans-serif;
+  --font-eng: 'Space Grotesk', sans-serif;
 }
 
-/* ----- 바디 ----- */
+/* 기본 설정 */
 body {
-  font-family: var(--font-family);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  background-color: var(--secondary-color);
+  font-family: var(--font-main);
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  background-image: var(--bg-pattern);
+  background-size: 20px 20px;
+  color: var(--black);
 }
 
-/* ----- 헤더 ----- */
+/* ---------------- HEADER (벤토 스타일) ---------------- */
 header {
-  background-color: var(--primary-color);
+  background: var(--white);
   height: var(--header-height);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--padding-base);
-  color: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: var(--border-width) solid var(--black);
+  position: sticky; top: 0; z-index: 100;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  font-family: 'esamanru Medium';
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { height: 36px; cursor: pointer; border: 2px solid var(--black); border-radius: 20%; }
+.logo {
+  font-family: var(--font-eng); font-size: 1.5rem; font-weight: 700;
+  margin: 0; cursor: pointer; letter-spacing: -0.5px;
 }
 
-.header-logo {
-  height: 2.7rem; /* 40px */
-  margin-left: 0.3125rem; /* 5px */
-  vertical-align: middle; 
-  cursor: pointer;
+@keyframes logoWiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); } /* 왼쪽으로 살짝 기울임 */
+  50% { transform: rotate(12deg); }  /* 오른쪽으로 살짝 기울임 */
+  75% { transform: rotate(-5deg); }  /* 다시 살짝 왼쪽 */
+  100% { transform: rotate(0deg); }  /* 제자리 */
 }
 
-header .logo {
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1.875rem; /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  margin-bottom: 0;
+/* .header-left(로고+텍스트 컨테이너)에 마우스를 올리면... */
+.header-left:hover .header-logo {
+  /* ...로고 이미지(.header-logo)가 애니메이션을 실행함 */
+  animation: logoWiggle 0.6s ease-in-out;
 }
 
-header nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.875rem;     /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  flex: 1;
-  font-family: 'Eugro L';
+#main-nav { display: flex; gap: 15px; }
+.header-link {
+  text-decoration: none; color: var(--black); font-weight: 700; font-size: 1.1rem;
+  padding: 8px 15px; border-radius: 8px; border: 2px solid transparent;
+  transition: 0.2s;
+}
+.header-link:hover, .header-link.active {
+  background: var(--accent-yellow);
+  border: 2px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-2px, -2px);
 }
 
-header .header-link {
-  color: var(--white);
-  text-decoration: none;
-  font-size: 1.3rem; /* 20px */
-  font-weight: bold;
-  padding: 0.3125rem 0.625rem; /* 5px 10px */
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-header .header-link:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
-  border-radius: 4px;
-  transform: scale(1.05);
-}
-
-h1 {
-  cursor: pointer;
-}
-
-/* ----- 메인 컨테이너 ----- */
-/* 좌측 1fr, 우측 3fr로 배치 */
+/* ---------------- LAYOUT (Grid) ---------------- */
 #mainContainer {
-  font-family: 'Paperlogy';
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
   display: grid;
-  grid-template-rows: auto;
-  grid-template-columns: 1fr 3fr;
-  gap: 0.9375rem; /* 기존 15px */
-  padding: 1.25rem; /* 기존 20px */
-  background-color: var(--secondary-color);
-  /* 높이는 내부 내용에 따라 자동 */
-}
-.box {
-  background-color: var(--third-color);
-  border-radius: 5px;
-  padding: 0.625rem; /* 10px */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.5s forwards;
+  grid-template-columns: 300px 1fr; /* 사이드바 300px, 나머지 콘텐츠 */
+  gap: 30px;
+  align-items: start;
+  min-height: 80vh;
 }
 
-/* ----- 좌측 지표 목록 박스 ----- */
-#stockContainer {
-  overflow-y: auto;
-  /* border: 1px solid #ddd;
-  border-radius: 5px; */
-  background-color: var(--third-color);
-}
-.stockItem {
-  padding: 0.625rem; /* 10px */
-  /* border-bottom: 1px solid #eaeaea;*/
-  color: var(--text-color2);
-  cursor: pointer;
-}
-.stockItem:hover {
-  background-color: #f0f0f0;
-  transform: scale(0.98);
-}
-.selectedStockItem {
-  background-color: var(--primary-color) !important;
-  color: white;
-  transform: scale(1) !important;
-}
-
-/* ----- 우측 차트 영역 박스 ----- */
-#chartBox {
-  position: relative;
-  /* 높이 고정 없이 내부 내용(content-box)에 맞게 auto */
-}
-/* 원래의 캔버스 – indicator 내용이 있을 때 숨김 */
-#myChart {
-  /* border: 1px solid #ddd;
-  border-radius: 5px;*/
-  width: 100%;
-  height: 24.0625rem; /* 385px */
-  display: block;
-  background-color: var(--third-color);
-}
-/* 내부 컨텐츠 박스 : indicator 내용이 이 박스 안에 표시됨 */
-.content-box {
-  /* border: 1px solid #ddd;
-  border-radius: 5px; */
-  /* 위쪽 여백 줄이고, 왼쪽 여백 늘림 */
-  padding: 1.25rem 0.625rem 0.625rem 1.25rem; /* 20px 10px 10px 20px */
-  background-color: var(--third-color);
-  color: var(--text-color2);
-  /* 내부 내용에 맞게 높이 자동 조절 */
-}
-/* 제목(섹션)용 CSS – 폰트 크기와 굵기 조절 */
-.section-title {
-  font-size: 1.5rem; /* 24px */
-  font-weight: bold;
-}
-.content-box p {
-  line-height: 1.6; /* 줄 간격 조절 */
-}
-
-/* ----- 공통 canvas 스타일 ----- */
-canvas {
-  max-width: 100%;
-  background-color: #fefefe;
-}
-
-/* fadeInUp 애니메이션 keyframes 정의 */
+/* 공통 박스 스타일 (Bento Box) */
+/* 1. 애니메이션 키프레임 정의 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -185,213 +104,158 @@ canvas {
   }
 }
 
-/* mainContainer의 자식 박스들에 그룹별 딜레이 적용 */
-#mainContainer > .box:nth-child(1){
+.bento-box {
+  background: var(--white);
+  border: var(--border-width) solid var(--black);
+  border-radius: var(--border-radius);
+  box-shadow: var(--hard-shadow);
+  padding: 0; /* 내부 패딩은 개별 설정 */
+  overflow: hidden;
+  opacity: 0; /* 처음에 안 보이게 숨김 */
+  animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+#mainContainer > .bento-box:nth-child(1){
   animation-delay: 0.2s;
 }
 
-#mainContainer > .box:nth-child(2){
+#mainContainer > .bento-box:nth-child(2){
   animation-delay: 0.4s;
 }
 
-/* ----- 푸터 ----- */
-footer {
-  background-color: var(--primary-color);
-  color: var(--white);
-  text-align: center;
-  padding: 0.9375rem 0;               /* 기존: 15px 0 (15/16) */
-  font-size: 0.875rem;                /* 기존: 14px (14/16) */
+/* ---------------- LEFT: SIDEBAR ---------------- */
+.sidebar-box { padding: 20px; }
+.sidebar-header {
+  font-family: var(--font-eng); font-weight: 900; font-size: 1.2rem;
+  margin-bottom: 15px; padding-bottom: 10px;
+  border-bottom: 2px dashed #ccc;
 }
 
-/* --------------------- CSS 끝 --------------------- */
-
-.menu-icon {
-  display: none; 
-  font-size: 1.5rem;
+.stockItem {
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  color: var(--white);
+  transition: all 0.2s;
 }
 
-@media (max-width: 767px) {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    position: relative;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
+.stockItem:hover {
+  border-color: var(--black);
+  transform: translateX(5px);
+  background: #f4f4f4;
+}
 
-  .menu-icon {
-    display: block;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--white);
-    position: absolute;
-    right: 2rem;
-  }
-  .menu-icon:active {
-    transform: scale(0.9);
-    transition: transform 0.1s ease;
-  }
-  #main-nav {
-    position: fixed;
-    top: 0;
-    right: 0; /* 기본 숨김 */
-    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
-    max-width: 300px;
-    height: 100vh;
-    background-color: var(--white);
-    color: var(--primary-color);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    transform: translateX(100%);
-    transition: transform var(--transition-speed) ease-out;
-    will-change: transform;
-    z-index: 1000;
-    margin-top: 0; /* 상단 틈 제거 */
-    margin-right: 0;
-  }
+/* 선택된 아이템 (활성화) */
+.selectedStockItem {
+  background: var(--accent-yellow) !important;
+  border: 2px solid var(--black) !important;
+  box-shadow: 3px 3px 0 var(--black);
+  color: var(--black);
+  transform: translate(-2px, -2px) !important;
+  font-weight: 900;
+}
+
+/* ---------------- RIGHT: CONTENT ---------------- */
+.content-area {
+  padding: 40px;
+  min-height: 500px;
+}
+
+/* JS로 주입되는 콘텐츠 스타일링 */
+.content-header-styled {
+  border-bottom: 3px solid var(--black);
+  padding-bottom: 20px; margin-bottom: 25px;
+}
+.content-title {
+  font-family: var(--font-eng); font-size: 2.5rem; margin: 0; line-height: 1.2;
+}
+.content-badge {
+  display: inline-block; background: var(--black); color: var(--accent-green);
+  padding: 5px 10px; border-radius: 20px; font-weight: bold; margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.content-body h2 { /* 소제목 */
+  font-size: 1.5rem; margin-top: 30px; margin-bottom: 15px;
+  background: linear-gradient(to top, var(--accent-yellow) 40%, transparent 40%);
+  display: inline-block;
+}
+.content-body p {
+  font-size: 1.1rem; line-height: 1.7; color: #333; margin-bottom: 15px;
+}
+.key-point-box {
+  background: #f9f9f9; border: 2px dashed var(--black);
+  border-radius: 10px; padding: 20px; margin: 20px 0;
+}
+
+/* 초기 안내 문구 */
+.placeholder-content {
+  text-align: center; color: #888; margin-top: 100px;
+}
+.placeholder-content h2 { font-size: 2rem; color: var(--black); }
+.heartbeat-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.heartbeat-svg {
+  width: 100%;
+  height: 60px;
+}
+.heartbeat-line {
+  fill: none;
+  stroke: var(--accent-red);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400; /* 선의 전체 길이 */
+  stroke-dashoffset: 400;
+  animation: drawLine 2s linear infinite;
+}
+@keyframes drawLine {
+  0% { stroke-dashoffset: 400; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -400; } /* 계속 흘러가는 느낌 */
+}
+
+/* ---------------- FOOTER ---------------- */
+footer {
+  text-align: center; padding: 10px; margin-top: 50px; font-size: 0.9rem;
+  background: var(--black); color: var(--white);
+  border-top: var(--border-width) solid var(--black);
+}
+
+/* ---------------- MOBILE RESPONSIVE ---------------- */
+.menu-icon { display: none; font-size: 1.8rem; cursor: pointer; }
+.accordion-header { display: none; } /* PC에선 숨김 */
+
+@media (max-width: 900px) {
+  #mainContainer { grid-template-columns: 1fr; } /* 1단 레이아웃 */
+  
+  .header-link { display: none; } /* 모바일 메뉴로 이동 */
+  .menu-icon { display: block; }
+  
+  /* 모바일 네비게이션 */
   #main-nav.nav-active {
-    transform: translateX(0);
+    position: fixed; top: 0; right: 0; height: 100vh; width: 250px;
+    background: var(--white); border-left: 3px solid var(--black);
+    flex-direction: column; padding: 60px 20px; display: flex;
   }
-  #main-nav a.header-link {
-    color: var(--primary-color);
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  #overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 999;
-  }
-  #overlay.active {
-    display: block;
-  }
-
-  /* 메인 컨테이너를 한 열로 변경 */
-  #mainContainer {
-    display: block;
-    padding: 1rem; /* 필요에 따라 조정 */
-    gap: 1rem;
-  }
-  #stockListBox {
-    margin-bottom: 1rem;
-
-  }
-  #chartBox {
-    height: auto;
-  }
-  .stockItem {
-    font-size: 1rem;  /* 예: 16px 기준 */
-    padding: 0.5rem;
-  }
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-  }
-  body {
-    overflow-x: hidden;
-  }
-  .accordion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: var(--primary-color);
-    color: var(--white);
-    cursor: pointer;
-    border-radius: var(--box-radius);
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  .accordion-toggle {
-    transition: transform 0.3s ease;
-  }
-  /* 아코디언 내용은 기본적으로 숨김 */
-  .accordion-content {
-    display: none;
-    padding: 0.5rem 1rem;
-    background-color: var(--third-color);
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 var(--box-radius) var(--box-radius);
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  /* active 클래스가 있으면 보이게 */
-  .accordion-content.active {
-    display: block;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  #mainContainer {
-    display: grid;
-    grid-template-columns: 1fr 2fr; /* 필요에 따라 비율 조정 */
-    gap: 1rem;
-    padding: 1rem;
-  }
+  #main-nav .header-link { display: block; width: 100%; text-align: center; margin-bottom: 10px; }
   
-  #stockListBox {
-    max-height: 300px; /* 태블릿 화면에 맞게 조정 */
-    overflow-y: auto;
-  }
-  
-  .stockItem {
-    font-size: 1rem;
-    padding: 0.5rem;
-  }
-  
-  #chartBox {
-    height: auto;
-  }
-
+  /* 아코디언 (모바일용) */
   .accordion-header {
-    display: none;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--black); color: var(--white); padding: 15px;
+    font-weight: bold; cursor: pointer; border-radius: 8px;
   }
-
   .accordion-content {
-    display: block !important;
-    padding: 0;      /* 데스크탑 디자인에 맞게 조정 */
-    border: none;
-    max-height: none;
-    overflow: visible;
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
   }
+  .stockItem { margin-top: 5px; }
 }
-
-@media (min-width: 1024px) {
-  /* 데스크탑에서는 아코디언 헤더 숨김 */
-  .accordion-header {
-    display: none;
-  }
-  /* 아코디언 내용은 항상 보임 (기존 레이아웃과 동일하게) */
-  .accordion-content {
-    display: block !important;
-    padding: 0;      /* 데스크탑 디자인에 맞게 조정 */
-    border: none;
-    max-height: none;
-    overflow: visible;
-  }
-}
-

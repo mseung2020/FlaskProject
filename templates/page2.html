@@ -1,119 +1,123 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
   </script>
-  <!-- End Google Tag Manager --> 
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NewCandle™</title>
+  <title>NewCandle™ - 투자 정보</title>
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
   
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/page2.css') }}">
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
-  <!-- End Google Tag Manager (noscript) -->
 
-  <!-- 헤더 (내비게이션 바) -->
   <header role="banner">
     <div class="header-left">
       <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
-      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+      <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
     </div>
-    <!-- 모바일 메뉴 아이콘 (햄버거) 추가 -->
+    
     <div class="menu-icon">&#9776;</div>
-    <div class="header-right">
-      <nav id="main-nav" aria-label="메인 네비게이션">
-        <a href="/index" class="header-link">• 종목 분석</a>
-        <a href="/page2" class="header-link">• 투자 정보</a>
-        <a href="/page3" class="header-link">• AI 연구</a>
-      </nav>
-    </div>
+    
+    <nav id="main-nav">
+      <a href="/index" class="header-link">종목 분석</a>
+      <a href="/page2" class="header-link active">투자 정보</a>
+      <a href="/page3" class="header-link">AI 연구</a>
+    </nav>
   </header>
   
-  <!-- 오버레이 (모바일 메뉴 토글용) -->
   <div id="overlay"></div>  
   
-  <!-- 메인 컨테이너 -->
-  <div id="mainContainer">
-    <!-- 좌측 박스: 지표 목록 (내용에 맞게 높이 자동) -->
-    <div id="stockListBox" class="box" style="align-self: start;">
-
-        <!-- 모바일 전용 아코디언 헤더 -->
+  <main id="mainContainer" class="bento-layout">
+    
+    <aside id="stockListBox" class="bento-box sidebar-box">
+      <div class="sidebar-header">
+        INDICATORS LIST
+      </div>
+      
       <div class="accordion-header" onclick="toggleAccordion()">
-        <span class="accordion-title">지표 목록</span>
-        <span class="accordion-toggle">&#9660;</span>
+        <span>지표 목록 열기</span>
+        <span class="accordion-toggle">▼</span>
       </div>
 
       <div id="stockContainer" class="accordion-content">
-        <div id="adxBtn" class="stockItem" onclick="showIndicatorContent('ADX', this)">ADX (평균방향지수)</div>
-        <div class="stockItem" onclick="showIndicatorContent('ATR', this)">ATR (평균변동범위)</div>
-        <div class="stockItem" onclick="showIndicatorContent('CCI', this)">CCI (상품채널지수)</div>
-        <div class="stockItem" onclick="showIndicatorContent('MACD', this)">MACD (이동평균추세)</div>
-        <div class="stockItem" onclick="showIndicatorContent('ROC', this)">ROC (추세변동률)</div>
-        <div class="stockItem" onclick="showIndicatorContent('RSI', this)">RSI (상대강도지수)</div>
-        <div class="stockItem" onclick="showIndicatorContent('STOCH', this)">STOCH (스토캐스틱)</div>
-        <div class="stockItem" onclick="showIndicatorContent('STOCH RSI', this)">STOCHRSI (스토캐스틱+RSI)</div>
-        <div class="stockItem" onclick="showIndicatorContent('Ultimate Oscillator', this)">Ultimate Oscillator</div>
-        <div class="stockItem" onclick="showIndicatorContent('Williams %R', this)">Williams %R</div>
+        <div id="adxBtn" class="stockItem bento-btn" onclick="showIndicatorContent('ADX', this)">ADX (평균방향지수)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('ATR', this)">ATR (평균변동범위)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('CCI', this)">CCI (상품채널지수)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('MACD', this)">MACD (이동평균추세)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('ROC', this)">ROC (추세변동률)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('RSI', this)">RSI (상대강도지수)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('STOCH', this)">STOCH (스토캐스틱)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('STOCH RSI', this)">STOCH RSI (스토캐스틱+RSI)</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('Ultimate Oscillator', this)">Ultimate Oscillator</div>
+        <div class="stockItem bento-btn" onclick="showIndicatorContent('Williams %R', this)">Williams %R</div>
       </div>
-    </div>
+    </aside>
     
-    <!-- 우측 박스: 차트 영역 -->
-    <div id="chartBox" class="box">
-      <!-- 내부 컨텐츠 박스 (indicator 내용이 나타나는 곳) -->
-      <div id="contentBox" class="content-box" style="display: none;"></div>
-      <!-- 원래의 캔버스 (indicator 내용이 없을 때 표시) -->
-      <canvas id="myChart"></canvas>
-    </div>
-  </div>
+    <section id="chartBox" class="bento-box content-area">
+      <div id="contentBox" class="content-wrapper">
+        <div class="placeholder-content">
+            <h2>INVESTMENT GUIDE 💡</h2>
+            <p>좌측 목록에서 궁금한 지표를 클릭해보세요.<br>상세한 설명과 활용법을 알려드립니다.</p>
+        </div>
+        <div class="heartbeat-container">
+          <svg viewBox="0 0 200 100" class="heartbeat-svg">
+            <path class="heartbeat-line" d="M0,50 50,50 L60,20 L75,80 L85,50 L130,50 L140,20 L155,80 L165,50 L230,50" />
+          </svg>
+        </div>
+      </div>
+      <canvas id="myChart" style="display:none;"></canvas>
+    </section>
+
+  </main>
   
-  <!-- 푸터 -->
   <footer>
-    <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
   </footer>
 
   <script src="{{ url_for('static', filename='js/page2.js') }}"></script>
   <script>
+    // 모바일 메뉴 및 아코디언 로직
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.menu-icon').addEventListener('click', function() {
-        toggleMenu();
-      });
-      document.getElementById('overlay').addEventListener('click', function() {
-        toggleMenu();
-      });
+      const menuIcon = document.querySelector('.menu-icon');
+      const overlay = document.getElementById('overlay');
+      
+      if(menuIcon) {
+        menuIcon.addEventListener('click', toggleMenu);
+      }
+      if(overlay) {
+        overlay.addEventListener('click', toggleMenu);
+      }
     });
     
     function toggleMenu() {
       const nav = document.getElementById('main-nav');
       const overlay = document.getElementById('overlay');
-      
       nav.classList.toggle('nav-active');
       overlay.classList.toggle('active');
     }
 
     function toggleAccordion() {
-      const header = document.querySelector('.accordion-header');
       const content = document.querySelector('.accordion-content');
-      const toggleIcon = header.querySelector('.accordion-toggle');
+      const toggleIcon = document.querySelector('.accordion-toggle');
       
-      if (content.classList.contains('active')) {
-        content.classList.remove('active');
+      if (content.style.maxHeight) {
+        content.style.maxHeight = null;
         toggleIcon.style.transform = 'rotate(0deg)';
       } else {
-        content.classList.add('active');
+        content.style.maxHeight = content.scrollHeight + "px";
         toggleIcon.style.transform = 'rotate(180deg)';
       }
     }

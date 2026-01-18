@@ -1,351 +1,407 @@
-/* ========== 공통 변수 설정 ========== */
+/* =========================================
+   [PAGE 3] AI Research Lab Style
+========================================= */
+
+/* 공통 변수 (Main, Page2와 동일하게 맞춤) */
 :root {
-  --primary-color: #274c77;
-  --secondary-color: #f9f9f9;
-  --third-color: #f9f9f9;
+  --bg-color: #f8f9fa;
+  --bg-pattern: radial-gradient(#d1d5db 1px, transparent 1px);
   --white: #ffffff;
-  --border-color: #ddd;
-  --text-color: #666;
-  --text-color2: #191919;
-  --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  --font-family: Arial, sans-serif;
-  --header-height: 4.375rem;   /* 70px */
-  --padding-base: 1.25rem;     /* 20px */
-  --box-radius: 0.3125rem;     /* 5px */
-  --transition-speed: 0.3s;
+  --black: #111111;
+  
+  /* 포인트 컬러 */
+  --accent-yellow: #ffeb3b;
+  --accent-red: #ff7675;
+  --accent-blue: #74b9ff;
+  --accent-purple: #a29bfe;
+  --accent-green: #55efc4;
+  
+  /* 벤토 디자인 시스템 */
+  --border-width: 3px;
+  --border-radius: 16px;
+  --hard-shadow: 6px 6px 0px var(--black);
+  --header-height: 70px;
+  
+  --font-main: 'Noto Sans KR', sans-serif;
+  --font-display: 'Black Han Sans', sans-serif;
+  --font-eng: 'Space Grotesk', sans-serif;
 }
 
-/* ----- 바디 ----- */
 body {
-  font-family: var(--font-family);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  background-color: var(--secondary-color);
+  font-family: var(--font-main);
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  background-image: var(--bg-pattern);
+  background-size: 20px 20px;
+  color: var(--black);
 }
 
-/* ----- 헤더 ----- */
+/* ---------------- HEADER ---------------- */
 header {
-  background-color: var(--primary-color);
+  background: var(--white);
   height: var(--header-height);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--padding-base);
-  color: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: var(--border-width) solid var(--black);
+  position: sticky; top: 0; z-index: 100;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  font-family: 'esamanru Medium';
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { height: 36px; border: 2px solid var(--black); border-radius: 20%; cursor: pointer; }
+.logo {
+  font-family: var(--font-eng); font-size: 1.5rem; font-weight: 700;
+  margin: 0; cursor: pointer; letter-spacing: -0.5px;
 }
 
-.header-logo {
-  height: 2.7rem; /* 40px */
-  margin-left: 0.3125rem; /* 5px */
-  vertical-align: middle; 
-  cursor: pointer;
+@keyframes logoWiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); } /* 왼쪽으로 살짝 기울임 */
+  50% { transform: rotate(12deg); }  /* 오른쪽으로 살짝 기울임 */
+  75% { transform: rotate(-5deg); }  /* 다시 살짝 왼쪽 */
+  100% { transform: rotate(0deg); }  /* 제자리 */
 }
 
-header .logo {
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1.875rem; /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  margin-bottom: 0;
+/* .header-left(로고+텍스트 컨테이너)에 마우스를 올리면... */
+.header-left:hover .header-logo {
+  /* ...로고 이미지(.header-logo)가 애니메이션을 실행함 */
+  animation: logoWiggle 0.6s ease-in-out;
 }
 
-header nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.875rem;     /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  flex: 1;
-  font-family: 'Eugro L';
+#main-nav { display: flex; gap: 15px; }
+.header-link {
+  text-decoration: none; color: var(--black); font-weight: 700; font-size: 1.1rem;
+  padding: 8px 15px; border-radius: 8px; border: 2px solid transparent; transition: 0.2s;
+}
+.header-link:hover, .header-link.active {
+  background: var(--accent-yellow);
+  border: 2px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-2px, -2px);
 }
 
-header .header-link {
-  color: var(--white);
-  text-decoration: none;
-  font-size: 1.3rem; /* 20px */
-  font-weight: bold;
-  padding: 0.3125rem 0.625rem; /* 5px 10px */
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-header .header-link:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
-  border-radius: 4px;
-  transform: scale(1.05);
+/* ---------------- MAIN LAYOUT ---------------- */
+#labContainer {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  min-height: 80vh;
 }
 
-h1 {
-  cursor: pointer;
+.lab-header { text-align: center; margin-bottom: 50px; }
+.lab-title {
+  font-family: var(--font-display); font-size: 3rem; margin: 0;
+}
+.highlight-lab {
+  background: var(--black); color: var(--accent-green);
+  padding: 0 10px; border-radius: 8px; transform: rotate(-2deg); display: inline-block;
+}
+.lab-desc {
+  font-size: 1.2rem; color: #555; margin-top: 15px; font-weight: 500;
 }
 
-#mainContainer {
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    /* 높이는 내부 내용에 따라 자동 */
-}
-.box {
-    background-color: #ffffff;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.5s forwards;
-    height: 200px;
+/* 그리드 시스템 */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* 반응형 자동 배치 */
+  gap: 30px;
+  opacity: 0; /* 처음에 안 보이게 숨김 */
+  animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-#Box1 {
-  position: relative;
-  text-align: center;
-}
-
-/* 이미지 크기 조절 및 반응형 설정 */
-.factor-image {
-
-  object-fit: cover; 
-  max-height: 200px;
-  display: block;
-  margin: 0 auto;
-  outline: 5px solid white;
-  outline-offset: -5px;
-
-}
-
-/* 버튼 중앙 정렬 */
-.factor-button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.1s ease;
-}
-
-.factor-button:hover {
-  transform: scale(0.95) translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ----- 공통 canvas 스타일 ----- */
-canvas {
-    max-width: 100%;
-    background-color: #fefefe;
- }
-  
-/* fadeInUp 애니메이션 keyframes 정의 */
+/* 1. 애니메이션 키프레임 정의 */
 @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem); /* 20px */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* mainContainer의 자식 박스들에 그룹별 딜레이 적용 */
-#mainContainer > .box:nth-child(1),
-#mainContainer > .box:nth-child(2) {
-  animation-delay: 0.2s;
+/* ---------------- CARDS (Common) ---------------- */
+.lab-card {
+  background: var(--white);
+  border: var(--border-width) solid var(--black);
+  border-radius: var(--border-radius);
+  box-shadow: var(--hard-shadow);
+  height: 300px;
+  display: flex; flex-direction: column;
+  position: relative;
+  text-decoration: none; color: var(--black);
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-#mainContainer > .box:nth-child(3),
-#mainContainer > .box:nth-child(4) {
-  animation-delay: 0.4s;
+/* 카드 상단 타이틀 */
+.card-top {
+  padding: 20px;
+  border-bottom: 2px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-top h3 { margin: 0; font-family: var(--font-eng); font-size: 1.5rem; }
+.lab-badge {
+  font-size: 0.75rem; font-weight: 900; background: var(--black); color: var(--white);
+  padding: 4px 8px; border-radius: 4px;
 }
 
-#mainContainer > .box:nth-child(5),
-#mainContainer > .box:nth-child(6) {
-  animation-delay: 0.6s;
+/* 비주얼 영역 (애니메이션 들어갈 곳) */
+.lab-visual {
+  flex: 1; position: relative; overflow: hidden;
+  background: #fafafa;
 }
 
-/* ----- 푸터 ----- */
+/* 하단 액션 버튼 영역 */
+.card-action {
+  padding: 15px 20px;
+  background: var(--black); color: var(--white);
+  font-weight: 700; font-family: var(--font-eng);
+  display: flex; justify-content: space-between; align-items: center;
+  transition: 0.2s;
+}
+.arrow { font-size: 1.2rem; }
+
+/* ---------------- ACTIVE CARDS (활성화) ---------------- */
+.active-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 8px 8px 0 var(--black);
+}
+.active-card:hover .card-action {
+  background: var(--accent-yellow); color: var(--black);
+}
+
+/* =========================================
+   [1] 팩터 투자: 정교한 공전 애니메이션 (Factor Orbit)
+========================================= */
+.card-factor .lab-visual {
+  background: #e3f2fd; /* 배경색 */
+  position: relative;
+  overflow: hidden;
+}
+
+/* 중앙 코어 (다이아몬드) */
+.factor-core {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.5rem;
+  z-index: 10;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  animation: pulseDiamond 2s infinite ease-in-out;
+}
+
+/* 팩터 버블 공통 스타일 */
+.factor-bubble {
+  position: absolute;
+  background: var(--white);
+  border: 2px solid var(--black);
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-family: var(--font-eng);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--black);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  white-space: nowrap; /* 줄바꿈 방지 */
+  z-index: 5;
+}
+
+/* --- 좌표 배치 및 개별 애니메이션 --- */
+
+/* 1. #YNG CEO (좌측 상단) */
+.tag-ceo {
+  top: 25%; left: 15%;
+  background: #ff7675; /* 붉은 계열 */
+  animation: floatTopLeft 3s ease-in-out infinite;
+}
+
+/* 2. #ESG A+ (우측 상단) */
+.tag-esg {
+  top: 20%; right: 15%;
+  background: #55efc4; /* 민트 계열 */
+  animation: floatTopRight 3.5s ease-in-out infinite;
+}
+
+/* 3. #PATENT (좌측 하단) */
+.tag-pat {
+  bottom: 15%; left: 15%;
+  background: #a29bfe; /* 보라 계열 */
+  animation: floatBottomLeft 4s ease-in-out infinite;
+}
+
+/* 4. #FOREIGN (우측 하단) */
+.tag-for {
+  bottom: 20%; right: 10%;
+  background: #ffeaa7; /* 노랑 계열 */
+  animation: floatBottomRight 3.2s ease-in-out infinite;
+}
+
+/* 둥둥 떠다니는(Floating) 애니메이션 정의 */
+@keyframes pulseDiamond {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes floatTopLeft { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-5px, -10px); } }
+@keyframes floatTopRight { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, -8px); } }
+@keyframes floatBottomLeft { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-5px, 10px); } }
+@keyframes floatBottomRight { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, 8px); } }
+
+
+/* =========================================
+   [2] 캔들 패턴: 리얼 차트 & 정밀 스캔 (Real Chart Scan)
+========================================= */
+.card-candle .lab-visual {
+  background: #1e1e1e; /* 차트 배경 (Dark) */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 캔들 컨테이너 */
+.scan-chart-container {
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: space-between;
+  width: 80%;
+  height: 60%;
+  position: relative;
+}
+
+/* 개별 캔들 스타일 */
+.candle-item {
+  width: 12px;
+  position: relative;
+  border-radius: 2px;
+}
+
+/* 캔들 심지 (Wick) 만들기 */
+.candle-item::before, .candle-item::after {
+  content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+  width: 2px; background: inherit; /* 몸통 색 따라감 */
+}
+.candle-item::before { top: -8px; height: 8px; }    /* 윗꼬리 */
+.candle-item::after { bottom: -8px; height: 8px; }  /* 아랫꼬리 */
+
+/* 색상 및 높이 클래스 */
+.blue { background: #0984e3; box-shadow: 0 0 5px rgba(9, 132, 227, 0.3); } /* 하락 */
+.red  { background: #ff7675; box-shadow: 0 0 5px rgba(255, 118, 117, 0.3); } /* 상승 */
+
+.h-20 { height: 20px; }
+.h-40 { height: 40px; margin-top: -10px; } /* 위치 미세 조정 */
+.h-50 { height: 50px; margin-top: -20px; }
+.h-60 { height: 60px; margin-top: 10px; }
+.h-80 { height: 80px; margin-top: -30px; } /* 급등 */
+
+/* 1. 레이저 스캔 애니메이션 */
+.scan-laser {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: #55efc4; /* 네온 민트 */
+  box-shadow: 0 0 15px #55efc4, 0 0 5px #fff;
+  z-index: 20;
+  opacity: 0.8;
+  animation: laserMove 3s infinite linear;
+}
+
+/* 2. 타겟 박스 (Lock-on) 애니메이션 */
+.detection-box {
+  position: absolute;
+  /* 4번째 캔들(급등) 위치에 정확히 맞춤 */
+  left: 65%; top: 8%; 
+  width: 30px; height: 110px;
+  border: 3px dashed #55efc4;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(85, 239, 196, 0.2);
+  opacity: 0; /* 평소엔 안 보임 */
+  z-index: 15;
+  animation: boxLock 3s infinite;
+}
+
+/* --- 애니메이션 키프레임 --- */
+@keyframes laserMove {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes boxLock {
+  0%, 60% { opacity: 0; transform: scale(1.2); } /* 레이저가 도착할 때까지 대기 */
+  65% { opacity: 1; transform: scale(1); border-color: #fff; } /* 포착! (반짝) */
+  70% { opacity: 1; border-color: #55efc4; }
+  85% { opacity: 1; }
+  90% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* 반응형 미세 조정 (모바일에서 텍스트 겹침 방지) */
+@media (max-width: 768px) {
+  .factor-bubble { font-size: 0.7rem; padding: 4px 8px; }
+  .tag-ceo { left: 5%; }
+  .tag-esg { right: 5%; }
+}
+
+/* ---------------- LOCKED CARDS (잠김) ---------------- */
+.locked-card {
+  cursor: default;
+  opacity: 0.8;
+  border-color: #999;
+}
+.locked-card .card-top h3 { color: #999; }
+.locked-card .lab-visual {
+  background: #eee;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.lock-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.lock-icon { font-size: 3rem; margin-bottom: 10px; }
+
+/* 공사중 테이프 효과 */
+.caution-tape {
+  background: var(--accent-yellow);
+  color: var(--black);
+  font-weight: 900;
+  font-family: var(--font-eng);
+  padding: 5px 20px;
+  border: 2px solid var(--black);
+  transform: rotate(-5deg);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+}
+
+.blurred-shape {
+  width: 100px; height: 100px; background: #ddd; border-radius: 50%;
+  filter: blur(20px);
+}
+
+/* ---------------- FOOTER & MOBILE ---------------- */
 footer {
-    background-color: var(--primary-color);
-    color: var(--white);
-    text-align: center;
-    padding: 15px 0;
-    font-size: 14px;
-  }
+  background: var(--black); color: var(--white); font-size: 0.9rem;
+  text-align: center; padding: 10px; margin-top: 50px;
+  border-top: var(--border-width) solid var(--black);
+}
+
+.menu-icon { display: none; font-size: 1.8rem; cursor: pointer; }
+
+@media (max-width: 768px) {
+  #labContainer { padding: 0 15px; }
+  .lab-grid { grid-template-columns: 1fr; }
   
-/* --------------------- CSS 끝 --------------------- */
+  .header-link { display: none; }
+  .menu-icon { display: block; }
 
-.menu-icon {
-  display: none; 
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--white);
-}
-
-@media (max-width: 767px) {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    position: relative;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-
-  .menu-icon {
-    display: block;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--white);
-    position: absolute;
-    right: 2rem;
-  }
-  .menu-icon:active {
-    transform: scale(0.9);
-    transition: transform 0.1s ease;
-  }
-  #main-nav {
-    position: fixed;
-    top: 0;
-    right: 0; /* 기본 숨김 */
-    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
-    max-width: 300px;
-    height: 100vh;
-    background-color: var(--white);
-    color: var(--primary-color);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    transform: translateX(100%);
-    transition: transform var(--transition-speed) ease-out;
-    will-change: transform;
-    z-index: 1000;
-    margin-top: 0; /* 상단 틈 제거 */
-    margin-right: 0;
-  }
   #main-nav.nav-active {
-    transform: translateX(0);
+    position: fixed; top: 0; right: 0; height: 100vh; width: 250px;
+    background: var(--white); border-left: 3px solid var(--black);
+    flex-direction: column; padding: 60px 20px; display: flex; z-index: 999;
   }
-
-  #main-nav a.header-link {
-    color: var(--primary-color);
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  #overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 999;
-  }
-  #overlay.active {
-    display: block;
-  }
-
-  /* 메인 컨테이너를 한 열로 변경 */
-  #mainContainer {
-    display: block;
-    padding: 1rem; /* 필요에 따라 조정 */
-    gap: 1rem;
-  }
-  .box {
-    margin-bottom: 1rem;
-  }
-
-  #Box1 {
-    overflow: hidden;
-    padding: 0;
-    aspect-ratio: auto !important; /* 혹시 이전 규칙 무효화 */
-  }
-
-
-  #Box1 .factor-image {
-    width: 100%;
-    height: 100%;           /* 박스 높이를 가득 사용 */
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
-    object-position: center;
-    display: block;
-  }
-
-  #Box2 {
-    overflow: hidden;
-    display: flex;  
-    padding: 0;
-    aspect-ratio: auto !important; /* 혹시 이전 규칙 무효화 */
-    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
-    object-position: center;
-    align-items: center;
-  }
-
-  #Box2 .factor-image {
-    width: 100%;
-    max-width: 100%;
-    object-fit: contain;    /* 비율 유지 + 잘리지 않게 */
-    object-position: center;
-    align-items: center;
-    display: block;
-  }
-
-  #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
-  #mainContainer > .box:nth-child(2) { animation-delay: 0.4s; }
-  #mainContainer > .box:nth-child(3) { animation-delay: 0.6s; }
-  #mainContainer > .box:nth-child(4) { animation-delay: 0.8s; }
-  #mainContainer > .box:nth-child(5) { animation-delay: 1.0s; }
-  #mainContainer > .box:nth-child(6) { animation-delay: 1.2s; }
-
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-
-}
-
-@media (min-width: 1024px) {
-
+  #main-nav .header-link { display: block; width: 100%; text-align: center; margin-bottom: 10px; }
 }

@@ -39,7 +39,7 @@
       if (v > 0) {
         lastNonZeroClose = c;
         barData.push([o, c]);
-        barColors.push(c > o ? '#ff4f4f' : (c < o ? '#4f4fff' : 'black'));
+        barColors.push(c > o ? '#ff7675' : (c < o ? '#74b9ff' : '#111111'));
         extraData.push({ open: o, close: c, high: h, low: l, volume: v });
       } else {
         barData.push([c, c]);
@@ -88,6 +88,10 @@
     allStocks: [],
     currentCode: null,
     selectedItemElement: null,
+
+    isStockLoading: false,   // 종목 선택 로딩 중이면 true
+    loadSeq: 0,
+
     charts: {
       main: null,       // 캔들 차트
       volume: null,     // 거래량 차트
@@ -113,6 +117,50 @@
     return str.replace(/\./g, '/');
   }
 
+  function setUIBusy(busy) {
+    AppState.isStockLoading = busy;
+
+    // 미완성
+  }
+
+
+  function ensureUIBlocker(targetId, defaultText) {
+    const host = document.getElementById(targetId);
+    if (!host) return null;
+
+    // 박스 바로 아래(직계 자식)로 1개만 유지
+    let blocker = host.querySelector(':scope > .ui-blocker');
+    if (!blocker) {
+      blocker = document.createElement('div');
+      blocker.className = 'ui-blocker is-hidden';
+      blocker.innerHTML = `
+        <div class="ui-blocker-inner">
+          <div class="ui-blocker-text">${defaultText || 'UPDATING.'}</div>
+        </div>
+      `;
+      host.appendChild(blocker);
+    }
+
+    if (defaultText) {
+      const txt = blocker.querySelector('.ui-blocker-text');
+      if (txt) txt.textContent = defaultText;
+    }
+    return blocker;
+  }
+
+  function showUIBlocker(targetId, text) {
+    const el = ensureUIBlocker(targetId, text);
+    if (!el) return;
+    el.classList.remove('is-hidden');
+  }
+
+  function hideUIBlocker(targetId) {
+    const el = ensureUIBlocker(targetId);
+    if (!el) return;
+    el.classList.add('is-hidden');
+  }
+
+
   // ========== 공통 차트 옵션 ==========
 
   const commonChartOptions = {
@@ -131,7 +179,7 @@
         ticks: {
           align: 'start',
           maxTicksLimit: 5,
-          font: {size: 12},
+          font: {size: 10},
           callback: function(value) {
             return this.getLabelForValue(value);
           }
@@ -141,7 +189,7 @@
         display: false,
         beginAtZero: false,
         ticks: {
-          font: {size: 12},
+          font: {size: 10},
           callback: function(value) {
             return value.toLocaleString();
           }
@@ -149,7 +197,7 @@
       }
     },
     plugins: {
-      tooltip: { enabled: true, mode: 'nearest', intersect: true },
+      tooltip: { enabled: false, mode: 'nearest', intersect: true },
       legend: { display: false }
     },
     events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove']
@@ -166,7 +214,7 @@
         barPercentage: 0.9,
         grid: { display: false },
         ticks: {
-          font: {size: 12},
+          font: {size: 10},
           align: 'start',
           maxTicksLimit: 5,
           callback: function(value) {
@@ -178,7 +226,7 @@
         display: false,
         beginAtZero: true,
         ticks: {
-          font: {size: 12},
+          font: {size: 10},
           callback: function(value) {
             return Math.abs(value) >= 1000 ? (value / 1000).toLocaleString() : value.toLocaleString();
           }
@@ -267,6 +315,42 @@
       });
 
       // 최고/최저 가격 마커 표시
+      const { left, right } = chart.chartArea;
+      const midX = (left + right) / 2;
+
+      function drawMarkerText(txt, xAnchor, y, color) {
+        ctx.save();
+        ctx.fillStyle = color;
+
+        // 기존 폰트 유지하고 싶으면 아래 줄은 네 기존 값 그대로 둬도 됨
+        // ctx.font = '0.75rem';
+        ctx.font = 'bold 10px Paperlogy';
+
+        const pad = 6;
+        const w = ctx.measureText(txt).width;
+
+        // ✅ 규칙: 중앙(midX)보다 오른쪽이면 왼쪽에, 왼쪽이면 오른쪽에
+        let placeLeft = xAnchor > midX;
+
+        // 1차 배치
+        let x = placeLeft ? (xAnchor - pad) : (xAnchor + pad);
+        ctx.textAlign = placeLeft ? 'right' : 'left';
+
+        // ✅ 안전장치(긴 텍스트도 캔버스 밖으로 안 나가게 clamp)
+        if (!placeLeft && x + w > right - 2) {
+          placeLeft = true;
+          ctx.textAlign = 'right';
+          x = right - 2;
+        }
+        if (placeLeft && x - w < left + 2) {
+          ctx.textAlign = 'left';
+          x = left + 2;
+        }
+
+        ctx.fillText(txt, x, y);
+        ctx.restore();
+      }
+
       const cm = chart.data.customMarkers;
       if (!cm || !cm.validForMarkers) return;
       if (cm.maxHighIndex >= 0 && cm.maxHighIndex < meta.data.length) {
@@ -278,7 +362,7 @@
           ctx.font = '0.75rem';
           ctx.fillStyle = '#ff4f4f';
           const txt = `최고 ${formatNumber(cm.maxHigh)} (${formatDate(cm.maxHighDate)})`;
-          ctx.fillText(txt, xM + 5, yM - 5);
+          drawMarkerText(txt, xM, yM - 5, '#ff4f4f');
           ctx.restore();
         }
       }
@@ -291,7 +375,7 @@
           ctx.font = '0.75rem';
           ctx.fillStyle = '#4f4fff';
           const txt = `최저 ${formatNumber(cm.minLow)} (${formatDate(cm.minLowDate)})`;
-          ctx.fillText(txt, xM + 5, yM + 15);
+          drawMarkerText(txt, xM, yM + 15, '#4f4fff');
           ctx.restore();
         }
       }
@@ -419,9 +503,11 @@
     setupEventListeners();
     setupCheckboxControls();
     updateIndicatorVisibility();
+    updateIndicatorAbbrBadge(); 
     fetchLatestTradingDate();
     setupSearchIconToggle();
     updateMobileChartPadding();
+    setupInvestorTabs();
   }
 
   function loadStockList() {
@@ -460,22 +546,27 @@
     document.getElementById('toggleMovingAverage').addEventListener('change', function() {
       if (this.checked) addMovingAverages();
       else removeMovingAverages();
+      renderMainOverlayLegend();
     });
     document.getElementById('togglebollinger').addEventListener('change', function() {
       if (this.checked) addBollinger();
       else removeBollinger();
+      renderMainOverlayLegend();
     });
     document.getElementById('toggleenvelope').addEventListener('change', function() {
       if (this.checked) addenvelope();
       else removeenvelope();
+      renderMainOverlayLegend();
     });
     document.getElementById('toggleichimoku').addEventListener('change', function() {
       if (this.checked) addichimoku();
       else removeichimoku();
+      renderMainOverlayLegend();
     });
     document.getElementById('togglepsar').addEventListener('change', function() {
       if (this.checked) addpsar();
       else removepsar();
+      renderMainOverlayLegend();
     });        
     // 개별 보조지표 토글 이벤트 (배열로 관리)
     const indicatorToggles = [
@@ -510,11 +601,32 @@
           checkboxes.forEach(chk => { if (chk !== e.target) chk.checked = false; });
         }
         updateIndicatorVisibility();
+        updateIndicatorAbbrBadge(); 
       }
     });
   }
 
+  function updateIndicatorAbbrBadge() {
+    const badge = document.getElementById("indicatorAbbrBadge");
+    const container = document.getElementById("toggleSections2");
+    if (!badge || !container) return;
+
+    const checked = container.querySelector("input[type='checkbox']:checked");
+    if (!checked) { badge.textContent = ""; return; }
+
+    const label = container.querySelector(`label[for="${checked.id}"]`);
+    let abbr = label?.dataset?.abbr;
+
+    if (!abbr) {
+      const abbrEl = label?.querySelector(".abbr");
+      abbr = abbrEl?.textContent?.trim() || "";
+    }
+
+    badge.textContent = abbr || "";
+  }
+
   function updateIndicatorVisibility() {
+    hideAllIndicatorBadges();
     const indicators = [
       { toggle: "toggleVolume", box: "volumeBox", chart: "myVolumeChart" },
       { toggle: "toggleTradingvalue", box: "tradingvalueBox", chart: "tradingvalueChart" },
@@ -537,6 +649,7 @@
       if (document.getElementById(item.toggle).checked) {
         document.getElementById(item.box).style.display = "block";
         if (item.chart) document.getElementById(item.chart).style.visibility = "visible";
+        if (item.toggle === "toggleVolume") refreshVolumeBadgeIfActive();
         break;
       }
     }
@@ -563,7 +676,7 @@
         currentDays = 242;
       }
       document.getElementById('daysInput').value = currentDays;
-      requestChart(); // 차트 재요청
+      requestChart(false); // 차트 재요청
     }
   }
   
@@ -576,7 +689,7 @@
         currentDays = 42;
       }
       document.getElementById('daysInput').value = currentDays;
-      requestChart(); // 차트 재요청
+      requestChart(false); // 차트 재요청
     }
   }
 
@@ -585,7 +698,7 @@
     if (currentDays != 122) {
       currentDays = 122;
       document.getElementById('daysInput').value = currentDays;
-      requestChart(); // 차트 재요청
+      requestChart(false); // 차트 재요청
     }
   }
 
@@ -596,7 +709,18 @@
     stockData.forEach(item => {
       const div = document.createElement('div');
       div.className = 'stockItem';
-      div.textContent = `${item.회사명} (${item.종목코드})`;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'stockName';
+      nameSpan.textContent = item.회사명;
+
+      const codeSpan = document.createElement('span');
+      codeSpan.className = 'stockCode';
+      codeSpan.textContent = item.종목코드;
+
+      div.appendChild(nameSpan);
+      div.appendChild(codeSpan);
+
       div.tabIndex = 0;
 
       if (AppState.currentCode === item.종목코드) {
@@ -605,8 +729,13 @@
       }  
 
       div.addEventListener('click', () => {
+        // ✅ 1) 로딩 중이면 다른 종목 클릭은 무반응
+        if (AppState.isStockLoading) return;
+
+        // ✅ 2) 같은 종목 다시 클릭하면 무반응
         if (AppState.currentCode === item.종목코드) return;
-        
+
+        // (기존 선택 UI 처리)
         if (AppState.selectedItemElement) {
           AppState.selectedItemElement.classList.remove('selectedStockItem');
         }
@@ -616,11 +745,21 @@
         }
         div.classList.add('selectedStockItem');
         AppState.selectedItemElement = div;
+
+        // ✅ 3) 코드 세팅
         AppState.currentCode = item.종목코드;
-        requestChart();      
+
+        // ✅ 4) 여기서 UI 잠금(다른 종목 선택 차단)
+        setUIBusy(true);
+
+        // ✅ 5) 차트+사이드박스 병렬 로딩 시작(완료되면 내부에서 setUIBusy(false) 해제)
+        loadAllBoxesForSelectedStock(AppState.currentCode);
       });
+
       container.appendChild(div);
     });
+    const badge = document.getElementById('stockCountBadge');
+    if (badge) badge.textContent = String(stockData.length);
   }
 
   function searchByName() {
@@ -640,6 +779,8 @@
       const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
       if (filtered.length === 0) {
         document.getElementById('stockContainer').innerHTML = '';
+        const badge = document.getElementById('stockCountBadge');
+        if (badge) badge.textContent = '0';
       } else {
         renderStockList(filtered);
       }
@@ -653,7 +794,7 @@
 
   function setupSearchIconToggle() {
     const searchInput = document.getElementById('searchInput');
-    const searchIcon = document.querySelector('.searchbutton');
+    const searchIcon = document.querySelector('#searchBtn');
   
     function updateIcon() {
       if (searchInput.value.trim() !== '') {
@@ -692,12 +833,43 @@
     const labelElement = document.getElementById('date_label');
     if (labelElement) labelElement.textContent = `조회 기준: ${latestDate}`;
   }
+  
+  function toggleMainChartLoader(show){
+    const loader = document.getElementById('loader-mainchart');
+    const sonar  = document.getElementById('mainChartEmptyState');
+    const canvas = document.getElementById('myChart');
+    if (!loader || !canvas) return;
+
+    if (show){
+      loader.classList.remove('hidden');
+      canvas.style.opacity = '0.3';
+      if (sonar) sonar.classList.add('hidden');
+    } else {
+      loader.classList.add('hidden');
+      canvas.style.opacity = '1';
+    }
+  }
+
+  function toggleMainChartEmptyState(show){
+    const sonar  = document.getElementById('mainChartEmptyState');
+    const canvas = document.getElementById('myChart');
+    if (!sonar || !canvas) return;
+
+    if (show){
+      sonar.classList.remove('hidden');
+      canvas.style.opacity = '0.3';
+    } else {
+      sonar.classList.add('hidden');
+      canvas.style.opacity = '1';
+    }
+  }
+
 
   // ========== Chart Data Request ==========
-  function requestChart() {
+  function requestChart(refreshSideBoxes = true) {
     if (!AppState.currentCode) {
       alert('종목을 선택하세요.');
-      return;
+      return Promise.resolve();
     }
     const daysValue = currentDays.toString();
     if (!daysValue) {
@@ -723,7 +895,10 @@
       adx: document.getElementById("toggleADX").checked ? 'true' : 'false'
     };
     const requestBody = `code=${AppState.currentCode}&days=${daysValue}&ma=${MA}&bollinger=${BOLLINGER}&envelope=${ENVELOPE}&ichimoku=${ICHIMOKU}&psar=${PSAR}&tradingvalue=${flags.tradingvalue}&macd=${flags.macd}&rsi=${flags.rsi}&stoch=${flags.stoch}&stochrsi=${flags.stochrsi}&williams=${flags.williams}&cci=${flags.cci}&atr=${flags.atr}&roc=${flags.roc}&uo=${flags.uo}&adx=${flags.adx}`;
-    fetch('/get_ohlc_history', {
+    
+    toggleMainChartLoader(true);
+    
+    return fetch('/get_ohlc_history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: requestBody
@@ -747,6 +922,10 @@
         alert("주의! 거래정지가 의심되는 기간이 있습니다.");
       }
       updateMainChart(json.dates, json.opens, json.closes, json.highs, json.lows, json.volumes);
+      toggleMainChartLoader(false);
+      toggleMainChartEmptyState(false);
+      renderMainOverlayLegend();
+
       updateVolumeChart(json.dates, json.volumes, json.opens, json.closes);
       if (json.ma5 && json.ma20 && json.ma60 && json.ma120) {
         updateMovingAverages(json.dates, json.ma5, json.ma20, json.ma60, json.ma120);
@@ -839,16 +1018,56 @@
       AppState.charts.main.update();
       AppState.charts.volume.update();
 
-      updateFinancialTable(AppState.currentCode);
-      updateWordCloud(AppState.currentCode);
-      updateWordCloudHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
-      updateSentimentHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
-      updateCashHeader(document.querySelector('.selectedStockItem').textContent.split(' (')[0]);
-      updateCashChart(AppState.currentCode);
-      updateSentimentData(AppState.currentCode);
-      updateGosuIndex(AppState.currentCode)
+      if (refreshSideBoxes) {
+        updateFinancialTable(AppState.currentCode);
+        updateWordCloud(AppState.currentCode);
+
+        const stockInfo = AppState.allStocks.find(s => s.종목코드 === AppState.currentCode);
+        const stockNameOnly = stockInfo ? stockInfo.회사명 : "";
+
+        updateWordCloudHeader(stockNameOnly);
+        updateSentimentHeader(stockNameOnly);
+        updateCashHeader(stockNameOnly);
+        updateCashChart(AppState.currentCode);
+        updateSentimentData(AppState.currentCode);
+        updateGosuIndex(AppState.currentCode);
+      }
     })
-    .catch(err => alert('에러:' + err));
+    .catch(err => {
+      console.error('requestChart 실패:', err);
+      toggleMainChartLoader(false);     // ✅ 실패: 로더 OFF
+      toggleMainChartEmptyState(true);  // ✅ 실패: 소나 ON (대기 화면)
+    });
+  }
+
+  function loadAllBoxesForSelectedStock(code) {
+    const mySeq = ++AppState.loadSeq;
+
+    // 헤더류는 즉시 반영(동기)
+    const stockInfo = AppState.allStocks.find(s => s.종목코드 === code);
+    const stockNameOnly = stockInfo ? stockInfo.회사명 : "";
+
+    updateWordCloudHeader(stockNameOnly);
+    updateSentimentHeader(stockNameOnly);
+    updateCashHeader(stockNameOnly);
+
+    // ✅ 여기서 "병렬"로 전부 시작 (순서 상관 없음)
+    const tasks = [
+      requestChart(false),           // 차트만 갱신 모드(너가 이미 분리해둔 기준)
+      updateFinancialTable(code),
+      updateWordCloud(code),
+      updateCashChart(code),
+      updateSentimentData(code),
+      updateGosuIndex(code)
+    ];
+
+    // ✅ 모두 끝날 때까지 기다렸다가(성공/실패 무관) 락 해제
+    return Promise.allSettled(tasks).finally(() => {
+      // 혹시 중간에 다른 로딩이 시작되는 미래 확장 대비(안전장치)
+      if (AppState.loadSeq === mySeq) {
+        setUIBusy(false);
+      }
+    });
   }
 
   // ========== Main Candle Chart Functions ==========
@@ -886,9 +1105,9 @@
       if (v > 0) {
         lastNonZeroClose = c;
         barData.push([o, c]);
-        let color = 'black';
-        if (c > o) color = '#ff4f4f';
-        else if (c < o) color = '#4f4fff';
+        let color = '#111111';
+        if (c > o) color = '#ff7675';
+        else if (c < o) color = '#74b9ff';
         barColors.push(color);
         extraData.push({ open: o, close: c, high: h, low: l, volume: v, color, isZeroVolume: false, zeroVolumeLinePrice: null });
       } else {
@@ -937,11 +1156,39 @@
     const chartLabel = document.getElementById('chartLabel');
     if (barData.length > 0 && chartLabel) {
       chartLabel.style.visibility = 'visible';
-      chartLabel.innerHTML = `<span style="color:black; font-weight:bold;">(단위: 원)</span>`;
+      chartLabel.innerHTML = `<span style="color:black; font-weight:bold;">단위: 원</span>`;
       chartLabel.style.display = "block";
     }
     mainChart.update();
   }
+
+  function renderMainOverlayLegend(){
+    const el = document.getElementById('mainOverlayLegend');
+    if (!el) return;
+
+    // 체크박스 id -> 표시명/색(3색 룰 준수)
+    const items = [
+      { toggleId:'toggleMovingAverage', text:'MA',   dot:'#111111' },
+      { toggleId:'togglebollinger',     text:'BOLL', dot:'#ff7675' },
+      { toggleId:'toggleenvelope',      text:'ENV',  dot:'#74b9ff' },
+      { toggleId:'toggleichimoku',      text:'ICH',  dot:'#111111' },
+      { toggleId:'togglepsar',          text:'PSAR', dot:'green' },
+    ];
+
+    const on = items.filter(it => document.getElementById(it.toggleId)?.checked);
+    if (!on.length){
+      el.innerHTML = '';
+      return;
+    }
+
+    el.innerHTML = on.map(it => `
+      <span class="overlay-pill">
+        <span class="overlay-dot" style="background:${it.dot}"></span>
+        ${it.text}
+      </span>
+    `).join('');
+  }
+
 
   // ========== Volume Chart Functions ==========
   function initVolumeChart() {
@@ -966,12 +1213,37 @@
     }
   }
 
+  function setIndicatorBadge(labelId, items) {
+    const el = document.getElementById(labelId);
+    if (!el) return;
+
+    el.innerHTML = items.map(it => `
+      <span class="ind-pill">
+        <span class="ind-dot" style="background:${it.dot || '#111111'}"></span>
+        ${it.text}
+      </span>
+    `).join('');
+
+    el.style.display = 'flex';
+  }
+
+  function hideAllIndicatorBadges() {
+    const ids = [
+      "volumeLabel","tradingvalueLabel","macdLabel","rsiLabel","stochLabel","stochrsiLabel",
+      "williamsLabel","cciLabel","atrLabel","rocLabel","uoLabel","adxLabel"
+    ];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+  }
+
   function updateVolumeChart(dates, volumes, opens, closes) {
     const volArr = volumes.map(v => +v || 0);
     const barColors = volumes.map((_, i) => {
       const open = +opens[i], close = +closes[i];
-      if (Number.isNaN(open) || Number.isNaN(close)) return '#4f4fff';
-      return close >= open ? '#ff4f4f' : '#4f4fff';
+      if (Number.isNaN(open) || Number.isNaN(close)) return '#74b9ff';
+      return close >= open ? '#ff7675' : '#74b9ff';
     });
     const volumeChart = AppState.charts.volume;
     volumeChart.data.labels = dates;
@@ -982,13 +1254,21 @@
     volumeChart.options.scales.y.suggestedMax = maxVol + margin;
     volumeChart.options.scales.x.display = volumes.length > 0;
     volumeChart.options.scales.y.display = volumes.length > 0;
-    const volumeLabel = document.getElementById("volumeLabel");
-    if (volumeLabel) {
-      volumeLabel.innerHTML = `<span style="color:black; font-weight:bold;">(단위: 천 주)</span>`;
-      volumeLabel.style.display = "block";
-    }
+    setIndicatorBadge("volumeLabel", [
+      { dot: "#111111", text: "단위: 천 주" }
+    ]);
     volumeChart.update();
   }
+
+  function refreshVolumeBadgeIfActive(){
+    const volToggle = document.getElementById('toggleVolume');
+    if (!volToggle?.checked) return;
+
+    setIndicatorBadge("volumeLabel", [
+      { dot: "#111111", text: "단위: 천 주" }
+    ]);
+  }
+
 
   // ========== Moving Averages ==========
   function updateMovingAverages(dates, ma5, ma20, ma60, ma120) {
@@ -1015,17 +1295,8 @@
         spanGaps: false,
       });
     });
-    const maLabel = document.getElementById("maLabel");
-    if (document.getElementById("toggleMovingAverage").checked) {
-      maLabel.innerHTML = `<span style="color:red; font-weight:bold;">5일</span> | 
-                           <span style="color:purple; font-weight:bold;">20일</span> |
-                           <span style="color:blue; font-weight:bold;">60일</span> |
-                           <span style="color:green; font-weight:bold;">120일</span>`;
-      maLabel.style.visibility = "visible";
-    } else {
-      maLabel.style.visibility = "hidden";
-    }
     AppState.charts.main.update();
+    renderMainOverlayLegend();
   }
 
   function addMovingAverages() {
@@ -1056,8 +1327,7 @@
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== '5일선' && ds.label !== '20일선' && ds.label !== '60일선' && ds.label !== '120일선'
     );
-    const maLabel = document.getElementById("maLabel");
-    if (maLabel) maLabel.style.visibility = "hidden";
+    renderMainOverlayLegend();
     AppState.charts.main.update();
   }
 
@@ -1093,14 +1363,8 @@
       pointRadius: 0,
       spanGaps: false
     });
-    const bollingerLabel = document.getElementById("bollingerLabel");
-    if (document.getElementById("togglebollinger").checked) {
-      bollingerLabel.innerHTML = `<span style="color:brown; font-weight:bold;">볼린저 상단/하단 밴드</span>`;
-      bollingerLabel.style.visibility = "visible";
-    } else {
-      bollingerLabel.style.visibility = "hidden";
-    }
     AppState.charts.main.update();
+    renderMainOverlayLegend();
   }
 
   function addBollinger() {
@@ -1131,8 +1395,7 @@
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== '볼린저 상단 밴드' && ds.label !== '볼린저 하단 밴드'
     );
-    const bollingerLabel = document.getElementById("bollingerLabel");
-    if (bollingerLabel) bollingerLabel.style.visibility = "hidden";
+    renderMainOverlayLegend();
     AppState.charts.main.update();
   }
 
@@ -1168,14 +1431,8 @@
       pointRadius: 0,
       spanGaps: false
     });
-    const envelopeLabel = document.getElementById("envelopeLabel");
-    if (document.getElementById("toggleenvelope").checked) {
-      envelopeLabel.innerHTML = `<span style="color:rgba(80, 188, 223, 1); font-weight:bold;">Envelope 상단/하단 밴드</span>`;
-      envelopeLabel.style.visibility = "visible";
-    } else {
-      envelopeLabel.style.visibility = "hidden";
-    }
     AppState.charts.main.update();
+    renderMainOverlayLegend();
   }
 
   function addenvelope() {
@@ -1206,8 +1463,7 @@
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== '인벨롭 상단 밴드' && ds.label !== '인벨롭 하단 밴드'
     );
-    const envelopeLabel = document.getElementById("envelopeLabel");
-    if (envelopeLabel) envelopeLabel.style.visibility = "hidden";
+    renderMainOverlayLegend();
     AppState.charts.main.update();
   }
   
@@ -1339,19 +1595,8 @@
       spanGaps: false
     });  
 
-    const ichimokuLabel = document.getElementById("ichimokuLabel");
-    if (document.getElementById("toggleichimoku").checked) {
-      ichimokuLabel.innerHTML = `<span style="color:orange; font-weight:bold;">기준선</span> | 
-                                  <span style="color:green; font-weight:bold;">전환선</span> |
-                                  <span style="color:red; font-weight:bold;">선행스팬A</span> |
-                                  <span style="color:blue; font-weight:bold;">선행스팬B</span> |
-                                  <span style="color:purple; font-weight:bold;">후행스팬</span>`;
-      ichimokuLabel.style.visibility = "visible";
-    } else {
-      ichimokuLabel.style.visibility = "hidden";
-    }
-    
     AppState.charts.main.update();
+    renderMainOverlayLegend();
   }
 
   function addichimoku() {
@@ -1382,8 +1627,7 @@
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== '기준선' && ds.label !== '전환선' && ds.label !== '선행스팬A' && ds.label !== '선행스팬B' && ds.label !== '후행스팬'
     );
-    const ichimokuLabel = document.getElementById("ichimokuLabel");
-    if (ichimokuLabel) ichimokuLabel.style.visibility = "hidden";
+    renderMainOverlayLegend();
     AppState.charts.main.update();
   }
   
@@ -1407,16 +1651,8 @@
       xAxisID: 'x',
       spanGaps: false
     });
-
-    const psarLabel = document.getElementById("psarLabel");
-    if (document.getElementById("togglepsar").checked) {
-      psarLabel.innerHTML = `<span style="color:green; font-weight:bold;">Parabolic SAR</span>`;
-      psarLabel.style.visibility = "visible";
-    } else {
-      psarLabel.style.visibility = "hidden";
-    }
-    
     AppState.charts.main.update();
+    renderMainOverlayLegend();
   }
 
   function addpsar() {
@@ -1447,8 +1683,7 @@
     AppState.charts.main.data.datasets = AppState.charts.main.data.datasets.filter(ds =>
       ds.label !== 'psar'
     );
-    const psarLabel = document.getElementById("psarLabel");
-    if (psarLabel) psarLabel.style.visibility = "hidden";
+    renderMainOverlayLegend();
     AppState.charts.main.update();
   }    
 
@@ -1475,7 +1710,7 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
@@ -1484,7 +1719,7 @@
           y: { 
             display: true,
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               callback: function(value) { 
                 return (value / 1000000).toLocaleString(); 
               }
@@ -1508,19 +1743,17 @@
 
     const barColors = dates.map((_, i) => {
       const o = +opens[i], c = +closes[i];
-      if (Number.isNaN(o) || Number.isNaN(c)) return '#4f4fff';
-      return c >= o ? '#ff4f4f' : '#4f4fff';
+      if (Number.isNaN(o) || Number.isNaN(c)) return '#74b9ff';
+      return c >= o ? '#ff7675' : '#74b9ff';
     });
 
     tradingvalueChart.data.datasets[0].data = tradingvalue;
     tradingvalueChart.data.datasets[0].backgroundColor = barColors;
     tradingvalueChart.update();
 
-    const tradingvalueLabel = document.getElementById("tradingvalueLabel");
-    if (tradingvalueLabel) {
-      tradingvalueLabel.innerHTML = `<span style="color:black; font-weight:bold;">(단위: 만 원)</span>`;
-      tradingvalueLabel.style.display = "block";
-    }
+    setIndicatorBadge("tradingvalueLabel", [
+      { dot: "#111111", text: "단위: 만 원" }
+    ]);
   }
 
   function addTradingvalueChart() {
@@ -1565,7 +1798,7 @@
           { type: "line", label: "Signal", data: [], borderColor: "blue", borderWidth: 1.5, fill: false, pointRadius: 0 },
           { type: "bar", label: "histogram", data: [], backgroundColor: ctx => {
               const values = ctx.chart.data.datasets[2].data;
-              return values.map(value => value >= 0 ? "#ff4f4f" : "#4f4fff");
+              return values.map(value => value >= 0 ? "#ff7675" : "#74b9ff");
             }, borderWidth: 0 }
         ]
       },
@@ -1581,13 +1814,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -1607,12 +1840,11 @@
     macdChart.data.datasets[1].data = signal;
     macdChart.data.datasets[2].data = oscillator;
     macdChart.update();
-    const macdLabel = document.getElementById("macdLabel");
-    if (macdLabel) {
-      macdLabel.innerHTML = `<span style="color:red; font-weight:bold;">MACD</span> | 
-                             <span style="color:blue; font-weight:bold;">Signal</span>`;
-      macdLabel.style.display = "block";
-    }
+    setIndicatorBadge("macdLabel", [
+      { dot: "#ff7675", text: "MACD" },
+      { dot: "#74b9ff", text: "SIGNAL" }
+    ]);
+
   }
 
   function addMacdChart() {
@@ -1670,13 +1902,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -1695,10 +1927,10 @@
     rsiChart.data.datasets[0].data = rsi;
     rsiChart.update();
     const rsiLabel = document.getElementById("rsiLabel");
-    if (rsiLabel) {
-      rsiLabel.innerHTML = `<span style="color:red; font-weight:bold;">RSI</span>`;
-      rsiLabel.style.display = "block";
-    }
+    setIndicatorBadge("rsiLabel", [
+      { dot: "#ff7675", text: "RSI" }
+    ]);
+
   }
 
   function addRsiChart() {
@@ -1755,13 +1987,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -1780,12 +2012,11 @@
     stochChart.data.datasets[0].data = K;
     stochChart.data.datasets[1].data = D;
     stochChart.update();
-    const stochLabel = document.getElementById("stochLabel");
-    if (stochLabel) {
-      stochLabel.innerHTML = `<span style="color:red; font-weight:bold;">%K</span> | 
-                              <span style="color:blue; font-weight:bold;">%D</span>`;
-      stochLabel.style.display = "block";
-    }
+    setIndicatorBadge("stochLabel", [
+      { dot: "#ff7675", text: "%K" },
+      { dot: "#74b9ff", text: "%D" }
+    ]);
+
   }
 
   function addStochChart() {
@@ -1842,13 +2073,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -1867,12 +2098,11 @@
     stochrsiChart.data.datasets[0].data = KK;
     stochrsiChart.data.datasets[1].data = DD;
     stochrsiChart.update();
-    const stochrsiLabel = document.getElementById("stochrsiLabel");
-    if (stochrsiLabel) {
-      stochrsiLabel.innerHTML = `<span style="color:red; font-weight:bold;">%K</span> | 
-                                 <span style="color:blue; font-weight:bold;">%D</span>`;
-      stochrsiLabel.style.display = "block";
-    }
+    setIndicatorBadge("stochrsiLabel", [
+      { dot: "#ff7675", text: "%K" },
+      { dot: "#74b9ff", text: "%D" }
+    ]);
+
   }
 
   function addStochrsiChart() {
@@ -1930,13 +2160,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -1955,10 +2185,10 @@
     williamsChart.data.datasets[0].data = R;
     williamsChart.update();
     const williamsLabel = document.getElementById("williamsLabel");
-    if (williamsLabel) {
-      williamsLabel.innerHTML = `<span style="color:red; font-weight:bold;">%R</span>`;
-      williamsLabel.style.display = "block";
-    }
+    setIndicatorBadge("williamsLabel", [
+      { dot: "#ff7675", text: "W%" }
+    ]);
+
   }
 
   function addWilliamsChart() {
@@ -2016,13 +2246,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -2040,11 +2270,10 @@
     cciChart.data.labels = dates;
     cciChart.data.datasets[0].data = CCI;
     cciChart.update();
-    const cciLabel = document.getElementById("cciLabel");
-    if (cciLabel) {
-      cciLabel.innerHTML = `<span style="color:red; font-weight:bold;">CCI</span>`;
-      cciLabel.style.display = "block";
-    }
+    setIndicatorBadge("cciLabel", [
+      { dot: "#ff7675", text: "CCI" }
+    ]);
+
   }
 
   function addCciChart() {
@@ -2102,13 +2331,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -2126,11 +2355,10 @@
     atrChart.data.labels = dates;
     atrChart.data.datasets[0].data = ATR;
     atrChart.update();
-    const atrLabel = document.getElementById("atrLabel");
-    if (atrLabel) {
-      atrLabel.innerHTML = `<span style="color:red; font-weight:bold;">ATR</span>`;
-      atrLabel.style.display = "block";
-    }
+    setIndicatorBadge("atrLabel", [
+      { dot: "#ff7675", text: "ATR" }
+    ]);
+
   }
 
   function addAtrChart() {
@@ -2188,13 +2416,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -2212,11 +2440,10 @@
     rocChart.data.labels = dates;
     rocChart.data.datasets[0].data = ROC;
     rocChart.update();
-    const rocLabel = document.getElementById("rocLabel");
-    if (rocLabel) {
-      rocLabel.innerHTML = `<span style="color:red; font-weight:bold;">ROC</span>`;
-      rocLabel.style.display = "block";
-    }
+    setIndicatorBadge("rocLabel", [
+      { dot: "#ff7675", text: "ROC" }
+    ]);
+
   }
 
   function addRocChart() {
@@ -2274,13 +2501,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -2298,11 +2525,10 @@
     uoChart.data.labels = dates;
     uoChart.data.datasets[0].data = UO;
     uoChart.update();
-    const uoLabel = document.getElementById("uoLabel");
-    if (uoLabel) {
-      uoLabel.innerHTML = `<span style="color:red; font-weight:bold;">Ultimate Oscillator</span>`;
-      uoLabel.style.display = "block";
-    }
+    setIndicatorBadge("uoLabel", [
+      { dot: "#ff7675", text: "UO" }
+    ]);
+
   }
 
   function addUoChart() {
@@ -2359,13 +2585,13 @@
             offset: true,
             grid: { display: false },
             ticks: {
-              font: {size: 12},
+              font: {size: 10},
               align: 'start',
               maxTicksLimit: 5,
               callback: function(value) { return this.getLabelForValue(value); }
             }
           },
-          y: { display: true, ticks: {font: {size: 12} }}
+          y: { display: true, ticks: {font: {size: 10} }}
         },
         plugins: { legend: { display: false } }
       },
@@ -2385,13 +2611,11 @@
     adxChart.data.datasets[1].data = DI;
     adxChart.data.datasets[2].data = DIM;
     adxChart.update();
-    const adxLabel = document.getElementById("adxLabel");
-    if (adxLabel) {
-      adxLabel.innerHTML = `<span style="color:red; font-weight:bold;">ADX</span> |
-                            <span style="color:blue; font-weight:bold;">+DI</span> |
-                            <span style="color:purple; font-weight:bold;">-DI</span>`;
-      adxLabel.style.display = "block";
-    }
+    setIndicatorBadge("adxLabel", [
+      { dot: "#ff7675", text: "ADX" },
+      { dot: "#74b9ff", text: "+DI" },
+      { dot: "purple", text: "-DI" }
+    ]);
   }
 
   function addAdxChart() {
@@ -2426,8 +2650,16 @@
 
   // ========== 재무 데이터 로드 ==========
   function updateFinancialTable(code) {
+    // 제목 데이터 로드
+    const stockInfo = AppState.allStocks.find(s => s.종목코드 === code);  
+    if (stockInfo) {
+      document.getElementById('selectedStockName').textContent = stockInfo.회사명;
+    } else {
+      document.getElementById('selectedStockName').textContent = "종목 정보 없음";
+    }
+
     // 재무비율 데이터 로드 및 출력
-    fetch(`/get_financial_data?code=${code}`)
+    return fetch(`/get_financial_data?code=${code}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -2481,13 +2713,6 @@
       .catch(err => {
         alert('재무 데이터 로드 실패: ' + err);
       });
-    // 제목 데이터 로드
-    const stockInfo = AppState.allStocks.find(s => s.종목코드 === code);  
-    if (stockInfo) {
-      document.getElementById('selectedStockName').textContent = stockInfo.회사명 + " 재무비율";
-    } else {
-      document.getElementById('selectedStockName').textContent = "선택된 종목 정보가 없습니다.";
-    }
   }
 
   // ========== 워드 클라우드 로드 ==========
@@ -2506,7 +2731,7 @@
     canvas.style.height = viewH/16 + 'rem'
 
   
-    fetch(`/get_wordcloud_data?code=${stockCode}`)
+    return fetch(`/get_wordcloud_data?code=${stockCode}`)
       .then(response => response.json())
       .then(data => {
         if (data.error) {
@@ -2534,61 +2759,82 @@
   
         // 최대 빈도 계산
         const maxFrequency = Math.max(...wordArray.map(([_, freq]) => freq));
+        
+        // ✅ 테마용 팔레트(여기서만 랜덤) - 필요하면 너가 색만 바꿔도 됨
+        const palette = [
+          '#111111','#2d3436','#636e72','#1e272e','#485460',
+          '#fdcb6e','#e18f55','#d63031','#e84393','#ff7675',
+          '#74b9ff','#0984e3','#6c5ce7','#00cec9','#00b894'
+        ];
+        // Fisher–Yates shuffle
+        const shuffle = (arr) => {
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = (Math.random() * (i + 1)) | 0;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        };
+
+        // wordArray = [[word,freq], ...] 기반으로 “색 주머니(bag)”를 단어 수만큼 채움
+        const words = wordArray.map(([w]) => w);
+
+        const bag = [];
+        while (bag.length < words.length) bag.push(...shuffle([...palette]));
+        bag.length = words.length;
+
+        // 단어 → 색 고정 맵 (WordCloud가 여러 번 color() 호출해도 같은 단어는 같은 색)
+        const colorMap = new Map();
+        words.forEach((w, i) => colorMap.set(w, bag[i]));
+
+        // ✅ wordCloudCanvas에만 적용되는 "단어 테두리+그림자" 패치 (1회만)
+        const wcCtx = canvas.getContext('2d');
+        if (!canvas.dataset.wcStyled) {
+          const origFillText = wcCtx.fillText.bind(wcCtx);
+          const origStrokeText = wcCtx.strokeText.bind(wcCtx);
+
+          wcCtx.fillText = function(text, x, y, maxWidth) {
+            // wordcloud2가 단어별로 font/fillStyle을 설정하므로 그걸 그대로 존중하면서,
+            // stroke + shadow만 덧입힘
+            this.save();
+
+            // 1) 테두리(검정) — 벤토 톤
+            this.shadowColor = 'transparent';  // stroke엔 그림자 X
+            this.lineJoin = 'round';
+            this.miterLimit = 2;
+            this.strokeStyle = 'rgba(0,0,0,0.1)';
+            this.lineWidth = Math.max(2, Math.round(1.1 * dpr)); // dpr은 updateWordCloud에서 이미 계산중 :contentReference[oaicite:2]{index=2}
+            origStrokeText(text, x, y, maxWidth);
+
+            // 2) 채움 + 약한 그림자
+            this.shadowColor = 'rgba(17,17,17,.15)';
+            this.shadowBlur = Math.max(0, Math.round(2 * dpr));
+            this.shadowOffsetX = Math.round(1 * dpr);
+            this.shadowOffsetY = Math.round(1 * dpr);
+
+            const ret = origFillText(text, x, y, maxWidth);
+            this.restore();
+            return ret;
+          };
+
+          canvas.dataset.wcStyled = '1';
+        }
 
         // wordcloud2.js 라이브러리로 워드 클라우드 생성
         WordCloud(canvas, {
           list: wordArray,
           gridSize: 10,
           weightFactor: function(freq) {
-            const maxFontSize = 100; // 원하는 최대 폰트 크기
+            const maxFontSize = 90; // 원하는 최대 폰트 크기
             const size = (freq / maxFrequency) * (Math.min(canvas.width, canvas.height) / 2);
             return Math.min(size, maxFontSize);
           },
-          fontFamily: "'Paperlogy', Arial, sans-serif", // 원하는 웹 폰트로 변경 가능
-          color: 'random-dark',
+          fontFamily: "sans-serif", // 원하는 웹 폰트로 변경 가능
+          color: (word) => colorMap.get(String(word)) || '#111111',
+          fontWeight: '700',
           rotateRatio: 0,
-          backgroundColor: '#f9f9f9'
+          backgroundColor: '#fffbe6'
         });
 
-      // === 툴팁 바인딩(중복 방지) ===
-        if (!container.dataset.wcBound) {
-          let tip = document.getElementById('wordCloudTooltip');
-          if (!tip) {
-            tip = document.createElement('div');
-            tip.id = 'wordCloudTooltip';
-            tip.setAttribute('role','tooltip');
-            tip.setAttribute('aria-hidden','true');
-            // CSS 선택자와 맞추려면 굳이 클래스는 필요 없음(위 CSS 수정 시)
-            document.getElementById('wordCloudContainer').appendChild(tip);
-          }
-
-          let hideTimer = null;
-
-          const show = () => {
-            if (!container.dataset.wcTooltip) return;
-            tip.innerHTML = container.dataset.wcTooltip;
-            tip.classList.add('visible');
-            tip.setAttribute('aria-hidden', 'false');
-          };
-
-          const hide = () => {
-            tip.classList.remove('visible');
-            tip.setAttribute('aria-hidden', 'true');
-            if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
-          };
-          
-          canvas.addEventListener('mouseenter', show);
-          canvas.addEventListener('mouseleave', hide);
-
-          // 모바일: 탭 시 확대 + 툴팁, 손 떼면 닫기
-          canvas.addEventListener('touchstart', () => {
-            container.classList.add('wc-touch');   // 확대 효과 유지용
-            show();
-            
-          }, { passive: true });
-
-          container.dataset.wcBound = '1';
-        }
       })
       .catch(error => console.error('워드클라우드 업데이트 실패:', error));
   }
@@ -2598,71 +2844,116 @@
   
     if (!stockName) {
       // 아직 종목이 선택되지 않음
-      titleEl.textContent = "선택된 종목 정보가 없습니다.";
+      titleEl.textContent = "종목 정보 없음";
     } else {
-      titleEl.textContent = `${stockName} 워드클라우드`;
+      titleEl.textContent = `${stockName}`;
     }
   }
 
   // ========== 투자자 지표 로드 ============
   function updateSentimentChart(sentimentData) {
-    // sentimentData 예시: { positive: 40.23, negative: 35.12, neutral: 24.65 }
-    const ctx = document.getElementById('sentimentChart').getContext('2d');
+    const canvas = document.getElementById('sentimentChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
     const labels = ['긍정', '부정', '중립'];
-    const dataValues = [sentimentData.positive, sentimentData.negative, sentimentData.neutral];
-  
-    // 이전에 생성된 차트가 있으면 파괴
-    if(window.sentimentChartInstance) {
+    const values = [
+      Number(sentimentData.positive ?? 0),
+      Number(sentimentData.negative ?? 0),
+      Number(sentimentData.neutral ?? 0)
+    ];
+
+    // ✅ 단색(그라데이션 X) / 분위기 맞춘 또렷한 색
+    const colors = ['#2ecc71', '#ff7675', '#636e72']; // POS / NEG / NEU
+
+    // 이전 차트 제거
+    if (window.sentimentChartInstance) {
       window.sentimentChartInstance.destroy();
     }
-  
+
+    // 중앙 텍스트(플러그인)
+    const centerTextPlugin = {
+      id: 'centerText',
+      afterDraw(chart) {
+        const { ctx } = chart;
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data.length) return;
+
+        const x = meta.data[0].x;
+        const y = meta.data[0].y;
+
+        const total = values.reduce((a,b)=>a+b,0) || 1;
+        const pos = Math.round((values[0] / total) * 100);
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        ctx.fillStyle = 'rgba(17,17,17,.75)';
+        ctx.font = '900 12px ui-monospace, monospace';
+        ctx.fillText('SENTIMENT', x, y - 8);
+
+        ctx.fillStyle = '#111111';
+        ctx.font = '900 18px ui-monospace, monospace';
+        ctx.fillText(`${pos}%`, x, y + 10);
+
+        ctx.restore();
+      }
+    };
+
     window.sentimentChartInstance = new Chart(ctx, {
-      type: 'pie',
+      type: 'doughnut',
       data: {
-        labels: labels,
+        labels,
         datasets: [{
-          data: dataValues,
-          backgroundColor: ['#4caf50', '#ff4f4f', '#ffc107'] // 긍정(녹색), 부정(빨간색), 중립(회색)
+          data: values,
+          backgroundColor: colors,
+          borderColor: '#111111',   // ✅ bento 보더
+          borderWidth: 2,
+          spacing: 2,               // ✅ 조각 사이 간격
+          hoverOffset: 4
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,   // ✅ 프레임(정사각형) 꽉 채우기
+        cutout: '62%',                // ✅ 도넛 느낌
         plugins: {
-          legend: {
-            display: false // 범례 숨김
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                //const label = labels[context.dataIndex] || '';
-                return context.parsed + '%';
-              }
-            }
-          },
+          legend: { display: false },
           datalabels: {
-            // 10% 미만 슬라이스는 라벨 표시 X
-            formatter: function(value, context) {
-              if (value < 10) {
-                return '';
-              }
-              return labels[context.dataIndex];
-            },
-            color: '#fff',
-            font: {
-              family: 'Eugro L',
-              weight: 'bold',
-              size: 20
-            },
+            // 너무 작은 조각은 표기 안 함(좁은 프레임에서 가독성)
+            formatter: (value) => (value >= 12 ? `${Math.round(value)}%` : ''),
+            color: '#ffffff',
+            font: { weight: '900', size: 12 },
             textStrokeColor: 'rgba(0,0,0,0.35)',
             textStrokeWidth: 1
           }
         }
       },
-      plugins: [ChartDataLabels]
+      plugins: [ChartDataLabels, centerTextPlugin]
     });
+
+    // ✅ 우측 세로 범례 생성
+    const legendEl = document.getElementById('sentimentLegend');
+    if (legendEl) {
+      legendEl.innerHTML = labels.map((lab, i) => {
+        const v = Math.round(values[i]);
+        return `
+          <div class="item" role="listitem">
+            <div class="left">
+              <span class="swatch" style="background:${colors[i]}"></span>
+              <span class="label">${lab}</span>
+            </div>
+            <span class="pct">${v}%</span>
+          </div>
+        `;
+      }).join('');
+    }
   }
-  
+
   function updateSentimentData(stockCode) {
-    fetch(`/get_sentiment_data?code=${stockCode}`)
+    return fetch(`/get_sentiment_data?code=${stockCode}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -2679,14 +2970,14 @@
   
     if (!stockName) {
       // 아직 종목이 선택되지 않음
-      titleST.textContent = "선택된 종목 정보가 없습니다.";
+      titleST.textContent = "종목 정보 없음";
     } else {
-      titleST.textContent = `${stockName} 투자자 지표`;
+      titleST.textContent = `${stockName}`;
     }
   }
 
   function updateGosuIndex(stockCode) {
-    fetch('/get_gosu_index?code=' + stockCode)
+    return fetch('/get_gosu_index?code=' + stockCode)
       .then(res => res.json())
       .then(data => {
         let dates = data.dates;
@@ -2718,78 +3009,70 @@
           return;
         }
         container.innerHTML = '';
-  
+        const barsToAnimate = [];
         // 각 날짜별 행 생성
+        // ✅ 각 날짜별 행 생성 (NEW)
         for (let i = 0; i < formattedDates.length; i++) {
           const row = document.createElement('div');
-          row.className = 'combined-bar-row';
-  
-          // 날짜 레이블
-          const dateLabel = document.createElement('div');
-          dateLabel.className = 'day-label';
-          dateLabel.textContent = formattedDates[i];
-          row.appendChild(dateLabel);
-  
-          // 기관 막대
-          const instBarContainer = document.createElement('div');
-          instBarContainer.className = 'bar-container';
-          const instBar = document.createElement('div');
-          instBar.className = 'bar';
-          instBar.classList.add(getVolumeColorClass(instNetVolume[i]));
-          const instWidth = (instStrength[i] / maxStrength) * 100;
-          instBar.style.width = instWidth + '%';
-          const instBarText = document.createElement('div');
-          instBarText.className = 'bar-text';
-          if (instNetVolume[i] > 0) {
-            instBarText.textContent = `${instStrength[i]}% (매수)`;
-          } else if (instNetVolume[i] < 0) {
-            instBarText.textContent = `${instStrength[i]}% (매도)`;
-          } else {
-            instBarText.textContent = `${instStrength[i]}%`;
-          }
-          instBar.appendChild(instBarText);
-          instBarContainer.appendChild(instBar);
-          row.appendChild(instBarContainer);
-  
-          // 외국인 막대
-          const foreignBarContainer = document.createElement('div');
-          foreignBarContainer.className = 'bar-container';
-          const foreignBar = document.createElement('div');
-          foreignBar.className = 'bar';
-          foreignBar.classList.add(getVolumeColorClass(foreignNetVolume[i]));
-          const foreignWidth = (foreignStrength[i] / maxStrength) * 100;
-          foreignBar.style.width = foreignWidth + '%';
-          const foreignBarText = document.createElement('div');
-          foreignBarText.className = 'bar-text';
-          if (foreignNetVolume[i] > 0) {
-            foreignBarText.textContent = `${foreignStrength[i]}% (매수)`;
-          } else if (foreignNetVolume[i] < 0) {
-            foreignBarText.textContent = `${foreignStrength[i]}% (매도)`;
-          } else {
-            foreignBarText.textContent = `${foreignStrength[i]}%`;
-          }
-          foreignBar.appendChild(foreignBarText);
-          foreignBarContainer.appendChild(foreignBar);
-          row.appendChild(foreignBarContainer);
-  
+          row.className = 'sentRow';
+
+          const dateEl = document.createElement('div');
+          dateEl.className = 'sentDate';
+          dateEl.textContent = formattedDates[i];
+
+          const tone = (netVol) => netVol > 0 ? 'up' : (netVol < 0 ? 'down' : 'neutral');
+
+          const makeCell = (strength, netVol) => {
+            const cell = document.createElement('div');
+            cell.className = 'sentCell';
+
+            const track = document.createElement('div');
+            track.className = 'sentTrack';
+
+            const bar = document.createElement('div');
+            bar.className = `sentBar ${tone(netVol)}`;
+
+            const width = (strength / maxStrength) * 100;
+
+            // ✅ 처음엔 0% (CSS transition 대상)
+            bar.style.width = '0%';
+            // ✅ 목표 폭 저장
+            bar.dataset.targetWidth = String(width);
+            // ✅ 나중에 한꺼번에 폭 적용하려고 배열에 보관
+            barsToAnimate.push(bar);
+
+
+            track.appendChild(bar);
+
+            const pct = document.createElement('div');
+            pct.className = 'sentPct';
+            pct.textContent = `${strength}%`;
+
+            cell.appendChild(track);
+            cell.appendChild(pct);
+            return cell;
+          };
+
+          const instCell = makeCell(instStrength[i], instNetVolume[i]);
+          const foreignCell = makeCell(foreignStrength[i], foreignNetVolume[i]);
+
+          row.appendChild(dateEl);
+          row.appendChild(instCell);
+          row.appendChild(foreignCell);
+
           container.appendChild(row);
         }
-  
-        // 하단에 "기관"과 "외국인" 레이블 추가
-        const footer = document.createElement('div');
-        footer.className = 'gosu-footer';
-  
-        const instLabel = document.createElement('div');
-        instLabel.className = 'footer-label';
-        instLabel.textContent = '기관';
-  
-        const foreignLabel = document.createElement('div');
-        foreignLabel.className = 'footer-label';
-        foreignLabel.textContent = '외국인';
-  
-        footer.appendChild(instLabel);
-        footer.appendChild(foreignLabel);
-        container.appendChild(footer);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            barsToAnimate.forEach((bar, idx) => {
+              // 살짝씩만 시간차 (10개가 순서대로 차는 느낌)
+              bar.style.transitionDelay = `${idx * 35}ms`;
+              bar.style.width = `${bar.dataset.targetWidth}%`;
+            });
+          });
+        });
+        // ✅ 기존 footer(기관/외국인) 붙이던 코드 블록은 삭제(이제 상단 sentCols로 1회만 표시)
+
       })
       .catch(err => console.error("고수지표 업데이트 오류:", err));
   }
@@ -2804,6 +3087,30 @@
     }
   }
 
+  function setupInvestorTabs() {
+    const gosuBtn = document.getElementById('gosuTab');
+    const hasuBtn = document.getElementById('hasuTab');
+    const container = document.querySelector('.investor-indicator-container');
+    if (!gosuBtn || !hasuBtn || !container) return;
+
+    function activate(which) {
+      const isInstForeign = (which === 'inst');
+      gosuBtn.classList.toggle('active', isInstForeign);
+      hasuBtn.classList.toggle('active', !isInstForeign);
+
+      gosuBtn.setAttribute('aria-pressed', isInstForeign ? 'true' : 'false');
+      hasuBtn.setAttribute('aria-pressed', !isInstForeign ? 'true' : 'false');
+
+      container.classList.toggle('show-hasu', !isInstForeign);
+    }
+
+    gosuBtn.addEventListener('click', () => activate('inst'));
+    hasuBtn.addEventListener('click', () => activate('hasu'));
+
+    // 초기값: 기관/외국인
+    activate('inst');
+  }
+
 
   // ========== 현금흐름 지표 로드 ============
   function updateCashHeader(stockName) {
@@ -2811,9 +3118,9 @@
   
     if (!stockName) {
       // 아직 종목이 선택되지 않음
-      titleST.textContent = "선택된 종목 정보가 없습니다.";
+      titleST.textContent = "종목 정보 없음";
     } else {
-      titleST.textContent = `${stockName} 현금흐름`;
+      titleST.textContent = `${stockName}`;
     }
   }
 
@@ -2827,75 +3134,49 @@
         datasets: [
           {
             label: '영업',
-            data: [], // 여기에 나중에 실제 값 들어감
-            borderColor: function(ctx) {
-              const data = ctx.chart.data.datasets[0].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBackgroundColor: function(ctx) {
-              const data = ctx.chart.data.datasets[0].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBorderColor: '#f0f0f0',    
-            pointBorderWidth: 0.5,
-            borderWidth: 2,
+            data: [],
+            borderColor: '#ff7675',
+            pointBackgroundColor: '#ff7675',
+            pointBorderColor: '#111111',
+            pointBorderWidth: 2,
+            borderWidth: 3,
             tension: 0.3,
             fill: false,
-            pointRadius: 5,
-            pointHoverRadius: 7
+            pointRadius: 3,
+            pointHoverRadius: 4
           },
           {
             label: '투자',
             data: [],
-            borderColor: function(ctx) {
-              const data = ctx.chart.data.datasets[1].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBackgroundColor: function(ctx) {
-              const data = ctx.chart.data.datasets[1].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBorderColor: '#f0f0f0',    
-            pointBorderWidth: 0.5,
-            borderWidth: 2,
+            borderColor: '#74b9ff',
+            pointBackgroundColor: '#74b9ff',
+            pointBorderColor: '#111111',
+            pointBorderWidth: 2,
+            borderWidth: 3,
             tension: 0.3,
             fill: false,
-            pointRadius: 5,
-            pointHoverRadius: 7
+            pointRadius: 3,
+            pointHoverRadius: 4
           },
           {
             label: '재무',
             data: [],
-            borderColor: function(ctx) {
-              const data = ctx.chart.data.datasets[2].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBackgroundColor: function(ctx) {
-              const data = ctx.chart.data.datasets[2].data;
-              const last = data[data.length - 1];
-              return last >= 0 ? '#4caf50' : '#ff4f4f';
-            },
-            pointBorderColor: '#f0f0f0',    
-            pointBorderWidth: 0.5, 
-            borderWidth: 2,
+            borderColor: '#98fb98',
+            pointBackgroundColor: '#98fb98',
+            pointBorderColor: '#111111',
+            pointBorderWidth: 2,
+            borderWidth: 3,
             tension: 0.3,
             fill: false,
-            pointRadius: 5,
-            pointHoverRadius: 7
+            pointRadius: 3,
+            pointHoverRadius: 4
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-          padding: { top: 20, bottom: 20, left: 10, right: 60 }
-        },
+        layout: { padding: { top: 15, bottom: 5, left: 10, right: 10 } },
         plugins: {
           legend: {
             display: false,
@@ -2935,7 +3216,6 @@
           }
         }
       },
-      plugins: [cashflowLabelPlugin] 
     });
   }
   
@@ -2961,19 +3241,70 @@
     chart.data.datasets[1].data = data.investing;
     chart.data.datasets[2].data = data.financing;
     chart.update();
+    renderCashflowSummary(chart.data.labels, data);
   }
 
   function updateCashChart(code) {
-    fetch(`/get_cashflow?code=${code}`)
+    return fetch(`/get_cashflow?code=${code}`)
       .then(res => res.json())
       .then(data => {
-        console.log("📦 현금흐름 응답 데이터:", data)
         if (!AppState.charts.cashflow) initCashflowChart();  // ✅ 여기!
         updateCashflowChart(data.labels, data);  // 데이터 업데이트
       })
       .catch(err => console.error("현금흐름 fetch 실패:", err));
   }
   
+  function renderCashflowSummary(labels, data){
+    const box = document.getElementById('undicisionedContainer');
+    if (!box) return;
+
+    const lastIdx = (labels && labels.length ? labels.length - 1 : 3);
+    const thisYear = labels?.[lastIdx] ?? '24년';
+    const prevYear = labels?.[lastIdx - 1] ?? '23년';
+
+    const pick = (arr, i) => (Array.isArray(arr) && arr[i] != null ? Number(arr[i]) : null);
+
+    const latestOp  = pick(data.operating, lastIdx);
+    const latestInv = pick(data.investing, lastIdx);
+    const latestFin = pick(data.financing, lastIdx);
+
+    const prevOp  = pick(data.operating, lastIdx - 1);
+    const prevInv = pick(data.investing, lastIdx - 1);
+    const prevFin = pick(data.financing, lastIdx - 1);
+
+    const pct = (now, prev) => {
+      if (now == null || prev == null || prev === 0) return null;
+      return Math.round(((now - prev) / Math.abs(prev)) * 100);
+    };
+
+    const fmt = (v) => (v == null || Number.isNaN(v)) ? '-' : v.toLocaleString('ko-KR');
+
+    const items = [
+      { key:'op',  label:'영업', dot:'dot-op',  value: latestOp,  delta: pct(latestOp,  prevOp)  },
+      { key:'inv', label:'투자', dot:'dot-inv', value: latestInv, delta: pct(latestInv, prevInv) },
+      { key:'fin', label:'재무', dot:'dot-fin', value: latestFin, delta: pct(latestFin, prevFin) },
+    ];
+
+    box.innerHTML = items.map(it => `
+      <div class="cashCard">
+        <div class="cashCardTop">
+          <div class="cashTag">
+            <span class="cashDot ${it.dot}"></span>
+            <span>${it.label}</span>
+          </div>
+          <span class="cashMeta">${thisYear}</span>
+        </div>
+
+        <div class="cashValue">${fmt(it.value)}</div>
+
+        <div class="cashMeta">
+          <span>vs ${prevYear}</span>
+          <span>${it.delta == null ? '-' : (it.delta > 0 ? `+${it.delta}%` : `${it.delta}%`)}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
 
   // ========== Initialize on window load ==========
   window.onload = init;

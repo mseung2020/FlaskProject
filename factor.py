@@ -118,21 +118,21 @@ def process_factor_data(file_indices, condition_mode, duration_months):
                 company_returns.append({"name": name, "return": round(rate, 2)})
                 
     factor_names_full = [
-        "젊은 CEO·대표",
-        "연세대 졸업 CEO·대표",
-        "고려대 졸업 CEO·대표",
-        "대학생 선호 상위",
-        "브랜드 평판 상위",
-        "환경 점수 A이상",
-        "사회 점수 A이상",
-        "지배구조 점수 A이상",
-        "특허자산지수 상위",
-        "임·직원수 상위",
-        "서울시 소재",
-        "상장 연도 오래된순",
-        "사내 카페 보유",
-        "외국인 보유비율 상위",
-        "자사주 보유비율 상위"
+        "40대 이하의 CEO·대표",
+        "연세대를 졸업한 CEO·대표",
+        "고려대를 졸업한 CEO·대표",
+        "대학생들의 선호가 높은",
+        "브랜드 평판 가치가 높은",
+        "ESG 환경 점수 A+",
+        "ESG 사회 점수 A+",
+        "ESG 지배구조 점수 A+",
+        "특허자산지수가 높은",
+        "임직원수가 많은",
+        "본사가 서울시 소재인",
+        "상장 연도가 오래된",
+        "사내에 카페를 보유한",
+        "외국인 매입 비율이 높은",
+        "자사주 매입 비율이 높은"
     ]
     
     selected_names = [factor_names_full[i - 1] for i in file_indices]

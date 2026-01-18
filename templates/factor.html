@@ -1,80 +1,97 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
   </script>
-  <!-- End Google Tag Manager -->
-
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NewCandle™</title>
+  <title>NewCandle™ - Factor Lab</title>
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">  
-
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/factor.css') }}">
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
-  <!-- End Google Tag Manager (noscript) -->
-   
-  <!-- 헤더 (내비게이션 바) -->
+
   <header role="banner">
     <div class="header-left">
       <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
-      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+      <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
     </div>
-    <!-- 모바일 메뉴 아이콘 (햄버거) 추가 -->
     <div class="menu-icon">&#9776;</div>
     <div class="header-right">
-      <nav id="main-nav" aria-label="메인 네비게이션">
-        <a href="/index" class="header-link">• 종목 분석</a>
-        <a href="/page2" class="header-link">• 투자 정보</a>
-        <a href="/page3" class="header-link">• AI 연구</a>
+      <nav id="main-nav">
+        <a href="/index" class="header-link">종목 분석</a>
+        <a href="/page2" class="header-link">투자 정보</a>
+        <a href="/page3" class="header-link active">AI 연구</a>
       </nav>
     </div>
   </header>
   
-  <!-- 오버레이 (모바일 메뉴 토글용) -->
   <div id="overlay"></div> 
   
-  <!-- 메인 컨테이너 -->
   <div id="mainContainer">
 
     <div class="column-left">
 
-      <div id="Box1" class="box">
-        <div id="Content1">
+      <div id="Box1" class="box bento-box">
+        <div class="panel-header">
+            <span>BACKTEST CHART</span>
+            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: 500;">(TOP 5 / BOTTOM 5)</span>
+        </div>
+        <div id="Content1" class="panel-body">
+          
           <div id="loader-1" class="loader hidden">
             <div class="loader-inner">
-              <div class="loader-image"></div>
-              <div class="loader-text">⏳ 잠시 후 조회가 완료됩니다...</div>
+              <div class="spinner"></div>
+              <div class="loader-text">AI CALCULATING...</div>
             </div>
           </div>
-          <canvas id="returnChart" width="100%" height="200"></canvas>
+          
+          <div id="chartEmptyState" class="empty-state-container">
+            <div class="sonar-wrapper">
+              <div class="sonar-emitter"></div>
+              <div class="sonar-wave"></div>
+              <div class="sonar-wave delay"></div>
+            </div>
+            <div class="empty-msg-text" id="emptyStateText">
+                SYSTEM READY<br><span>WAITING FOR INPUT...</span>
+            </div>
+          </div>
+
+          <canvas id="returnChart"></canvas>
         </div>
       </div>
 
-      <div id="Box3" class="box">
-        <div id="Content3">
-          <div class="big-inner-box">
+      <div id="Box3" class="box bento-box">
+        <div class="panel-header">ANALYSIS RESULT</div>
+        <div id="Content3" class="panel-body row-layout">
+          
+          <div class="big-inner-box summary-area">
             <div id="loader-left" class="loader hidden"></div>
-            <div id="left-result"></div>
+            <div id="left-result">
+                <div class="placeholder-msg">원하는 팩터를 선택하고<br><strong>RUN TEST</strong> 버튼을 눌러보세요.</div>
+            </div>
           </div>
-          <div class="big-inner-box">
+          
+          <div class="big-inner-box list-area">
             <div id="loader-right" class="loader hidden"></div>
             <div id="right-result"></div>
           </div>
+          
         </div>
       </div>
 
@@ -82,70 +99,70 @@
 
     <div class="column-right">
 
-      <div id="Box2" class="box">
-        <div id="Content2">
+      <div id="Box2" class="box bento-box">
+        <div class="panel-header">SELECT FACTORS (MAX 3)</div>
+        <div id="Content2" class="panel-body">
           <div class="button-grid">
-              <button class="factor-btn factor-toggle">젊은 CEO/대표<br>(40대 이하)</button>
-              <button class="factor-btn factor-toggle">연세대 졸업<br>CEO/대표</button>
-              <button class="factor-btn factor-toggle">고려대 졸업<br>CEO/대표</button>
-              <button class="factor-btn factor-toggle">대학생 선호 상위<br>(링커리어)</button>
-              <button class="factor-btn factor-toggle">브랜드 평판 상위</button>
-              <button class="factor-btn factor-toggle">환경 점수 A이상<br>(ESG평가)</button>
-              <button class="factor-btn factor-toggle">사회 점수 A이상<br>(ESG평가)</button>
-              <button class="factor-btn factor-toggle">지배구조 점수 A이상<br>(ESG평가)</button>
-              <button class="factor-btn factor-toggle">특허자산지수 상위<br>(PAI지수)</button>
-              <button class="factor-btn factor-toggle">임/직원수 상위</button>
-              <button class="factor-btn factor-toggle">서울시 소재<br>(본사)</button>
-              <button class="factor-btn factor-toggle">상장 연도<br>(오래된순)</button>
-              <button class="factor-btn factor-toggle">사내 카페 보유</button>
-              <button class="factor-btn factor-toggle">외국인<br>보유비율 상위</button>
-              <button class="factor-btn factor-toggle">자사주<br>보유비율 상위</button>
-              <button class="factor-btn icon-btn">
-                <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-                  style=" width: 30%; height: auto;">
-              </button>
+              <button class="factor-btn factor-toggle">젊은 CEO<br><span class="sub">(40대 이하)</span></button>
+              <button class="factor-btn factor-toggle">연세대<br><span class="sub">CEO/대표</span></button>
+              <button class="factor-btn factor-toggle">고려대<br><span class="sub">CEO/대표</span></button>
+              <button class="factor-btn factor-toggle">대학생 선호<br><span class="sub">상위</span></button>
+              
+              <button class="factor-btn factor-toggle">브랜드 평판<br><span class="sub">상위</span></button>
+              <button class="factor-btn factor-toggle">환경 점수 A+<br><span class="sub">ESG</span></button>
+              <button class="factor-btn factor-toggle">사회 점수 A+<br><span class="sub">ESG</span></button>
+              <button class="factor-btn factor-toggle">지배구조 A+<br><span class="sub">ESG</span></button>
+              
+              <button class="factor-btn factor-toggle">특허 부자<br><span class="sub">자산지수</span></button>
+              <button class="factor-btn factor-toggle">임직원 수<br><span class="sub">상위</span></button>
+              <button class="factor-btn factor-toggle">서울 본사<br><span class="sub">소재지</span></button>
+              <button class="factor-btn factor-toggle">상장 연도<br><span class="sub">오래된순</span></button>
+              
+              <button class="factor-btn factor-toggle">사내 카페<br><span class="sub">보유</span></button>
+              <button class="factor-btn factor-toggle">외국인 픽<br><span class="sub">보유 상위</span></button>
+              <button class="factor-btn factor-toggle">자사주 픽<br><span class="sub">보유 상위</span></button>
+              
+              <div class="factor-btn locked">
+                <div class="tape-badge">COMING SOON</div>
+              </div>
           </div>
         </div>
       </div>
       
-
-      <div id="Box4" class="box">
-        <div id="Content4">
+      <div id="Box4" class="box bento-box">
+        <div class="panel-header">CONTROL PANEL</div>
+        <div id="Content4" class="panel-body control-layout">
           
           <div class="box4-left">
-            <button class="factor-btn selector-btn active" id="selector-btn-1">AND</button>
-            <button class="factor-btn selector-btn" id="selector-btn-2">OR</button>
+            <div class="control-label-sm">LOGIC</div>
+            <div class="logic-toggle">
+                <button class="factor-btn selector-btn active" id="selector-btn-1">AND</button>
+                <button class="factor-btn selector-btn" id="selector-btn-2">OR</button>
+            </div>
           </div>
 
           <div class="box4-center">
-            <div id="sliderWrapper">
-              <div id="sliderTrack">
-                <div class="slider-mark-container">
-                  <div class="slider-mark"></div>
-                  <span class="slider-label">3개월</span>
+             <div class="control-label-sm">DURATION</div>
+             <div class="slider-container">
+              <div id="sliderWrapper">
+                <div id="sliderTrack">
+                  <div class="slider-mark-container"><div class="slider-mark"></div><span class="slider-label">3개월</span></div>
+                  <div class="slider-mark-container"><div class="slider-mark"></div><span class="slider-label">6개월</span></div>
+                  <div class="slider-mark-container"><div class="slider-mark"></div><span class="slider-label">9개월</span></div>
+                  <div class="slider-mark-container"><div class="slider-mark"></div><span class="slider-label">12개월</span></div>
+                  
+                  <div id="sliderKnob"></div>
                 </div>
-                <div class="slider-mark-container">
-                  <div class="slider-mark"></div>
-                  <span class="slider-label">6개월</span>
-                </div>
-                <div class="slider-mark-container">
-                  <div class="slider-mark"></div>
-                  <span class="slider-label">9개월</span>
-                </div>
-                <div class="slider-mark-container">
-                  <div class="slider-mark"></div>
-                  <span class="slider-label">12개월</span>
-                </div>
-                <div id="sliderKnob"></div>
               </div>
             </div>
           </div>
 
           <div class="box4-right">
-            <button class="box4-right-btn">결과<br>보기</button>
+            <button class="box4-right-btn">
+                RUN TEST
+            </button>
           </div>
         
-
         </div>
       </div>
     
@@ -153,29 +170,24 @@
 
   </div>
 
-  <!-- 푸터 -->
   <footer>
-    <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
   </footer>
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.menu-icon').addEventListener('click', function() {
-        toggleMenu();
-      });
-      document.getElementById('overlay').addEventListener('click', function() {
-        toggleMenu();
-      });
+      const menuIcon = document.querySelector('.menu-icon');
+      const overlay = document.getElementById('overlay');
+      if(menuIcon) menuIcon.addEventListener('click', toggleMenu);
+      if(overlay) overlay.addEventListener('click', toggleMenu);
     });
     
     function toggleMenu() {
-      const nav = document.getElementById('main-nav');
-      const overlay = document.getElementById('overlay');
-      
-      nav.classList.toggle('nav-active');
-      overlay.classList.toggle('active');
+      document.getElementById('main-nav').classList.toggle('nav-active');
+      document.getElementById('overlay').classList.toggle('active');
     }
   </script>
+
   <script src="{{ url_for('static', filename='js/factor.js') }}"></script>  
 </body>
 </html>

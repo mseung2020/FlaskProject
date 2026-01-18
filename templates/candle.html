@@ -1,147 +1,180 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-PGJ6TWV8');</script>
-  <!-- End Google Tag Manager -->
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NewCandle™</title>
+  <title>NewCandle™ - Technical Lab</title>
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}" />
-  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}" />
-
-  <!-- 공통 폰트 -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}" />
-  <!-- 페이지 전용 CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/candle.css') }}" />
-
-  <!-- Chart.js & Plugins (모두 UMD 빌드) -->
-  <!-- 순서도 함께 정리: Chart.js -> date adapter -> financial -> zoom -->
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/candle.css') }}" />
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
 
-  <!-- 헤더: page1/index와 동일 구조 -->
   <header role="banner">
     <div class="header-left">
-      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo"
-           class="header-logo" onclick="location.href='/'" />
-      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'" />
+      <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
     </div>
     <div class="menu-icon">&#9776;</div>
     <div class="header-right">
-      <nav id="main-nav" aria-label="메인 네비게이션">
-        <a href="/index" class="header-link">• 종목 분석</a>
-        <a href="/page2"  class="header-link">• 투자 정보</a>
-        <a href="/page3"  class="header-link">• AI 연구</a>
+      <nav id="main-nav">
+        <a href="/index" class="header-link">종목 분석</a>
+        <a href="/page2"  class="header-link">투자 정보</a>
+        <a href="/page3"  class="header-link active">AI 연구</a>
       </nav>
     </div>
   </header>
 
-  <!-- 오버레이 -->
   <div id="overlay"></div>
 
-  <!-- 메인 그리드 -->
-  <main id="mainContainer">
-    <!-- 좌: 종목/옵션 -->
-    <section id="leftPanel" class="box" aria-label="종목 선택 및 옵션">
-      <div class="search-wrapper">
-        <input type="text" id="searchInput" placeholder="코스피50 종목 검색" aria-label="회사명 검색" />
-        <button id="searchBtn" class="btn">검색</button>
-      </div>
-
-      <div class="days-wrapper">
-        <label for="daysInput" id="days">조회 일수</label>
-        <input type="number" id="daysInput" min="10" max="100" value="30" aria-label="조회 기간" />
-        <button id="refreshBtn" class="btn">조회</button>
-      </div>
-
-      <div class="pattern-filter">
-        <div class="pattern-grid" id="patternGrid">
-          <button type="button" class="pattern-btn active" data-value="bullish_reversal" aria-pressed="true">상승·반전</button>
-          <button type="button" class="pattern-btn" data-value="bullish_trend" aria-pressed="false">상승·지속</button>
-          <button type="button" class="pattern-btn" data-value="bearish_reversal" aria-pressed="false">하락·반전</button>
-          <button type="button" class="pattern-btn" data-value="bearish_trend" aria-pressed="false">하락·지속</button>
+  <div id="mainContainer">
+    
+    <div id="ControlPanel" class="bento-box">
+      <div class="panel-header">CONTROL TOWER</div>
+      <div class="panel-body">
+        
+        <div class="input-group">
+          <label class="control-label">STOCK SEARCH</label>
+          <div class="search-row">
+            <input type="text" id="searchInput" class="bento-input" placeholder="종목명 또는 코드" autocomplete="off" />
+            <button id="searchBtn" class="bento-btn-icon">🔍</button>
+          </div>
         </div>
-        <button id="detectBtn" class="btn primary">패턴 검색</button>
-      </div>
 
-
-      <div class="stock-list" id="stockList" aria-label="코스피50 리스트"></div>
-    </section>
-
-    <!-- 중: 차트 -->
-    <section id="chartPanel" class="box" aria-label="캔들 차트">
-      <div class="chart-header">
-        <div id="chartLabel" class="chart_label" style="visibility:hidden;"></div>
-        <div id="maLabel"    class="ma_label"    style="visibility:hidden;"></div>
-        <div id="overlayBadges" class="overlay-badges"></div>
-      </div>
-
-      <canvas id="candleChart" aria-label="30일 일봉 차트"></canvas>
-
-      <div class="metric-bar" role="group" aria-label="심리 지표 토글">
-        <button class="metric-btn" id="btnBREADTH" data-key="breadth">Breadth</button>
-        <button class="metric-btn" id="btnLOWVOL"  data-key="lowvol">Low-Vol Greed</button>
-        <button class="metric-btn" id="btnMOM"     data-key="momentum">Momentum</button>
-        <button class="metric-btn" id="btnEQBOND"  data-key="eqbond">EQ-BOND</button>
-      </div>
-
-    </section>
-
-    <!-- 우: 기록/점수 -->
-    <section id="rightPanel" class="box" aria-label="패턴 기록 및 점수">
-      <div class="record-header">
-        <h3 class="record-title"><span class="dot"></span> 탐지된 패턴 <span id="patternCount" class="badge">0</span></h3>
-        <div id="latestDate" class="muted">조회 기준: -</div>
-      </div>
-
-      <div class="pattern-scroll">
-        <ul id="patternList" class="pattern-list" aria-live="polite"></ul>
-      </div>
-
-      <div id="scorePanel" class="score-panel hidden" role="dialog" aria-modal="true" aria-label="심리 점수">
-        <button id="scoreClose" class="close-btn" aria-label="닫기">&times;</button>
-        <div class="score-main">
-          <div class="score-value" id="scoreValue">—</div>
-          <div class="score-band"  id="scoreBand">—</div>
+        <div class="input-group">
+          <label class="control-label">TIMEFRAME (DAYS)</label>
+          <div class="search-row">
+            <input type="number" id="daysInput" class="bento-input" min="10" max="100" value="30" />
+            <button id="refreshBtn" class="bento-btn">SET</button>
+          </div>
         </div>
-        <div class="score-breakdown">
-          <canvas id="scoreBreakdownChart" aria-label="점수 구성 차트"></canvas>
-          <div id="scoreHelp" class="score-help">점수는 “패턴 방향이 맞을 확률(%)”로 해석됩니다.</div>
-        </div>
-      </div>
-    </section>
-  </main>
 
-  <!-- 푸터 -->
+        <div class="list-container">
+          <div id="stockList">
+             <div class="placeholder-msg sm">코스피 상위 50 종목을<br>불러오는 중입니다...</div>
+          </div>
+        </div>
+
+        <div class="pattern-filter-area">
+          <label class="control-label">TARGET PATTERNS</label>
+          <div class="pattern-grid" id="patternGrid">
+            <button type="button" class="pattern-btn active" data-value="bullish_reversal">상승·반전<br><span class="sub">Reversal</span></button>
+            <button type="button" class="pattern-btn" data-value="bullish_trend">상승·지속<br><span class="sub">Trend</span></button>
+            <button type="button" class="pattern-btn" data-value="bearish_reversal">하락·반전<br><span class="sub">Reversal</span></button>
+            <button type="button" class="pattern-btn" data-value="bearish_trend">하락·지속<br><span class="sub">Trend</span></button>
+          </div>
+          <button id="detectBtn" class="bento-btn-action">DETECT PATTERNS</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="ChartPanel" class="bento-box">
+      <div class="panel-header">
+        <span>TECHNICAL ANALYSIS</span>
+        <span id="chartStockName" class="header-sub">SELECT STOCK</span>
+      </div>
+      <div class="panel-body" style="padding: 0; display: flex; flex-direction: column;">
+        
+        <div class="chart-wrapper">
+          <div id="loader-chart" class="loader hidden">
+            <div class="loader-inner">
+              <div class="spinner"></div>
+              <div class="loader-text">AI ANALYZING...</div>
+            </div>
+          </div>
+
+          <div id="chartEmptyState" class="empty-state-container">
+            <div class="sonar-wrapper">
+              <div class="sonar-emitter"></div>
+              <div class="sonar-wave"></div>
+              <div class="sonar-wave delay"></div>
+            </div>
+            <div class="empty-msg-text">
+                SYSTEM READY<br><span>SELECT A STOCK TO START</span>
+            </div>
+          </div>
+
+          <canvas id="candleChart"></canvas>
+        </div>
+
+        <div class="metric-bar">
+           <div class="metric-label">MARKET PSYCHOLOGY</div>
+           <div class="metric-group">
+             <button class="metric-btn" id="btnBREADTH" data-key="breadth">Breadth</button>
+             <button class="metric-btn" id="btnLOWVOL"  data-key="lowvol">Low-Vol</button>
+             <button class="metric-btn" id="btnMOM"     data-key="momentum">Momentum</button>
+             <button class="metric-btn" id="btnEQBOND"  data-key="eqbond">EQ-Bond</button>
+           </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="InsightPanel" class="bento-box">
+      <div class="panel-header">
+        <span>PATTERN INSIGHT</span>
+        <span id="patternCountBadge" class="count-badge">0</span>
+      </div>
+      <div class="panel-body" style="background: #fffbe6;"> <div id="loader-insight" class="loader hidden" style="background: rgba(255,251,230,0.8);">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="insight-scroll-area">
+            <ul id="patternList" class="pattern-list">
+                <li class="placeholder-msg">
+                    <br><strong>DETECT PATTERNS</strong> 버튼을 눌러서<br>패턴 분석 결과를 확인하세요.
+                </li>
+            </ul>
+        </div>
+        
+        <div id="scorePanel" class="score-card hidden">
+            <div class="score-header">
+                <span class="score-title">DATA CONFIDENCE</span>
+                <button id="scoreClose" class="close-icon">&times;</button>
+            </div>
+            <div class="score-content">
+                <div class="score-big" id="scoreValue">--</div>
+                <div class="score-badge" id="scoreBand">Wait</div>
+            </div>
+            <div class="score-desc">
+                이 패턴의 예측 성공 확률을<br>시장 심리 데이터로 검증한 점수입니다.
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
   <footer>
-    <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
   </footer>
 
-  <!-- 페이지 전용 JS -->
-  <script src="{{ url_for('static', filename='js/candle.js') }}"></script>
-
-  <!-- 공통: 메뉴 토글 (page1 구조 유지) -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const menuIcon = document.querySelector('.menu-icon');
       const overlay = document.getElementById('overlay');
       const nav = document.getElementById('main-nav');
       function toggleMenu(){ nav.classList.toggle('nav-active'); overlay.classList.toggle('active'); }
-      menuIcon.addEventListener('click', toggleMenu);
-      overlay.addEventListener('click', toggleMenu);
+      if(menuIcon) menuIcon.addEventListener('click', toggleMenu);
+      if(overlay) overlay.addEventListener('click', toggleMenu);
     });
   </script>
+  <script src="{{ url_for('static', filename='js/candle.js') }}"></script>
 </body>
 </html>

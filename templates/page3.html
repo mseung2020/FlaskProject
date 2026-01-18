@@ -1,117 +1,162 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
   </script>
-  <!-- End Google Tag Manager --> 
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NewCandle™</title>
+  <title>NewCandle™ - AI Lab</title>
   <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='image/logo.png') }}">
   
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/page3.css') }}">
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
-  <!-- End Google Tag Manager (noscript) -->
 
-  <!-- 헤더 (내비게이션 바) -->
   <header role="banner">
     <div class="header-left">
       <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
-      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+      <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
     </div>
-    <!-- 모바일 메뉴 아이콘 (햄버거) 추가 -->
     <div class="menu-icon">&#9776;</div>
-    <div class="header-right">
-      <nav id="main-nav" aria-label="메인 네비게이션">
-        <a href="/index" class="header-link">• 종목 분석</a>
-        <a href="/page2" class="header-link">• 투자 정보</a>
-        <a href="/page3" class="header-link">• AI 연구</a>
-      </nav>
-    </div>
+    <nav id="main-nav">
+      <a href="/index" class="header-link">종목 분석</a>
+      <a href="/page2" class="header-link">투자 정보</a>
+      <a href="/page3" class="header-link active">AI 연구</a>
+    </nav>
   </header>
   
-  <!-- 오버레이 (모바일 메뉴 토글용) -->
   <div id="overlay"></div> 
   
-  <!-- 메인 컨테이너 -->
-  <div id="mainContainer">
-
-    <div id="Box1" class="box">
-      <img src="{{ url_for('static', filename='image/factor.png') }}" alt="Factor Image" class="factor-image">
-      <a href="/factor" class="factor-button">팩터 투자</a>
-    </div>
-
-    <div id="Box2" class="box">
-      <div id="Content2">
-        <img src="{{ url_for('static', filename='image/candle.png') }}" 
-            alt="Candle Pattern" class="factor-image">
-        <a href="/candle" class="factor-button">캔들 패턴</a>
-      </div>
-    </div>
-
+  <main id="labContainer">
     
-    <div id="Box3" class="box">
-      <div id="Content3">
-        <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
-      </div>
+    <div class="lab-header">
+      <h2 class="lab-title">NEWCANDLE <span class="highlight-lab">AI LABS</span></h2>
+      <p class="lab-desc">데이터로 미래를 예측하는 실험실입니다.</p>
     </div>
 
-    <div id="Box4" class="box">
-      <div id="Content4">
-        <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
-      </div>
-    </div>
-    
-    <div id="Box5" class="box">
-      <div id="Content5">
-        <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
-      </div>
-    </div>
+    <div class="lab-grid">
+      
+      <a href="/factor" class="lab-card active-card card-factor">
+        <div class="card-top">
+          <span class="lab-badge">AVAILABLE</span>
+          <h3>QUANT FACTOR</h3>
+        </div>
+        <div class="lab-visual visual-factor">
+          <div class="factor-core">💎</div>
+          
+          <div class="factor-bubble tag-ceo">#YNG CEO</div>
+          <div class="factor-bubble tag-esg">#ESG A+</div>
+          <div class="factor-bubble tag-pat">#PATENT</div>
+          <div class="factor-bubble tag-for">#FOREIGN</div>
+        </div>
+        <div class="card-action">
+          <span>팩터 실험 시작하기</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
 
-    <div id="Box6" class="box">
-      <div id="Content6">
-        <img src="{{ url_for('static', filename='image/wheel.png') }}" 
-            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: auto;">
+      <a href="/candle" class="lab-card active-card card-candle">
+        <div class="card-top">
+          <span class="lab-badge">AVAILABLE</span>
+          <h3>PATTERN SCAN</h3>
+        </div>
+        <div class="lab-visual visual-scan">
+          
+          <div class="scan-chart-container">
+            <div class="candle-item blue h-40"></div>
+            <div class="candle-item blue h-60"></div>
+            <div class="candle-item blue h-20"></div>
+            <div class="candle-item red h-80 target-candle"></div>
+            <div class="candle-item red h-50"></div>
+          </div>
+
+          <div class="scan-laser"></div> <div class="detection-box"></div> </div>
+        <div class="card-action">
+          <span>캔들 패턴 탐지하기</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <div class="lab-card locked-card">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="caution-tape">COMING SOON</div>
+        </div>
+        <div class="card-top">
+          <h3>MACRO AI</h3>
+        </div>
+        <div class="lab-visual">
+          <div class="blurred-shape"></div>
+        </div>
       </div>
+
+      <div class="lab-card locked-card">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="caution-tape">COMING SOON</div>
+        </div>
+        <div class="card-top">
+          <h3>SENTIMENT</h3>
+        </div>
+        <div class="lab-visual">
+          <div class="blurred-shape"></div>
+        </div>
+      </div>
+      
+      <div class="lab-card locked-card">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+        </div>
+        <div class="card-top">
+          <h3>PORTFOLIO</h3>
+        </div>
+        <div class="lab-visual"></div>
+      </div>
+
+      <div class="lab-card locked-card">
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+        </div>
+        <div class="card-top">
+          <h3>AUTO TRADING</h3>
+        </div>
+        <div class="lab-visual"></div>
+      </div>
+
     </div>
+  </main>
 
-  </div>
-
-  <!-- 푸터 -->
   <footer>
-    <p>&copy; 2025 NewCandle™. All rights reserved.</p>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
   </footer>
   
   <script> 
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.menu-icon').addEventListener('click', function() {
-        toggleMenu();
-      });
-      document.getElementById('overlay').addEventListener('click', function() {
-        toggleMenu();
-      });
+      const menuIcon = document.querySelector('.menu-icon');
+      const overlay = document.getElementById('overlay');
+      
+      if(menuIcon) {
+        menuIcon.addEventListener('click', toggleMenu);
+      }
+      if(overlay) {
+        overlay.addEventListener('click', toggleMenu);
+      }
     });
     
     function toggleMenu() {
       const nav = document.getElementById('main-nav');
       const overlay = document.getElementById('overlay');
-      
       nav.classList.toggle('nav-active');
       overlay.classList.toggle('active');
     }

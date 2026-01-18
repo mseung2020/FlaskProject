@@ -1,114 +1,160 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
-    </script>
-    <!-- End Google Tag Manager -->    
+<head>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NewCandle™ - Your Market Insight</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+</head>
+
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+
+  <header role="banner">
+    <div class="header-left">
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
+      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+    </div>
     
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NewCandle™ - Your Market Insight</title>
-    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
-    <!-- main1.png, main2.png, main3.png 이미지 preload -->
-    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main1.png') }}">
-    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main2.png') }}">
-    <link rel="preload" as="image" href="{{ url_for('static', filename='image/main3.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-  </head>
-
-  <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
-    <!-- 헤더 -->
-    <header role="banner">
-      <div class="header-left">
-        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
-        <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
-      </div>
-      <!-- 모바일 메뉴 아이콘(햄버거) -->
-      <div class="menu-icon">&#9776;</div>
-      <div class="header-right">
-        <nav id="main-nav" aria-label="메인 네비게이션">
-          <a href="/index" class="header-link">• 종목 분석</a>
-          <a href="/page2" class="header-link">• 투자 정보 </a>
-          <a href="/page3" class="header-link">• AI 연구</a>
-        </nav>
-      </div>
-    </header>
-
-    <!-- 오버레이 -->
-    <div id="overlay"></div>
+    <div class="menu-icon">&#9776;</div>
     
-    <!-- 히어로 섹션 -->
-    <section id="hero-modern">
-      <div class="hero-modern-text">
-        <h2>  
-          <span class="highlight">캔들 그 너머의</span><br>
-          <span class="highlight-color">투자 인사이트</span>
-        </h2>
-        <p>
-          단순한 차트를 넘어, 지표의 흐름을 읽고 해석합니다.<br>
-          기술적 분석부터 심리, 수급, 이슈까지 하나로.<br>
-          투자 판단의 새로운 기준, 뉴캔들입니다.
-        </p>
-        <button class="cta-button" onclick="location.href='/index'">분석 보러가기</button>
-      </div>
-      <div class="hero-modern-image">
-        <div class="hero-modern-image-column">
-          <div class="row top-row">
-            <img src="{{ url_for('static', filename='image/main1.png') }}" class="angled-img angle1" alt="샘플1">
-            <img src="{{ url_for('static', filename='image/main2.png') }}" class="angled-img angle2" alt="샘플2">
-          </div>
-          <div class="row bottom-row">
-            <img src="{{ url_for('static', filename='image/main3.png') }}" class="angled-img angle3" alt="샘플3">
+    <div class="header-right">
+      <nav id="main-nav" aria-label="메인 네비게이션">
+        <a href="/index" class="header-link">종목 분석</a>
+        <a href="/page2" class="header-link">투자 정보</a>
+        <a href="/page3" class="header-link">AI 연구</a>
+      </nav>
+    </div>
+  </header>
+
+  <div id="overlay"></div>
+  
+    <main id="hero-bento">
+      <div class="hero-container">
+        
+        <div class="hero-content">
+          <div class="badge-pill">BETA v2.0</div>
+          <h2 class="hero-title">
+            캔들 그 너머의<br>
+            <span class="highlight-yellow">투자 인사이트</span>
+          </h2>
+          <p class="hero-desc">
+            단순한 차트를 넘어, 데이터의 흐름을 읽고 해석합니다.<br>
+            기술적 분석부터 심리, 수급, 이슈까지 하나로.<br>
+            <strong>투자 판단의 새로운 기준, <span class="brand-animate">뉴캔들</span>입니다.</strong>  
+          </p>
+          
+          <div class="hero-actions">
+            <button class="btn-bento-primary" onclick="location.href='/index'">
+              분석 보러가기 <span class="arrow">→</span>
+            </button>
           </div>
         </div>
-      </div>
-    </section>
-    
-    
-    <!-- 푸터 -->
-    <footer>
-      <p>&copy; 2025 NewCandle™. All rights reserved.</p>
-    </footer>
-    
-    <!--※ 현재 스크립트는 없음-->
-    <!-- <script src="{{ url_for('static', filename='js/main.js') }}"></script> -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        document.querySelector('.menu-icon').addEventListener('click', function() {
-          toggleMenu();
-        });
-        document.getElementById('overlay').addEventListener('click', function() {
-          toggleMenu();
-        });
-      });
+
+        <div class="hero-visual">
+    <div class="bento-grid-visual">
       
-      function toggleMenu() {
-        const nav = document.getElementById('main-nav');
-        const overlay = document.getElementById('overlay');
-        
+      <div class="bento-card card-indicators" onclick="location.href='/page2'" style="cursor: pointer;">
+        <div class="card-header">INDICATORS</div>
+        <div class="heartbeat-container">
+          <svg viewBox="0 0 200 100" class="heartbeat-svg">
+            <path class="heartbeat-line" d="M0,50 50,50 L60,20 L75,80 L85,50 L130,50 L140,20 L155,80 L165,50 L230,50" />
+          </svg>
+        </div>
+        <div class="mini-label">RSI · MACD · SIGNAL</div>
+      </div>
+
+      <div class="bento-card card-finance" onclick="location.href='/page2'" style="cursor: pointer;">
+        <div class="card-header">FINANCIALS</div>
+        <div class="cash-wave-container">
+          <div class="money-wave wave-back"></div>
+          <div class="money-wave wave-front"></div>
+          
+          <div class="floating-cash c1">$</div>
+          <div class="floating-cash c2">$</div>
+          <div class="floating-cash c3">$</div>
+        </div>
+        <div class="mini-label">PER · ROE · CASH-FLOW</div>
+      </div>
+
+      <div class="bento-card card-factors" onclick="location.href='/factor'" style="cursor: pointer;">
+        <div class="card-header">QUANT FACTOR</div>
+        <div class="factor-matrix">
+          <div class="f-item group-a">ESG</div>
+          <div class="f-item group-b">CEO</div>
+          <div class="f-item group-b">PATENT</div>
+          <div class="f-item group-a">FOREIGN</div>
+        </div>
+      </div>
+
+      <div class="bento-card card-candles" onclick="location.href='/candle'" style="cursor: pointer;">
+        <div class="card-header">PATTERN DETECT</div>
+        <div class="candle-row">
+          <div class="candle-stick red"></div>
+          <div class="candle-stick blue"></div>
+          <div class="candle-stick red active-pattern"></div>
+          <div class="candle-stick blue active-pattern"></div>
+          <div class="candle-stick red active-pattern"></div>
+          <div class="candle-stick blue"></div>
+          <div class="candle-stick red"></div>
+        </div>
+      </div>
+
+  </div>
+</div>
+    </div>
+  </main>
+    
+  <footer>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 모바일 메뉴 토글 로직
+      const menuIcon = document.querySelector('.menu-icon');
+      const overlay = document.getElementById('overlay');
+      
+      if(menuIcon) {
+        menuIcon.addEventListener('click', toggleMenu);
+      }
+      if(overlay) {
+        overlay.addEventListener('click', toggleMenu);
+      }
+    });
+    
+    function toggleMenu() {
+      const nav = document.getElementById('main-nav');
+      const overlay = document.getElementById('overlay');
+      
+      if(nav && overlay) {
         nav.classList.toggle('nav-active');
         overlay.classList.toggle('active');
       }
-    </script>
-    <!-- 서비스 워커 등록 -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}')
-          .then(() => console.log("✅ 서비스워커 등록됨"));
-      }
-    </script>       
-  </body>
+    }
+  </script>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}')
+        .then(() => console.log("✅ 서비스워커 등록됨"));
+    }
+  </script>       
+</body>
 </html>

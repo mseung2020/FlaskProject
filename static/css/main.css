@@ -1,362 +1,595 @@
-/* ========== 공통 변수 설정 ========== */
+/* ========== [SUPERNOVA BENTO THEME] ========== */
 :root {
+  /* 컬러 팔레트 */
+  --bg-color: #f8f9fa;
+  --bg-pattern: radial-gradient(#d1d5db 1px, transparent 1px);
   --primary-color: #274c77;
-  --secondary-color: #f9f9f9;
+  --accent-yellow: #ffeb3b;  /* 형광 노랑 (강조) */
+  --accent-blue: #a0c4ff;    /* 파스텔 블루 (장식) */
+  --accent-red: #ff7675;     /* 포인트 레드 */
   --white: #ffffff;
-  --border-color: #ddd;
-  --text-color: #666;
-  --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  --font-family: 'Arial', sans-serif;
-  --header-height: 4.375rem;   /* 기존: 70px (70/16) */
-  --padding-base: 1.25rem;     /* 기존: 20px (20/16) */
-  --box-radius: 0.3125rem;     /* 기존: 5px (5/16) */
-  --transition-speed: 0.3s;
+  --black: #111111;
+
+  /* 테두리 & 그림자 (핵심 아이덴티티) */
+  --border-width: 3px;
+  --border-radius: 16px;
+  --hard-shadow: 6px 6px 0px var(--black);
+  --hard-shadow-hover: 8px 8px 0px var(--black);
+
+  /* 폰트 */
+  --font-main: 'Noto Sans KR', sans-serif;
+  --font-display: 'Black Han Sans', sans-serif; /* 제목용 굵은 폰트 */
+  --font-eng: 'Space Grotesk', sans-serif;      /* 영문/숫자용 힙한 폰트 */
+  
+  --header-height: 70px;
 }
 
-/* ----- 기본 스타일 ----- */
+/* ----- 기본 초기화 ----- */
 body {
-  font-family: var(--font-family);
-  margin: 0;
-  padding: 0;
-  background-color: var(--secondary-color);
-  color: var(--text-color);
+  font-family: var(--font-main);
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  /* 힙한 배경 패턴 추가 */
+  background-image: var(--bg-pattern);
+  background-size: 20px 20px;
+  color: var(--black);
+  overflow-x: hidden;
 }
 
-/* ========== 헤더 ========== */
+/* ========== 헤더 (Bento Style) ========== */
 header {
-  background-color: var(--primary-color);
+  background: var(--white);
   height: var(--header-height);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: var(--border-width) solid var(--black);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { height: 36px; border: 2px solid var(--black); border-radius: 20%; cursor: pointer; }
+.logo {
+  font-family: var(--font-eng); font-size: 1.5rem; font-weight: 700;
+  margin: 0; cursor: pointer; letter-spacing: -0.5px;
+}
+
+@keyframes logoWiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); } /* 왼쪽으로 살짝 기울임 */
+  50% { transform: rotate(12deg); }  /* 오른쪽으로 살짝 기울임 */
+  75% { transform: rotate(-5deg); }  /* 다시 살짝 왼쪽 */
+  100% { transform: rotate(0deg); }  /* 제자리 */
+}
+
+/* .header-left(로고+텍스트 컨테이너)에 마우스를 올리면... */
+.header-left:hover .header-logo {
+  /* ...로고 이미지(.header-logo)가 애니메이션을 실행함 */
+  animation: logoWiggle 0.6s ease-in-out;
+}
+
+#main-nav { display: flex; gap: 15px; }
+.header-link {
+  text-decoration: none; color: var(--black); font-weight: 700; font-size: 1.1rem;
+  padding: 8px 15px; border-radius: 8px; border: 2px solid transparent; transition: 0.2s;
+}
+.header-link:hover, .header-link.active {
+  background: var(--accent-yellow);
+  border: 2px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-2px, -2px);
+}
+
+/* ========== 히어로 섹션 (메인) ========== */
+#hero-bento {
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--padding-base);
-  color: var(--white);
+  min-height: calc(100vh - var(--header-height) - 60px); /* 헤더, 푸터 제외 높이 */
+  padding: 40px 20px;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  font-family: 'esamanru Medium';
-}
-
-.header-logo {
-  height: 2.7rem; /* 40px */
-  margin-left: 0.3125rem; /* 5px */
-  vertical-align: middle; 
-  cursor: pointer;
-}
-
-header .logo {
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1.875rem; /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  margin-bottom: 0;
-}
-
-header nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.875rem;     /* 기존: 30px (30/16) */
-  margin: 0.625rem;    /* 기존: 10px (10/16) */
-  flex: 1;
-}
-
-header .header-link {
-  font-family: 'Eugro L';
-  color: var(--white);
-  text-decoration: none;
-  font-size: 1.3rem;
-  font-weight: bold;
-  padding: 5px 10px; /* 호버 효과를 위한 패딩 */
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-header .header-link:hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 원하는 배경 효과 */
-  border-radius: 4px;
-  transform: scale(1.05);
-}
-
-h1 {
-  cursor: pointer;
-}
-
-/* ----- 히어로 섹션 ----- */
-#hero-modern {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5rem var(--padding-base);  /* 기존: 80px (80/16) var(--padding-base) */
-  gap: 2.5rem;                        /* 기존: 40px (40/16) */
-  background-color: #fff;
-  position: relative;
-  overflow: hidden;
-  font-family: 'Paperlogy';
-  z-index: 0;
-}
-.hero-modern-text {
-  flex: 1;
-  min-width: 300px;
-  margin-left: 3.125rem;              /* 기존: 50px (50/16) */
-  transform: translateY(-1.25rem);     /* 기존: -20px (-20/16) */
-}
-.hero-modern-text h2 {
-  font-size: 48px;
-  line-height: 1.4;
-  color: #222;
-}
-.hero-modern-text .highlight {
-  color: #111;
-  font-weight: 700;
-}
-.hero-modern-text .highlight-color{
-  color: var(--primary-color);
-  font-weight: 700;
-}
-.hero-modern-text p {
-  font-size: 18px;
-  color: #555;
-  margin-top: 20px;
-  line-height: 1.6;
-}
-#hero-modern::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
+.hero-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 좌우 1:1 분할 */
+  gap: 60px;
+  max-width: 1200px;
   width: 100%;
-  height: 54%;
-  background-color: #e8f0fc; /* 연한 파란색 */
-  clip-path: polygon(0 39%, 100% 0%, 100% 100%, 0% 100%);
-  z-index: -1;
+  align-items: center;
 }
 
-/* 메인 화면 이미지 */
-.hero-modern-image {
-  flex: 1;
-  min-width: 300px;
-  text-align: center;
-  transform: translateY(1.25rem);      /* 기존: 20px (20/16) */
-}
-.hero-modern-image img {
-  width: 100%;
-  max-width: 500px;
-  height: auto;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-}
-.hero-modern-image-column {
+/* [LEFT] 텍스트 영역 */
+.hero-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  margin-right: -6.25rem;              /* 기존: -100px (-100/16) */
-  transform: translateX(-11.875rem);    /* 기존: -190px (-190/16) */
-  flex-shrink: 0;
-}
-.hero-modern-image-column .row {
-  display: flex;
-  gap: 2.5rem;                       /* 기존: 40px (40/16) */
-}
-.hero-modern-image-column .bottom-row {
-  justify-content: center;
-  transform: translateX(3.125rem);     /* 기존: 50px (50/16) */ 
-}
-.angled-img {
-  width: 11.25rem;                    /* 기존: 180px (180/16) */
-  height: auto;
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  opacity: 1;
-  transform-origin: center;
-  will-change: transform;
-}
-.angle1 { transform: rotate(-6deg); }
-.angle2 { transform: rotate(-6deg) translateY(-55px); }
-.angle3 { transform: rotate(-6deg); }
-
-/* CTA 버튼 세련되게 */
-.cta-button {
-  background-color: #d62828;
-  color: #fff;
-  border: none;
-  margin-top: 1.875rem;               /* 기존: 30px (30/16) */
-  padding: 0.9375rem 1.875rem;         /* 기존: 15px 30px (15/16, 30/16) */
-  font-size: 1rem;                    /* 기존: 16px (16/16) */
-  border-radius: 0.5rem;              /* 기존: 8px (8/16) */
-  cursor: pointer;
-  transition: 0.3s;
-  font-family: 'Paperlogy';
-}
-.cta-button:hover {
-  background-color: #a61c1c;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-/* ----- 푸터 ----- */
-footer {
-  background-color: var(--primary-color);
-  color: var(--white);
-  text-align: center;
-  margin-top: auto;
-  padding: 0.9375rem 0;               /* 기존: 15px 0 (15/16) */
-  font-size: 0.875rem;                /* 기존: 14px (14/16) */
+.badge-pill {
+  background: var(--black);
+  color: var(--accent-yellow);
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-family: var(--font-eng);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 2px solid var(--black);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
 }
 
-/* ----- 애니메이션 (fadeInUp) ----- */
+.hero-title {
+  /* 기존: font-family: var(--font-display);  <-- 이건 아주 두꺼운 폰트 */
+  
+  /* 수정: 일반 폰트(Noto Sans)로 바꾸고 두께 조절 */
+  font-family: var(--font-main); 
+  font-weight: 800; /* 숫자가 클수록 두꺼움 (400:보통, 700:굵게, 900:아주굵게) */
+  
+  font-size: 3rem;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--black);
+  letter-spacing: -1px; /* 자간을 살짝 좁혀서 단단해 보이게 */
+}
+
+.highlight-yellow {
+  background: var(--accent-yellow);
+  padding: 0 10px;
+  border: 3px solid var(--black);
+  border-radius: 8px;
+  box-shadow: 5px 5px 0 var(--black);
+  display: inline-block;
+  transform: rotate(-1deg); /* 살짝 비틀어서 힙하게 */
+}
+
+.hero-desc {
+  font-size: 1.2rem;
+  color: #444;
+  line-height: 1.6;
+  margin: 10px 0 30px 0;
+  max-width: 500px;
+  word-break: keep-all;
+}
+
+.brand-animate {
+  position: relative; /* 가상요소(밑줄, 별) 배치를 위해 필수 */
+  display: inline-block;
+  color: var(--black);
+  z-index: 1; /* 밑줄보다 글씨가 위에 오도록 */
+}
+
+/* 형광펜 밑줄 효과 (Underline) */
+.brand-animate::before {
+  content: '';
+  position: absolute;
+  bottom: 5px;      /* 글자 하단에 위치 */
+  left: -2px;       /* 글자보다 살짝 왼쪽에서 시작 */
+  width: 105%;      /* 글자보다 살짝 길게 */
+  height: 15px;     /* 두꺼운 밑줄 높이 */
+  background-color: var(--accent-yellow); /* 형광 노랑 */
+  z-index: -1;      /* 글자 뒤로 보냄 */
+  transform: skewX(-10deg) rotate(-1deg); /* 살짝 비틀어서 손으로 그은 느낌 */
+  opacity: 0.8;     /* 너무 쨍하지 않게 투명도 살짝 */
+}
+
+/* =========================================
+   [복구] 텍스트 블록 등장 애니메이션 (FadeInUp)
+========================================= */
+
+/* 1. 애니메이션 키프레임 정의 */
 @keyframes fadeInUp {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(1.875rem);  /* 기존: 30px (30/16) */
+    transform: translateY(40px); /* 더 아래에서 시작 */
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* (필요시 개별 애니메이션 딜레이 적용) */
-.hero-modern-text h2 {
-  animation: fadeInUp 0.6s ease-out forwards;
+/* 2. 히어로 섹션의 텍스트 요소들 초기화 */
+.hero-content > * {
+  opacity: 0; /* 처음에 안 보이게 숨김 */
+  animation: fadeInUp 2.0s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; /* 쫀득한 움직임 */
+}
+
+/* 3. 순차적 등장 (딜레이 설정) */
+/* 뱃지 (BETA v2.0) */
+.hero-content .badge-pill {
   animation-delay: 0.2s;
-  opacity: 0;
 }
-.hero-modern-text p {
-  animation: fadeInUp 0.6s ease-out forwards;
-  animation-delay: 0.5s;
-  opacity: 0;
+
+/* 메인 제목 (캔들 그 너머의...) */
+.hero-content .hero-title {
+  animation-delay: 0.2s;
 }
-.cta-button {
-  animation: fadeInUp 0.6s ease-out forwards;
-  animation-delay: 0.8s;
-  opacity: 0;
+
+/* 설명글 (단순한 차트를 넘어...) */
+.hero-content .hero-desc {
+  animation-delay: 0.4s;
+}
+
+/* 버튼 (분석 보러가기) */
+.hero-content .hero-actions {
+  animation-delay: 0.6s;
 }
 
 
-/* 햄버거 아이콘 기본 숨기기(데스크탑에서는 필요 없으므로) */
-.menu-icon {
-  display: none; 
-  font-size: 1.5rem;
+/* CTA 버튼 (강조) */
+.btn-bento-primary {
+  background-color: var(--black);
+  color: var(--white);
+  font-family: var(--font-main);
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 15px 35px;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--hard-shadow);
+  border: 2px solid var(--black); /* 테두리 추가 */
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  /* 3초 동안 부드럽게 무한 반복 */
+  animation: floatBtn 2s ease-in-out infinite;
+  /* 등장 애니메이션(0.8s)이 끝난 뒤부터 자연스럽게 시작되도록 딜레이 */
+  animation-delay: 0.6s;
+}
+
+@keyframes floatBtn {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* 6px 정도 위로 둥실 */
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.btn-bento-primary:hover {
+  background-color: var(--accent-red);
+  color: var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--hard-shadow-hover);
+}
+.btn-bento-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+/* [RIGHT] 비주얼 그리드 (CSS Bento Grid) */
+.hero-visual {
+  width: 100%;
+  height: 450px;
+  position: relative;
+}
+
+.bento-grid-visual {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+  perspective: 1000px;
+}
+
+/* 공통 카드 스타일 */
+.bento-card {
+  background: var(--white);
+  border: var(--border-width) solid var(--black);
+  border-radius: var(--border-radius);
+  box-shadow: var(--hard-shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s;
+}
+.bento-card:hover {
+  transform: translateY(-5px);
+}
+.card-header {
+  font-family: var(--font-eng);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+/* 개별 카드 디테일 */
+/* ========== [NEW] Bento Grid 개별 카드 스타일 (최종) ========== */
+
+/* 1. 지표 (Indicators) - 심장박동 SVG 애니메이션 */
+.card-indicators {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  background-color: var(--white);
+  overflow: hidden;
+  position: relative;
+}
+.heartbeat-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.heartbeat-svg {
+  width: 100%;
+  height: 60px;
+}
+.heartbeat-line {
+  fill: none;
+  stroke: var(--accent-red);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400; /* 선의 전체 길이 */
+  stroke-dashoffset: 400;
+  animation: drawLine 2s linear infinite;
+}
+@keyframes drawLine {
+  0% { stroke-dashoffset: 400; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -400; } /* 계속 흘러가는 느낌 */
+}
+
+/* 2. 재무 (Finance) - 달러 파도 (Golden Wave Edition) */
+.card-finance {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  background-color: var(--accent-yellow); /* 진한 노랑 배경 (#ffeb3b) */
+  overflow: hidden;
+  position: relative;
+}
+
+.cash-wave-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 공통 파도 스타일 */
+.money-wave {
+  position: absolute;
+  left: 50%;
+  width: 195%;
+  height: 195%;
+  border-radius: 40%;
+  transform: translateX(-50%) rotate(0deg);
+  animation: waveSpin 6s infinite linear;
+}
+
+/* 뒤쪽 파도: 아주 연한 레몬색 (흰색에 가까운 투명도) */
+.wave-back {
+  bottom: -65%;
+  background-color: rgba(255, 255, 255, 0.4); 
+  animation-duration: 8s;
+  border-radius: 45%;
+}
+
+/* 앞쪽 파도: 선명한 크림색 (배경보다 밝은 노랑 효과) */
+.wave-front {
+  bottom: -70%;
+  background-color: rgba(255, 255, 255, 0.7);
+  animation-duration: 6s;
+}
+
+/* 둥둥 떠다니는 달러: 검정색 (Black)으로 힙하게 강조 */
+.floating-cash {
+  position: absolute;
+  font-family: var(--font-eng);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--black); /* 검정색 텍스트 */
+  bottom: 25%;
+  z-index: 10;
+  animation: bobbing 2s infinite ease-in-out;
+  text-shadow: none; /* 그림자 제거하여 깔끔하게 */
+}
+
+/* 달러별 위치 및 박자 */
+.c1 { left: 20%; animation-delay: 0s; font-size: 1.8rem; }
+.c2 { left: 50%; animation-delay: 0.5s; font-size: 2.5rem; transform: translateX(-50%); } 
+.c3 { right: 20%; animation-delay: 1s; font-size: 1.8rem; }
+
+/* 애니메이션 키프레임 (기존과 동일) */
+@keyframes waveSpin {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) rotate(360deg); }
+}
+
+@keyframes bobbing {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+@keyframes bobbingCenter {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -15px); }
+}
+.c2 { animation-name: bobbingCenter; }
+
+/* 3. 팩터 (Factors) - 2x2 대각선 교차 (Diagonal Toggle) */
+.card-factors {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+.factor-matrix {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.f-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-eng);
+  font-weight: 700;
+  border: 2px solid var(--black);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+/* 대각선 그룹 A: Top-Left & Bottom-Right */
+.group-a {
+  background: var(--white);
+  color: #ccc;
+  animation: toggleDiagA 2s infinite steps(1); /* steps(1)로 딱딱 끊기게 */
+}
+/* 대각선 그룹 B: Top-Right & Bottom-Left */
+.group-b {
+  background: var(--white);
+  color: #ccc;
+  animation: toggleDiagB 2s infinite steps(1);
+}
+
+@keyframes toggleDiagA {
+  0%, 100% { background: var(--accent-blue); color: var(--black); box-shadow: 2px 2px 0 var(--black); transform: translate(-1px, -1px); }
+  50% { background: var(--white); color: #ccc; box-shadow: none; transform: none; }
+}
+@keyframes toggleDiagB {
+  0%, 100% { background: var(--white); color: #ccc; box-shadow: none; transform: none; }
+  50% { background: #ff9ff3; color: var(--black); box-shadow: 2px 2px 0 var(--black); transform: translate(-1px, -1px); }
+}
+
+/* 4. 캔들 (Candles) - 중간 패턴 점멸 (Pattern Blink) */
+.card-candles {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  background-color: var(--black);
   color: var(--white);
 }
+.card-candles .card-header {
+  color: #888; border-bottom: 2px solid #333;
+}
+.candle-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 캔들 간격 균등 */
+  padding: 0 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.candle-stick {
+  width: 10px;
+  background: #555; /* 기본 비활성 색 */
+  border: 1px solid #777;
+  position: relative;
+  border-radius: 2px;
+}
+/* 캔들 꼬리 */
+.candle-stick::before, .candle-stick::after {
+  content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 6px; background: #777;
+}
+.candle-stick::before { top: -6px; }
+.candle-stick::after { bottom: -6px; }
 
-@media (max-width: 767px) {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    position: relative;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-  .header-left, .header-right {
-    margin: 0.5rem 0;
-  }
-  
-  .menu-icon {
-    display: block;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--white);
-    position: absolute;
-    right: 2rem;
-  }
-  .menu-icon:active {
-    transform: scale(0.9);
-    transition: transform 0.1s ease;
-  }
-  #main-nav {
-    position: fixed;
-    top: 0;
-    right: 0; /* 기본 숨김 */
-    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
-    max-width: 300px;
-    height: 100vh;
-    background-color: var(--white);
-    color: var(--primary-color);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    transform: translateX(100%);
-    transition: transform var(--transition-speed) ease-out;
-    will-change: transform;
-    z-index: 1000;
-    margin-top: 0; /* 상단 틈 제거 */
-    margin-right: 0;
-  }
-  #main-nav.nav-active {
-    transform: translateX(0);
-  }
-  #main-nav a.header-link {
-    color: var(--primary-color);
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
+/* 캔들 높이 랜덤 설정 (CSS로 고정) */
+.candle-stick:nth-child(1) { height: 30px; }
+.candle-stick:nth-child(2) { height: 40px; }
+.candle-stick:nth-child(3) { height: 50px; }
+.candle-stick:nth-child(4) { height: 20px; }
+.candle-stick:nth-child(5) { height: 60px; }
+.candle-stick:nth-child(6) { height: 35px; }
+.candle-stick:nth-child(7) { height: 45px; }
 
-  #hero-modern {
-    flex-direction: column;
-    padding: 3rem var(--padding-base);
-    gap: 1.5rem;
-  }
-  .hero-modern-text {
-    margin-left: 0;
-    text-align: center;
-    transform: none;
-  }
-  .hero-modern-image {
-    transform: none;
-    margin-top: 1rem;
-  }
-  .hero-modern-image-column {
-    margin-right: 0;
-    transform: none;
-    align-items: center;
-  }
+/* 중간 3개 (패턴) 애니메이션 */
+.active-pattern.red {
+  background: var(--accent-red); border-color: var(--accent-red);
+  animation: blinkPattern 1.5s infinite;
+}
+.active-pattern.blue {
+  background: var(--accent-blue); border-color: var(--accent-blue);
+  animation: blinkPattern 1.5s infinite;
+}
+/* 꼬리 색상도 변경 */
+.active-pattern::before, .active-pattern::after { background: var(--white); }
+
+@keyframes blinkPattern {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+  50% { opacity: 0.3; box-shadow: none; }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  #hero-modern {
-    padding: 4rem var(--padding-base);
-    gap: 2rem;
-  }
-  .hero-modern-text {
-    margin-left: 1rem;
-  }
-  .hero-modern-image-column {
-    margin-right: 0.5rem;
-    transform: translateX(-5rem);
-  }
+/* 하단 미니 라벨 공통 */
+.mini-label {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 700;
+  text-align: right;
+  margin-top: auto;
+  letter-spacing: 0.5px;
+  width: 100%;
+}
+.card-candles .mini-label { color: #666; }
+
+/* ========== 푸터 ========== */
+footer {
+  background-color: var(--black);
+  color: var(--white);
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  border-top: var(--border-width) solid var(--black); /* 혹시 모를 경계 */
 }
 
-@media (min-width: 1024px) {
-  /* 필요에 따라 추가 조정 */
-}
-
-#overlay {
+/* ========== 모바일 반응형 ========== */
+.menu-icon {
   display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 999; /* nav보다 살짝 낮은 값 */
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--black);
 }
 
-#overlay.active {
-  display: block;
+@media (max-width: 900px) {
+  .hero-title { font-size: 2.5rem; }
+  .hero-container { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+  .hero-content { align-items: center; }
+  .hero-visual { height: 350px; }
 }
 
+@media (max-width: 768px) {
+  header { padding: 0 20px; }
+  .menu-icon { display: block; }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed; top: 0; right: -100%;
+    width: 250px; height: 100vh;
+    background: var(--white);
+    border-left: var(--border-width) solid var(--black);
+    display: flex; flex-direction: column;
+    padding: 60px 20px; gap: 20px;
+    transition: 0.3s;
+    z-index: 1000;
+  }
+  #main-nav.nav-active { right: 0; }
+  
+  /* 오버레이 */
+  #overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 900;
+    display: none;
+  }
+  #overlay.active { display: block; }
+  
+  header .header-link {
+    width: 100%; text-align: center;
+  }
+}

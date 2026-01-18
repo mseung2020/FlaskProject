@@ -9,6 +9,7 @@ from io import StringIO
 import threading
 import time
 import datetime
+import math
 from indicators import (
     calculate_ma, calculate_macd, calculate_rsi, calculate_stoch,
     calculate_stochrsi, calculate_williams, calculate_cci, calculate_atr,
@@ -44,6 +45,11 @@ MIN_DAYS_LIMIT = 1
 MAX_DAYS_LIMIT = 365
 MAX_PAGES = 37
 PRECOMPUTE_DAYS = 370
+ROWS_PER_PAGE = 10
+INDICATOR_WARMUP_MAX = 120  # MA120 때문에 기본 워밍업
+MAX_RAW_DAYS = 370          # 기존 PRECOMPUTE_DAYS와 같은 의미(최대 확보치)
+raw_ohlc_cache = {}         # code -> {"pages_fetched": int, "ohlc_map": dict}
+raw_ohlc_cache_lock = threading.Lock()
 start_metrics_snapshot_daemon(days=100)
 
 # ------------------ 종목 리스트 로드 (캐싱 및 다운로드) ------------------
@@ -92,6 +98,7 @@ def load_stock_list():
 
 # 전역 변수로 종목 리스트 로드 (서버 시작 시 미리 로드)
 all_stocks = load_stock_list()
+stock_name_by_code = {s["종목코드"]: s["회사명"] for s in all_stocks}
 
 # ------------------ 전역 데이터 캐시 (종목별 미리 계산된 전체 데이터) ------------------
 precomputed_stock_data = {}
@@ -146,11 +153,20 @@ async def fetch_page_data_async(session, page, code, retries=3):
             logging.warning("페이지 %d, 코드 %s: 요청 중 오류 발생: %s", page, code, e)
     return None
 
-async def get_latest_ohlc_data_async(code, num_days):
-    ohlc_map = {}
+async def fetch_ohlc_pages_async(code, pages):
     async with aiohttp.ClientSession() as session:
-        tasks = [fetch_page_data_async(session, page, code) for page in range(1, MAX_PAGES + 1)]
-        results = await asyncio.gather(*tasks)
+        tasks = [fetch_page_data_async(session, p, code) for p in pages]
+        return await asyncio.gather(*tasks)
+
+def fetch_ohlc_pages(code, pages):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        return loop.run_until_complete(fetch_ohlc_pages_async(code, pages))
+    finally:
+        loop.close()
+
+def _merge_results_into_ohlc_map(ohlc_map, results):
     for df_day in results:
         if df_day is None:
             continue
@@ -158,29 +174,54 @@ async def get_latest_ohlc_data_async(code, num_days):
             date_str = str(row['날짜']).strip()
             try:
                 close_val = float(str(row['종가']).replace(',', '').strip())
-                open_val = float(str(row['시가']).replace(',', '').strip())
-                high_val = float(str(row['고가']).replace(',', '').strip())
-                low_val = float(str(row['저가']).replace(',', '').strip())
-                volume_val = float(str(row['거래량']).replace(',', '').strip())
-            except Exception as e:
-                logging.debug("데이터 파싱 오류: %s", e)
+                open_val  = float(str(row['시가']).replace(',', '').strip())
+                high_val  = float(str(row['고가']).replace(',', '').strip())
+                low_val   = float(str(row['저가']).replace(',', '').strip())
+                volume_val= float(str(row['거래량']).replace(',', '').strip())
+            except Exception:
                 continue
+
+            # 날짜 중복은 무시(이미 들어있으면 유지)
             if date_str not in ohlc_map:
                 ohlc_map[date_str] = {
-                    'open': open_val,
-                    'close': close_val,
-                    'high': high_val,
-                    'low': low_val,
-                    'volume': volume_val
+                    "open": open_val, "close": close_val,
+                    "high": high_val, "low": low_val,
+                    "volume": volume_val
                 }
-    try:
-        all_dates_sorted = sorted(ohlc_map.keys(), key=lambda d: pd.to_datetime(d, format='%Y.%m.%d'))
-    except Exception as e:
-        logging.error("날짜 정렬 중 오류: %s", e)
-        all_dates_sorted = list(ohlc_map.keys())
-    if not all_dates_sorted:
+
+def ensure_latest_ohlc_data(code, needed_days):
+    """
+    needed_days 만큼의 '최신 거래일' OHLC를 만들기 위해
+    필요한 페이지만(=ceil(needed_days/10)) 가져오고,
+    기존에 가져온 페이지가 있으면 추가 페이지만 더 가져온다.
+    """
+    pages_needed = max(1, min(MAX_PAGES, math.ceil(needed_days / ROWS_PER_PAGE)))
+
+    with raw_ohlc_cache_lock:
+        entry = raw_ohlc_cache.get(code)
+        if entry is None:
+            entry = {"pages_fetched": 0, "ohlc_map": {}}
+            raw_ohlc_cache[code] = entry
+
+        already = entry["pages_fetched"]
+        missing_pages = list(range(already + 1, pages_needed + 1))
+
+    # 필요한 추가 페이지가 있으면 그 페이지만 수집
+    if missing_pages:
+        results = fetch_ohlc_pages(code, missing_pages)
+        with raw_ohlc_cache_lock:
+            _merge_results_into_ohlc_map(entry["ohlc_map"], results)
+            entry["pages_fetched"] = pages_needed
+
+    with raw_ohlc_cache_lock:
+        ohlc_map = raw_ohlc_cache[code]["ohlc_map"]
+
+    # 날짜 정렬 후 최신 needed_days만
+    all_dates = sorted(ohlc_map.keys())  # 'YYYY.MM.DD' 형태면 문자열 정렬 OK
+    if not all_dates:
         raise ValueError("데이터가 없습니다.")
-    latest_dates = all_dates_sorted[-num_days:]
+
+    latest_dates = all_dates[-needed_days:]
     final_dates, final_opens, final_closes, final_highs, final_lows, final_volumes = [], [], [], [], [], []
     for d in latest_dates:
         data = ohlc_map[d]
@@ -190,23 +231,21 @@ async def get_latest_ohlc_data_async(code, num_days):
         final_highs.append(str(data['high']))
         final_lows.append(str(data['low']))
         final_volumes.append(str(data['volume']))
+
     return final_dates, final_opens, final_closes, final_highs, final_lows, final_volumes
 
-# 기존 동기식 함수를 비동기 호출로 대체
+# (기존 get_latest_ohlc_data는 최신 거래일 API에서 쓰니까 유지하되,
+#  이제는 "필요한 만큼만" 가져오게 ensure_latest_ohlc_data를 사용)
 def get_latest_ohlc_data(code, num_days):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        result = loop.run_until_complete(get_latest_ohlc_data_async(code, num_days))
-    finally:
-        loop.close()
-    return result
+    return ensure_latest_ohlc_data(code, num_days)
+
 
 # ------------------ 새로운 함수: 전체 OHLC 데이터 및 지표 미리 계산 ------------------
 from concurrent.futures import ThreadPoolExecutor  # 파일 상단에 추가
 
-def prepare_full_ohlc_data(code):
-    dates, opens, closes, highs, lows, volumes = get_latest_ohlc_data(code, PRECOMPUTE_DAYS)
+def prepare_full_ohlc_data(code, needed_raw_days):
+    dates, opens, closes, highs, lows, volumes = ensure_latest_ohlc_data(code, needed_raw_days)
+
     df = pd.DataFrame({
         '날짜': dates,
         '시가': list(map(float, opens)),
@@ -215,6 +254,7 @@ def prepare_full_ohlc_data(code):
         '저가': list(map(float, lows)),
         '거래량': list(map(float, volumes))
     })
+
     
     df = prepare_df(df)
     try:
@@ -325,17 +365,33 @@ def get_ohlc_history():
     except ValueError:
         return jsonify({'error': '유효한 숫자를 입력하세요.'}), 400
     
+    # warmup 계산(최소 구현: MA120 기준으로만 잡아도 네 목표엔 충분)
+    warmup = INDICATOR_WARMUP_MAX if indicators_flags.get('ma', False) else 0
+
+    # (조금 더 정교하게 하고 싶으면: ichimoku면 52, macd면 35, bollinger/cci/envelope면 20, 나머지 14… 이런 식으로 max 잡으면 됨)
+
+    raw_needed = min(MAX_RAW_DAYS, days + warmup)
+
+    need_rebuild = False
     if code not in precomputed_stock_data:
+        need_rebuild = True
+    else:
+        df_full = precomputed_stock_data[code]
+        if len(df_full) < raw_needed:
+            need_rebuild = True
+
+    if need_rebuild:
         try:
-            df_full = prepare_full_ohlc_data(code)
+            df_full = prepare_full_ohlc_data(code, raw_needed)
             precomputed_stock_data[code] = df_full
         except Exception as e:
             logging.error("전체 데이터 준비 중 오류: %s", e)
             return jsonify({'error': '데이터 준비 중 오류가 발생했습니다.'}), 500
     else:
         df_full = precomputed_stock_data[code]
-        
+
     df_slice = df_full.tail(days)
+
     
     response_data = {
         'dates': list(df_slice['날짜']),
@@ -560,7 +616,8 @@ def get_wordcloud_data():
     if not code:
         return jsonify({'error': '종목코드가 필요합니다.'}), 400
     try:
-        frequencies = get_word_frequencies(code, num_pages=10)
+        stock_name = stock_name_by_code.get(code)  # 없으면 None
+        frequencies = get_word_frequencies(code, num_pages=10, stock_name=stock_name)
         return jsonify(frequencies)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -595,8 +652,6 @@ def get_cashflow():
     code = request.args.get('code')
     if not code:
         return jsonify(error="code 파라미터가 필요합니다."), 400
-
-    data = get_cashflow_data(code, session=shared_session)
     # 호출 중 예외가 터져도 빈 데이터로 방어
     try:
         data = get_cashflow_data(code, session=shared_session)
