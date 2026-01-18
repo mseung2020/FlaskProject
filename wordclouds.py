@@ -91,7 +91,9 @@ def is_korean_or_english(word):
     """한글과 영어로만 구성된 단어인지 확인."""
     return bool(re.fullmatch(r'[a-zA-Z\uac00-\ud7a3]+', word))
 
-def get_word_frequencies(stock_code: str, num_pages: int = 10, stock_name: str | None = None) -> tuple[str, BytesIO]:
+from typing import Optional
+
+def get_word_frequencies(stock_code: str, num_pages: int = 10, stock_name: Optional[str] = None) -> tuple[str, BytesIO]:
     # 동시성(멀티스레드) 조정: 기존 max_workers=10 -> 5
     with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
         texts = list(executor.map(lambda p: fetch_news_text(stock_code, p), range(1, num_pages + 1)))
