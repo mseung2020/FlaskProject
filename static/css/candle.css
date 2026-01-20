@@ -165,6 +165,12 @@ header {
 
 .input-group { margin-bottom: 15px; }
 .search-row { display: flex; gap: 8px; }
+#searchBtn { 
+  background-color: var(--white); color: var(--black);
+  background: var(--white); border: 2px solid var(--black); border-radius: 8px;
+  font-weight: 800; font-family: var(--font-eng); cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transition: 0.1s;
+}
 
 /* 벤토 스타일 입력창 */
 .bento-input {
@@ -202,7 +208,7 @@ header {
 }
 .stock-item {
   padding: 10px 12px; border-bottom: 1px solid #eee;
-  font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer;
   display: flex; justify-content: space-between;
   transition: 0.1s;
 }
@@ -404,33 +410,105 @@ footer {
   background: var(--black); color: var(--white); text-align: center; padding: 10px 0; font-size: 0.9rem; margin-top: 40px;
 }
 
+
 /* =========================================
    7. 모바일 반응형 (1080px 이하)
 ========================================= */
-@media (max-width: 1080px) {
-  .header-link { display: none; }
-  .menu-icon { display: block; font-size: 1.8rem; cursor: pointer; }
+.menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--black);
+}
+
+@media (max-width: 768px) {
+  header { padding: 0 20px;}
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 30%;
+    max-width: 200px;
+    height: 100%;
+    background-color: var(--white);
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s;
+    will-change: transform;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
+  #main-nav a.header-link {
+    color: var(--black);
+    padding: 0.75rem 0;
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link {
+    width: 100%; text-align: center;
+  }
 
   /* 3단 -> 1단 변경 */
   #mainContainer {
-    grid-template-columns: 1fr;
+    display: block;
     height: auto; 
-    padding: 10px;
+    padding: 0 20px 0 20px;
+    margin-top: 30px;
   }
-  
+  .bento-box {
+    margin-top: 20px;
+  }
   /* 패널 순서 변경: 차트가 먼저 보이도록 */
-  #ChartPanel { order: 1; height: 500px; }
+  #ChartPanel { order: 1; height: 400px; }
   #ControlPanel { order: 2; }
   #InsightPanel { order: 3; height: auto; min-height: 300px; }
 
   /* 차트 패널 내부 높이 조정 */
   .chart-wrapper { height: 350px; }
-  .metric-bar { overflow-x: auto; } /* 버튼 많으면 가로 스크롤 */
+  #candleChart { height: 103% !important;}
+  .metric-bar { overflow-x: hidden; } /* 버튼 많으면 가로 스크롤 */
   
   .pattern-grid { grid-template-columns: repeat(4, 1fr); }
+
+  .metric-group { width: 120%; gap: 5px; height: 60%;} 
+  .metric-btn { font-size: 12px; white-space: nowrap;}
+  .metric-label {display: none;}
+
+  .insight-scroll-area { height: 410px;}
 }
 
-@media (max-width: 600px) {
-  .pattern-grid { grid-template-columns: 1fr 1fr; }
-  #ChartPanel { height: 400px; }
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10; /* nav보다 살짝 낮은 값 */
+}
+
+#overlay.active {
+  display: block;
 }

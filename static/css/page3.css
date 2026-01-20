@@ -389,19 +389,109 @@ footer {
   border-top: var(--border-width) solid var(--black);
 }
 
-.menu-icon { display: none; font-size: 1.8rem; cursor: pointer; }
+.menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--black);
+}
+
 
 @media (max-width: 768px) {
-  #labContainer { padding: 0 15px; }
-  .lab-grid { grid-template-columns: 1fr; }
-  
-  .header-link { display: none; }
-  .menu-icon { display: block; }
-
-  #main-nav.nav-active {
-    position: fixed; top: 0; right: 0; height: 100vh; width: 250px;
-    background: var(--white); border-left: 3px solid var(--black);
-    flex-direction: column; padding: 60px 20px; display: flex; z-index: 999;
+  header { padding: 0 20px;}
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
   }
-  #main-nav .header-link { display: block; width: 100%; text-align: center; margin-bottom: 10px; }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 30%;
+    max-width: 200px;
+    height: 100%;
+    background-color: var(--white);
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s;
+    will-change: transform;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
+  #main-nav a.header-link {
+    color: var(--black);
+    padding: 0.75rem 0;
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link {
+    width: 100%; text-align: center;
+  }
+
+  #labContainer { padding: 0 15px; }
+  .lab-grid { grid-template-columns: 1fr; padding: 15px; }
+  .card-top { height: 6%;}
+  .lab-card { height: 275px;}
+  
+  .factor-bubble { font-size: 14px;}
+
+  .tag-ceo {
+    top: 20%; left: 10%;
+    background: #ff7675; /* 붉은 계열 */
+    animation: floatTopLeft 3s ease-in-out infinite;
+  }
+
+  /* 2. #ESG A+ (우측 상단) */
+  .tag-esg {
+    top: 20%; right: 15%;
+    background: #55efc4; /* 민트 계열 */
+    animation: floatTopRight 3.5s ease-in-out infinite;
+  }
+
+  /* 3. #PATENT (좌측 하단) */
+  .tag-pat {
+    bottom: 15%; left: 15%;
+    background: #a29bfe; /* 보라 계열 */
+    animation: floatBottomLeft 4s ease-in-out infinite;
+  }
+
+  /* 4. #FOREIGN (우측 하단) */
+  .tag-for {
+    bottom: 20%; right: 10%;
+    background: #ffeaa7; /* 노랑 계열 */
+    animation: floatBottomRight 3.2s ease-in-out infinite;
+  }
+
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10; /* nav보다 살짝 낮은 값 */
+}
+
+#overlay.active {
+  display: block;
 }

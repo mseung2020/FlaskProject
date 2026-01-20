@@ -15,6 +15,13 @@ async function initCandlePage() {
   await loadLatestTradingDate();
   await loadStockList();
   
+  let _rt = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(_rt);
+    _rt = setTimeout(applyXAxisMaxTicks, 150);
+  });
+  window.addEventListener('orientationchange', applyXAxisMaxTicks);
+
   // 초기 상태: 소나(대기화면) 표시, 로더 숨김
   toggleChartLoader(false);
   toggleInsightLoader(false);
@@ -27,9 +34,20 @@ function currentLatestISO(){
 
 // [이벤트 바인딩] 버튼 클릭 등
 function bindBasicEvents() {
-  // 1. 검색 & 조회
-  document.getElementById('searchBtn').addEventListener('click', filterStockList);
-  document.getElementById('searchInput').addEventListener('input', filterStockList);
+  // 1. 검색(필터) & 지우기
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('searchBtn'); // 버튼 id는 그대로 써도 됨
+
+  // 타이핑하면 필터링 (기존 그대로)
+  searchInput.addEventListener('input', filterStockList);
+
+  // 버튼 클릭하면 "검색어 지우기" + 리스트 원복
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filterStockList();      // q가 '' 이므로 전체가 다시 보임 :contentReference[oaicite:4]{index=4}
+    searchInput.focus();    // UX: 바로 다시 타이핑 가능
+  });
+
   
   // 2. 조회 기간 변경 (SET 버튼)
   document.getElementById('refreshBtn').addEventListener('click', () => {
@@ -189,7 +207,11 @@ function onSelectStock(el) {
 
 function resetPatternUI() {
   const ul = document.getElementById('patternList');
-  if (ul) ul.innerHTML = '<li class="placeholder-msg">패턴 탐지 버튼을 눌러<br>분석을 시작하세요.</li>';
+  if (ul) ul.innerHTML = `
+    <li class="placeholder-msg">
+      <br><strong>DETECT PATTERNS</strong> 버튼을 눌러서<br>패턴 분석 결과를 확인하세요.
+    </li>
+  `;
   
   document.getElementById('patternCountBadge').textContent = '0';
   document.getElementById('scorePanel').classList.add('hidden');
@@ -216,6 +238,46 @@ function resetMetricsUI() {
   }
 }
 
+function getXAxisMaxTicks() {
+  return window.matchMedia('(max-width: 768px)').matches ? 4 : 8;
+}
+
+let _xTickApplied = null;
+function applyXAxisMaxTicks() {
+  if (!candleChart) return;
+  const v = getXAxisMaxTicks();
+  if (v === _xTickApplied) return; // 같은 값이면 불필요 업데이트 방지
+  _xTickApplied = v;
+
+  candleChart.options.scales.x.ticks.maxTicksLimit = v;
+  candleChart.update('none');
+}
+
+function isMobile768() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+// "2026.01.19" -> "26.01.19"
+// "2026-01-19" -> "26-01-19" 도 대응
+function formatDateYY(label) {
+  const s = String(label);
+
+  // YYYY.MM.DD / YYYY-MM-DD / YYYY/MM/DD 형태 처리
+  const m = s.match(/^(\d{4})([.\-\/])(\d{2})\2(\d{2})$/);
+  if (m) {
+    const yy = m[1].slice(2);
+    const sep = m[2];
+    return `${yy}${sep}${m[3]}${sep}${m[4]}`;
+  }
+
+  // 혹시 다른 형태지만 앞이 4자리 연도면 그냥 앞 2자리만 제거
+  if (/^\d{4}[.\-\/]/.test(s)) return s.slice(2);
+
+  return s;
+}
+
+
+
 // [핵심] 차트 데이터 로드 및 렌더링
 async function loadAndRender(code, name, daysParam) {
   const days = (daysParam ?? getDaysValidated());
@@ -226,7 +288,7 @@ async function loadAndRender(code, name, daysParam) {
   
   // 헤더 업데이트
   const headerTitle = document.getElementById('chartStockName');
-  headerTitle.textContent = `${name} (${code}) · ${days} DAYS`;
+  headerTitle.textContent = `${name} · ${days} DAYS`;
   headerTitle.style.color = 'var(--accent-yellow)'; // 강조색
 
   const fd = new FormData();
@@ -372,8 +434,12 @@ function renderChart(j, code){
         ticks: { 
             font: { family: 'Space Grotesk', weight: 'bold' }, 
             color: '#888',
-            maxTicksLimit: 8,  // [추가] 날짜를 최대 8개까지만 표시 (나머지는 자동 생략)
-            autoSkip: true     // [추가] 공간이 부족하면 자동으로 건너뜀
+            maxTicksLimit: getXAxisMaxTicks(),  // [추가] 날짜를 최대 8개까지만 표시 (나머지는 자동 생략)
+            autoSkip: true,     // [추가] 공간이 부족하면 자동으로 건너뜀
+            callback: function(value) {
+              const label = this.getLabelForValue(value); // 원본 labels 값 가져오기
+              return isMobile768() ? formatDateYY(label) : label;
+            }
         }
       },
       y: {
@@ -415,12 +481,14 @@ function renderChart(j, code){
             extraData: extraData
         }]
     },
+    
     options: options,
     plugins: [highLowLinePlugin, patternBoxPlugin]
   });
   
   // 지표 데이터셋 자리 만들어두기
   ensureMetricDatasetsPrimed(candleChart);
+  applyXAxisMaxTicks();
 }
 
 

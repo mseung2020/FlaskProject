@@ -234,19 +234,56 @@ footer {
 .menu-icon { display: none; font-size: 1.8rem; cursor: pointer; }
 .accordion-header { display: none; } /* PC에선 숨김 */
 
-@media (max-width: 900px) {
-  #mainContainer { grid-template-columns: 1fr; } /* 1단 레이아웃 */
-  
-  .header-link { display: none; } /* 모바일 메뉴로 이동 */
-  .menu-icon { display: block; }
-  
-  /* 모바일 네비게이션 */
-  #main-nav.nav-active {
-    position: fixed; top: 0; right: 0; height: 100vh; width: 250px;
-    background: var(--white); border-left: 3px solid var(--black);
-    flex-direction: column; padding: 60px 20px; display: flex;
+@media (max-width: 768px) {
+  header { padding: 0 20px;}
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
   }
-  #main-nav .header-link { display: block; width: 100%; text-align: center; margin-bottom: 10px; }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 30%;
+    max-width: 200px;
+    height: 100%;
+    background-color: var(--white);
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s;
+    will-change: transform;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
+  #main-nav a.header-link {
+    color: var(--black);
+    padding: 0.75rem 0;
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link {
+    width: 100%; text-align: center;
+  }
+
+  #mainContainer { grid-template-columns: 1fr; } /* 1단 레이아웃 */
   
   /* 아코디언 (모바일용) */
   .accordion-header {
@@ -257,5 +294,16 @@ footer {
   .accordion-content {
     max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
   }
-  .stockItem { margin-top: 5px; }
+  .accordion-toggle{
+    display: inline-block;      /* transform 애니메이션이 자연스럽게 먹게 */
+    transform-origin: 50% 50%;
+    transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: transform;
+  }
+  .stockItem { margin-top: 5px; margin-left: 5px; margin-right: 5px;}
+
+  .content-area {padding: 30px; }
+  .content-body h2 {font-size: 1.3rem;}
+  .content-body p {font-size: 1rem;}
+  .key-point-box { padding: 18px;}
 }

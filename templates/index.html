@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page1.css') }}">
   </head>
-  <body>
+  <body data-mtab="chart">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
       height="0" width="0" style="display:none;visibility:hidden"></iframe>
@@ -48,15 +48,17 @@
     <!-- 헤더 영역: 사이트 로고 및 네비게이션 -->
     <header role="banner">
       <div class="header-left">
-        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'" />
-        <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
+        <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
+        <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
       </div>
+      
       <div class="menu-icon">&#9776;</div>
+      
       <div class="header-right">
-        <nav id="main-nav">
+        <nav id="main-nav" aria-label="메인 네비게이션">
           <a href="/index" class="header-link active">종목 분석</a>
-          <a href="/page2"  class="header-link">투자 정보</a>
-          <a href="/page3"  class="header-link">AI 연구</a>
+          <a href="/page2" class="header-link">투자 정보</a>
+          <a href="/page3" class="header-link">AI 연구</a>
         </nav>
       </div>
     </header>
@@ -69,10 +71,19 @@
       <!-- 1. 종목 검색 박스 -->
       <section id="stockSearchBox" class="box" aria-label="종목 검색">
         <label class="control-label">STOCK SEARCH</label>
-          <div class="search-row">
-            <input type="text" id="searchInput" class="bento-input" placeholder="종목명 또는 코드" autocomplete="off" />
-            <button id="searchBtn" class="bento-btn-icon">⌫</button>
+        <div class="search-row">
+          <input type="text" id="searchInput" class="bento-input" placeholder="종목명 또는 코드" autocomplete="off" />
+          <button id="searchBtn" class="bento-btn-icon">⌫</button>
+        </div>
+
+        <!-- ✅ 모바일 자동완성 드롭다운(PC에는 CSS로 숨김) -->
+        <div id="mobileSuggestBox" class="mobile-suggest" hidden>
+          <div class="mobile-suggest-head">
+            <span>AUTOCOMPLETE</span>
+            <span id="mobileSuggestCount" class="mobile-suggest-count">0</span>
           </div>
+          <div id="mobileSuggestList" class="mobile-suggest-list"></div>
+        </div>
       </section>
       
       <!-- 2. 일수 검색 및 옵션 설정 박스 -->
@@ -171,7 +182,7 @@
             <!-- (D) 기존 chartLabel(id)은 유지: 단위/상태 텍스트용 -->
             <div id="chartLabel" class="chart_unit" style="visibility:hidden;"></div>
 
-            <canvas id="myChart" aria-label="주가 캔들 차트"></canvas>
+            <canvas id="myChart" class="myChart" aria-label="주가 캔들 차트"></canvas>
           </div>
         </section>
 
@@ -240,7 +251,12 @@
           </div>
 
           <!-- 모바일 전용 아코디언 헤더 (기존 유지) -->
-          <div class="accordion-header" onclick="toggleAccordion()">
+          <div class="accordion-header"
+            id="indicatorAccordionHeader"
+            role="button"
+            tabindex="0"
+            aria-expanded="false"
+            aria-controls="toggleSections2">
             <span class="accordion-title">지표 목록</span>
             <span class="accordion-toggle">&#9660;</span>
           </div>
@@ -602,6 +618,27 @@
     <footer>
       <p>&copy; 2026 NewCandle™. All rights reserved.</p>
     </footer>
+
+    <!-- ✅ Mobile Bottom Tab Bar (모바일에서만 보임) -->
+    <nav class="mobile-tabbar" aria-label="모바일 하단 탭">
+      <button type="button" class="tab-btn active" data-tab="chart" aria-pressed="true">
+        <span class="tab-ic">📈</span>
+        <span class="tab-tx">CHART</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="sent" aria-pressed="false">
+        <span class="tab-ic">🙂</span>
+        <span class="tab-tx">SENT</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="news" aria-pressed="false">
+        <span class="tab-ic">📰</span>
+        <span class="tab-tx">NEWS</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="fund" aria-pressed="false">
+        <span class="tab-ic">📊</span>
+        <span class="tab-tx">FUND</span>
+      </button>
+    </nav>
+
     
     <!-- script.js 파일 로드: 기능과 차트 업데이트를 담당 -->
     <script src="{{ url_for('static', filename='js/page1.js') }}"></script>
@@ -614,27 +651,13 @@
           toggleMenu();
         });
       });
-      
+        
       function toggleMenu() {
         const nav = document.getElementById('main-nav');
         const overlay = document.getElementById('overlay');
         
         nav.classList.toggle('nav-active');
         overlay.classList.toggle('active');
-      }
-
-      function toggleAccordion() {
-        const header = document.querySelector('.accordion-header');
-        const content = document.querySelector('.accordion-content');
-        const toggleIcon = header.querySelector('.accordion-toggle');
-        
-        if (content.classList.contains('active')) {
-          content.classList.remove('active');
-          toggleIcon.style.transform = 'rotate(0deg)';
-        } else {
-          content.classList.add('active');
-          toggleIcon.style.transform = 'rotate(180deg)';
-        }
       }
 
       function setupInvestorTabsUnified() {

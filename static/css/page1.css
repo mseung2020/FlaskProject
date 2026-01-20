@@ -304,7 +304,7 @@ header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;/* 1:1 비율 */
   gap: 0.9375rem ;
-  margin-top: 0x; /* 필요한 경우 여백 조절 */
+  margin-top: 0px; /* 필요한 경우 여백 조절 */
 
 }
 
@@ -417,7 +417,7 @@ header {
 }
 
 /* 캔버스는 wrapper 꽉 */
-#chartBox #myChart{
+#chartBox .myChart{
   width: 107% !important;
   height: 105% !important;
   display: block;
@@ -584,11 +584,6 @@ header {
   font-size: 0.78rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   box-shadow: 3px 3px 0 var(--black);
-}
-
-/* 모바일에서는 아코디언 헤더와 겹칠 수 있어서 숨김 */
-@media (max-width: 1023px){
-  .indicatorAbbrBadge{ display:none; }
 }
 
 #toggleSections2{
@@ -1111,6 +1106,7 @@ header {
   height: 300px;
   width: 410px;
   padding: 0;
+  overflow: hidden;
 }
 #sentimentIndexBox .financial-header {
   width: 560px;
@@ -1525,271 +1521,15 @@ footer {
 
 /* 햄버거 아이콘 기본 숨기기(데스크탑에서는 필요 없으므로) */
 .menu-icon {
-  display: none; 
-  font-size: 1.5rem;
+  display: none;
+  font-size: 2rem;
   cursor: pointer;
-  color: var(--white);
+  color: var(--black);
 }
 
-/* 모바일 (최대 폭 767px) */
-@media (max-width: 767px) {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    position: relative;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-  .header-left, .header-right {
-    margin: 0.5rem 0;
-  }
-  
-  .menu-icon {
-    display: block;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--white);
-    position: absolute;
-    right: 2rem;
-  }
-  .menu-icon:active {
-    transform: scale(0.9);
-    transition: transform 0.1s ease;
-  }
-  #main-nav {
-    position: fixed;
-    top: 0;
-    right: 0; /* 기본 숨김 */
-    width: 30%; /* 필요에 따라 조정 가능 (예: 최대 300px) */
-    max-width: 300px;
-    height: 100vh;
-    background-color: var(--white);
-    color: var(--primary-color);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    transform: translateX(100%);
-    transition: transform var(--transition-speed) ease-out;
-    will-change: transform;
-    z-index: 1000;
-    margin-top: 0; /* 상단 틈 제거 */
-    margin-right: 0;
-  }
-  #main-nav.nav-active {
-    transform: translateX(0);
-  }
-  #main-nav a.header-link {
-    color: var(--primary-color);
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border-color);
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
+.mobile-tabbar { display: none; }
 
-  .box {
-    /* 콘텐츠가 부족할 때 최소 높이를 보장하고, 너무 길면 최대 높이를 제한 */
-    height: auto;
-    max-height: 90vh;      /* 뷰포트 높이의 90%를 넘지 않도록 */
-    overflow-y: auto;      /* 내부에 내용이 많으면 스크롤 처리 */
-
-  }
-  #mainContainer {
-    display: flex;
-    flex-direction: column;
-  }
-  #stockSearchBox {
-    height: 3rem;
-    order: 1;
-  }
-  #stockListBox {
-    order: 2;
-    display: none;
-    margin-top: 0;
-
-    overflow-y: hidden;
-  }
-  #stockContainer {
-    max-height: 15rem;
-    height: 100%;
-  }
-  #daysSearchBox {
-    overflow-y: hidden;
-    order: 3;
-  }
-  .chart-btn {
-    min-width: 2rem;
-  }
-  .question:hover + p.arrow_box {
-    display: none;
-  }
-  #emptyBox {
-    order: 4;
-  }
-  #toggleSections2 {
-    max-height: 15rem;
-    height: 100%;
-  }
-  #chartBox {
-    order: 5;
-    display: none;
-  }
-  #myChart {
-    height: 15rem; /* 모바일에 적합한 차트 높이 */
-  }
-  #IndexBox {
-    order: 6;
-    display: none;
-  }
-  #bottomRow1,
-  #bottomRow2 {
-    grid-template-columns: 1fr;
-  }
-  #bottomRow1 { order: 7; }
-  #bottomRow2 { order: 8; }
-  #tempBox1 {
-    overflow-x: hidden;
-  }
-  #tempContainer1 {
-    overflow-x: auto;
-  }
-  #tempBox2 {
-    overflow-x: hidden;
-    height: 19.1rem !important;
-  }
-  #undicisionedContainer {
-    overflow-x: hidden;
-  }
-  #sentimentIndexBox {
-    max-height: 100%;
-    overflow-y: hidden;
-  }
-  #investorTabs {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 1rem;
-    background-color: var(--secondary-color); /* 부모 배경색 지정 */
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  #investorTabs button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    font-size: 14px;
-    font-family: "Paperlogy";
-    cursor: pointer;
-    transition: background-color 0.3s;
-    background-color: transparent;
-  }
-  #investorTabs button.active,
-  #investorTabs button:focus {
-    background-color: var(--primary-color);
-    color: var(--white);
-  }
-  .investor-indicator-container {
-    position: relative;  
-    flex-direction: column;
-    min-height: 16rem;
-    height: 100%;
-  }
-  .gosu-header,
-  .hasu-header {
-    display: none;
-  }
-  .gosu-index-container {
-    margin-top: 1rem;
-  }
-  .left-indicator,
-  .right-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%; 
-  }
-
-  #wordCloudBox{
-    height: 300px;   /* 필요에 따라 60~80vh 로 조정 */
-  }
-
-  #wordCloudContainer{
-    height: calc(100% - 45px); /* 위에서 수정한 문법 그대로 */
-  }
-
-  #mainContainer > .box:nth-child(1) { animation-delay: 0.2s; }
-  #mainContainer > .box:nth-child(2) { animation-delay: 0.4s; }
-  #mainContainer > .box:nth-child(3) { animation-delay: 0s; }
-  #mainContainer > .box:nth-child(4) { animation-delay: 0s; }
-  #mainContainer > .box:nth-child(5) { animation-delay: 0.6s; }
-  #mainContainer > .box:nth-child(6) { animation-delay: 0s; }
-  #bottomRow1 > .box:nth-child(1) { animation-delay: 0.8s; }
-  #bottomRow1 > .box:nth-child(2) { animation-delay: 1.0s; }
-  #bottomRow2 > .box:nth-child(1) { animation-delay: 1.2s; }
-  #bottomRow2 > .box:nth-child(2) { animation-delay: 1.4s; }
-
-  .accordion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: var(--primary-color);
-    color: var(--white);
-    cursor: pointer;
-    border-radius: var(--box-radius);
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  .accordion-toggle {
-    transition: transform 0.3s ease;
-  }
-  /* 아코디언 내용은 기본적으로 숨김 */
-  .accordion-content {
-    display: none;
-    padding: 0.5rem 1rem;
-    background-color: var(--third-color);
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 var(--box-radius) var(--box-radius);
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  /* active 클래스가 있으면 보이게 */
-  .accordion-content.active {
-    display: block;
-  }
-}
-
-/* 태블릿 (최소 폭 768px, 최대 폭 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .accordion-header {
-    display: none;
-  }
-
-  .accordion-content {
-    display: block !important;
-    padding: 0;      /* 데스크탑 디자인에 맞게 조정 */
-    border: none;
-    max-height: none;
-    overflow: visible;
-  }
-}
-
-/* 데스크탑 (최소 폭 1024px) */ /* 기본 스타일 그대로 적용하거나, 데스크탑 특화 스타일 추가 */
-@media (min-width: 1024px) {
-    /* 데스크탑에서는 아코디언 헤더 숨김 */
-  .accordion-header {
+.accordion-header {
     display: none;
   }
   /* 아코디언 내용은 항상 보임 (기존 레이아웃과 동일하게) */
@@ -1800,7 +1540,349 @@ footer {
     max-height: none;
     overflow: visible;
   }
-}
+
+/* 모바일 (최대 폭 767px) */
+@media (max-width: 768px) {
+  header { padding: 0 20px;}
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 30%;
+    max-width: 200px;
+    height: 100%;
+    background-color: var(--white);
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s;
+    will-change: transform;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
+  #main-nav a.header-link {
+    color: var(--black);
+    padding: 0.75rem 0;
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link {
+    width: 100%; text-align: center;
+  }
+
+  #mainContainer {
+    display: flex;
+    flex-direction: column;
+  }
+  #stockSearchBox { position: relative; z-index: 8; }
+
+  /* ✅ 자동완성 드롭다운 */
+  #mobileSuggestBox.mobile-suggest {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    top: 89%;
+    background: #fff;
+    border: 3px solid var(--black);
+    box-shadow: var(--hard-shadow);
+    overflow: hidden;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  #mobileSuggestBox[hidden] { display: none !important; }
+
+  .mobile-suggest-head{
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--black);
+    color: var(--accent-yellow);
+    font-family: var(--font-eng);
+    font-weight: 900;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+  .mobile-suggest-count{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 22px;
+    padding: 0 10px;
+    background: var(--accent-red);
+    color: var(--black);
+    border: 2px solid var(--black);
+    border-radius: 999px;
+    box-shadow: 3px 3px 0 var(--black);
+    font-weight: 900;
+  }
+
+  .mobile-suggest-list{
+    max-height: 260px;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 기존 stockItem 스타일을 그대로 재활용 */
+  .mobile-suggest-list .stockItem{
+    padding: 10px 14px;
+  }
+
+  #daysSearchBox {
+    overflow: hidden;
+    height: 100%;
+    z-index: 5;
+    padding-bottom: 15px;
+  }
+  .control-row{
+    flex-wrap: wrap;                /* 줄바꿈 허용 */
+    justify-content: flex-start;    /* space-between 해제 */
+    align-items: center;
+    gap: 8px 8px;                   /* row/col gap */
+  }
+  .control-row::after{
+    content: "";
+    flex: 0 0 100%;
+    height: 0;
+    order: 9;
+  }
+  .control-row > button.chart-btn:nth-of-type(1){ order: 1; } /* + */
+  .control-row > button.chart-btn:nth-of-type(2){ order: 2; } /* - */
+  .question-wrapper{ order: 3; margin-left: 0; display: none;}
+  .daysearchrightContainer{
+    order: 4;
+    margin-left: auto;              /* 오른쪽 정렬 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toggleSections1{
+    order: 10;
+    margin-left: 0;                 /* 기존 margin-left 제거 */
+    flex: 0 0 auto;                 /* 내용 크기대로 */
+  }
+  .toggleSections1 label{
+    padding: 6px 8px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+  }
+
+  .panel-header {
+    font-size: 0.8rem;
+  }
+  h3 {
+    font-size: 13px;
+  }
+  .unit-info {
+    font-size: 8px;
+  }
+  #TopRow1 {
+    display: flex;
+    flex-direction: column;
+  }
+  #stockListBox {
+    width: 100%; order: 1;
+    display: none;
+  }
+  #chartBox {
+    width: 100%; height:250px; order: 3; padding: 2px;
+  }
+  #chartBox .myChart {
+    width: 100% !important;
+    height: 100% !important;
+    transform: translate(0px, 0px);
+  }
+  #chartBox .main-overlay-legend {
+    font-size: 8px;
+  }
+  #sentimentIndexBox {
+    width: 100%;
+    order: 5;
+  }
+  .sentCols {
+    grid-template-columns: 80px 140px 1fr;
+  }
+  #emptyBox {
+    order: 2;
+    height: auto !important;
+  }
+  #emptyBox .accordion-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 8px 12px;
+    cursor: pointer;
+    user-select: none;
+
+    border-top: 2px solid rgba(0,0,0,.12);
+  }
+
+  #emptyBox .accordion-title{
+    font-weight: 900;
+    letter-spacing: .5px;
+    font-size: 14px;
+  }
+
+  #emptyBox .accordion-toggle{
+    display: inline-block;
+    transition: transform .18s ease;
+    font-weight: 900;
+  }
+
+  /* 기본(닫힘): 내용 영역 접힘 */
+  #emptyBox #toggleSections2.accordion-content{
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding: 0 10px;
+
+    transition: max-height .25s ease, opacity .25s ease, padding .25s ease;
+  }
+
+  /* 열림 */
+  #emptyBox.is-open #toggleSections2.accordion-content{
+    max-height: 380px;     /* 필요하면 숫자만 조절 */
+    overflow-y: auto;      /* 지표 많으니 스크롤 허용 */
+    opacity: 1;
+    padding: 5px 10px 10px !important;
+  }
+
+  /* 화살표 회전 */
+  #emptyBox.is-open .accordion-toggle{ transform: rotate(180deg); }
+
+  #IndexBox {
+    width: 100%;
+    height: 215px;
+    overflow: hidden;
+    order: 4;
+    padding: 2px;
+  }
+  #IndexBox .indexchart {
+    width: 100% !important;
+    height: 100% !important;
+    transform: translate(0px, 0px); 
+  }
+  #wordCloudBox {
+    width: 100% ; order: 6;
+  }
+  #bottomRow1 {
+    display: flex;
+    flex-direction: column;
+  }
+  #tempBox1 {
+    overflow: hidden;
+    height: 300px;
+  }
+  #tempContainer1 {
+    overflow-x: scroll;
+  }
+
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+
+  footer { display: none !important; }
+
+  .mobile-tabbar{
+    display: flex;
+    position: fixed;
+    left: 0; right: 0;
+    bottom: 0;
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+
+    background: var(--white);
+    border-top: 2px solid var(--black);
+
+    /* overlay(#overlay), drawer(#main-nav) 아래에 있어야 함 */
+    z-index: 9;
+  }
+
+  .mobile-tabbar .tab-btn{
+    flex: 1;
+    border: 0;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: var(--font-eng);
+    font-weight: 900;
+    cursor: pointer;
+    border-left: 1px solid var(--gray-200);
+    border-right: 1px solid var(--gray-200);
+  }
+
+  .mobile-tabbar .tab-ic{ font-size: 18px; line-height: 1; }
+  .mobile-tabbar .tab-tx{ font-size: 11px; line-height: 1; }
+
+  .mobile-tabbar .tab-btn.active{
+    background: var(--accent-yellow);
+    border-left: 2px solid var(--black);
+    border-right: 2px solid var(--black);
+  }
+
+  #daysSearchBox,
+  #emptyBox,
+  #chartBox,
+  #IndexBox,
+  #sentimentIndexBox,
+  #wordCloudBox,
+  #tempBox1,
+  #tempBox2 { display: none; }
+
+  /* chart 탭 */
+  body[data-mtab="chart"] #daysSearchBox,
+  body[data-mtab="chart"] #emptyBox,
+  body[data-mtab="chart"] #chartBox,
+  body[data-mtab="chart"] #IndexBox { display: block; }
+
+  /* sent 탭 */
+  body[data-mtab="sent"] #sentimentIndexBox { display: block; }
+
+  /* news 탭 */
+  body[data-mtab="news"] #wordCloudBox { display: block; }
+
+  /* fund 탭 */
+  body[data-mtab="fund"] #tempBox1,
+  body[data-mtab="fund"] #tempBox2 { display: block; }
+
+  #mainContainer > .box:nth-child(1) { animation-delay: 0.0s; }
+  #mainContainer > .box:nth-child(2) { animation-delay: 0.2s; }
+  #TopRow1 > .box:nth-child(1), 
+  #TopRow1 > .box:nth-child(4), 
+  #TopRow1 > .box:nth-child(2),
+  #TopRow1 > .box:nth-child(3),
+  #TopRow1 > .box:nth-child(5),
+  #TopRow1 > .box:nth-child(6) { animation-delay: 0.2s; }
+  #bottomRow1 > .box:nth-child(1) { animation-delay: 0.2s; }
+  #bottomRow1 > .box:nth-child(2) { animation-delay: 0.4s; }
+
+} /* 모바일 끝 */
 
 #overlay {
   display: none;
@@ -1809,7 +1891,7 @@ footer {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.3);
-  z-index: 999; /* nav보다 살짝 낮은 값 */
+  z-index: 10; /* nav보다 살짝 낮은 값 */
 }
 
 #overlay.active {

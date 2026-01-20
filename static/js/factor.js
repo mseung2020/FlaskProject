@@ -53,12 +53,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const positions = [0, 33.33, 66.66, 100];
     let isDragging = false;
 
+    let trackRect = null;
+    let rafId = null;
+    let lastClientX = 0;
+
+    function refreshTrackRect() {
+        trackRect = track.getBoundingClientRect();
+    }
+
     // 위치 설정 함수
     function setLeftByClientX(clientX) {
         const rect = track.getBoundingClientRect();
         let x = clientX - rect.left;
         x = Math.max(0, Math.min(x, rect.width));
         knob.style.left = `${(x / rect.width) * 100}%`;
+    }
+
+    function scheduleSetLeft(clientX) {
+        lastClientX = clientX;
+        if (rafId) return;
+        rafId = requestAnimationFrame(() => {
+        rafId = null;
+        setLeftByClientX(lastClientX);
+        });
     }
 
     // 자석 효과 (가장 가까운 눈금으로 이동)
@@ -84,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = true; 
         knob.classList.remove('smooth-transition'); 
         document.body.style.userSelect = "none"; 
+        refreshTrackRect();  
     }
 
     // 드래그 끝: 놓는 순간 부드럽게 눈금으로 이동
@@ -92,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = false; 
         snapToClosest(); 
         document.body.style.userSelect = ""; 
+        trackRect = null;
     }
 
     // --- 이벤트 리스너 ---
@@ -102,8 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener("mouseup", endDrag);
 
     // 모바일 터치 (노브)
-    knob.addEventListener("touchstart", (e) => { startDrag(); setLeftByClientX(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
-    document.addEventListener("touchmove", (e) => { if (!isDragging) return; setLeftByClientX(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+    knob.addEventListener("touchstart", (e) => {
+        startDrag();
+        scheduleSetLeft(e.touches[0].clientX);
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        scheduleSetLeft(e.touches[0].clientX);
+        e.preventDefault();
+    }, { passive: false });
+
     document.addEventListener("touchend", endDrag);
 
     // 2. 트랙 클릭 (여기가 중요: 클릭 시 부드럽게 이동)
@@ -123,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 초기값 설정
     knob.style.left = `${positions[0]}%`;
+
+    window.addEventListener('resize', () => { trackRect = null; });
 });
 
 // 4. 차트 중간선 그리기
@@ -291,7 +322,11 @@ document.querySelector('.box4-right-btn').addEventListener('click', async () => 
                         x: { grid: { display: false }, ticks: { font: { family:'Space Grotesk', weight:'bold' }, color:'#111' } },
                         y: { grid: { display: false }, ticks: { font: { family:'Noto Sans KR', weight:'bold' }, color:'#111' } }
                     },
-                    animation: { onComplete: () => { if(returns.length > 10) drawMidDividerLine(window.returnChart); } }
+                    animation: {
+                        onComplete: (anim) => {
+                            if (returns.length > 10) drawMidDividerLine(anim?.chart);
+                        }
+                    }
                 }
             });
             chartCanvas.style.opacity = '1';

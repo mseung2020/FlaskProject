@@ -68,7 +68,12 @@ header {
 }
 
 /* [중요] PC에서는 햄버거 아이콘 무조건 숨김 */
-.menu-icon { display: none; }
+.menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--black);
+}
 
 #main-nav { display: flex; gap: 15px; }
 .header-link {
@@ -264,7 +269,7 @@ header {
 /* [핵심] 기업 리스트 스크롤 영역 */
 #right-result {
   height: 100%;       /* 부모 높이 100% 채움 */
-  max-height: 170px;  /* 사용자 지정 높이 제한 */
+  max-height: 200px;  /* 사용자 지정 높이 제한 */
   overflow-y: auto;   /* 넘치면 스크롤 */
   width: 100%;
   
@@ -284,22 +289,20 @@ header {
 .bento-item {
   padding: 12px 15px;            /* 터치하기 편한 넉넉한 영역 */
   margin-bottom: 5px;            /* 아이템 사이 간격 */
-  border-bottom: 2px solid #eee; /* 얇은 밑줄 대신 두툼한 회색 줄 */
+  border-bottom: 1px solid #eee; /* 얇은 밑줄 대신 두툼한 회색 줄 */
   
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--black);
   
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* 부드러운 애니메이션 */
-  border-radius: 6px;            /* 살짝 둥근 모서리 */
 }
 
 /* 3. 마우스 올렸을 때 (호버 효과) */
 .bento-item:hover {
   background-color: #f1f3f5;     /* 연한 회색 배경 */
-  transform: translateX(5px);    /* 오른쪽으로 쓱 밀리는 효과 */
-  border-bottom-color: var(--black); /* 밑줄이 검은색으로 진해짐 */
+  transform: translateX(3px);    /* 오른쪽으로 쓱 밀리는 효과 */
 }
 
 
@@ -434,7 +437,8 @@ header {
 /* 텍스트 스타일 */
 .bento-result-text h3 { margin: 0 0 10px 0; font-size: 1.2rem; }
 .result-tag { background: #fff; border: 1px solid #000; padding: 2px 8px; border-radius: 12px; font-weight: bold; margin: 0 2px; }
-.final-return { font-size: 1.3rem; font-weight: 900; text-align: right; margin-top: 10px; border-top: 2px dashed #ccc; padding-top: 0px; }
+.final-return { font-size: 1.3rem; font-weight: 900; text-align: right; margin-top: 10px; border-top: 2px dashed #ccc; padding-top: 0px; 
+                position: absolute; right: 10px; bottom: 10px; width: 94%;}
 .text-plus { color: #e74c3c; } .text-minus { color: #3498db; }
 .placeholder-msg { text-align: center; color: #888; font-size: 0.95rem; line-height: 2; padding-top: 50px;}
 .placeholder-msg strong { background: var(--black); color: var(--accent-yellow); padding: 2px 6px; border-radius: 4px; }
@@ -444,22 +448,60 @@ footer {
   background: var(--black); color: var(--white); text-align: center; padding: 10px 0; font-size: 0.9rem; margin-top: 40px;
 }
 
-/* 모바일 반응형 (900px 이하) */
-@media (max-width: 900px) {
-  /* PC 메뉴 숨기고 햄버거 보이기 */
-  .header-link { display: none; }
-  .menu-icon { display: block; font-size: 1.8rem; cursor: pointer; color: var(--black); }
-
-  /* 모바일 네비게이션 드로어 */
-  #main-nav.nav-active {
-    position: fixed; top: 0; right: 0; height: 100vh; width: 250px;
-    background: #fff; border-left: 3px solid #000; flex-direction: column;
-    padding: 60px 20px; display: flex; z-index: 999; box-shadow: -10px 0 20px rgba(0,0,0,0.2);
+/* 모바일 반응형 (768px 이하) */
+@media (max-width: 768px) {
+  header { padding: 0 20px;}
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
   }
-  #main-nav .header-link { display: block; text-align: center; margin-bottom: 15px; color: var(--black); }
+  
+  /* 모바일 네비게이션 (오버레이 스타일) */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 30%;
+    max-width: 200px;
+    height: 100%;
+    background-color: var(--white);
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.5rem 1rem; /* 위쪽 패딩을 늘려서 여유있게 */
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s;
+    will-change: transform;
+    z-index: 1000;
+    margin-top: 0; /* 상단 틈 제거 */
+    margin-right: 0;
+  }
+  #main-nav.nav-active {
+    transform: translateX(0);
+  }
+  #main-nav a.header-link {
+    color: var(--black);
+    padding: 0.75rem 0;
+    border: 2px solid var(--black);
+    border-radius: 10px;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link {
+    width: 100%; text-align: center;
+  }
 
   /* 레이아웃 1단 변경 */
   #mainContainer { grid-template-columns: 1fr; }
+  #Box1 {height: 310px;}
+
   .column-left { order: 2; } .column-right { order: 1; }
   
   #Content3 { flex-direction: column; height: auto; }
@@ -470,5 +512,46 @@ footer {
   .logic-toggle { width: 60%; }
   .box4-right { width: 100%; }
   
-  .button-grid { grid-template-columns: repeat(2, 1fr); }
+  .button-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .control-layout {gap: 10px;}
+  .box4-left { justify-content: center; padding: 0 0 0 5px; gap: 70px;}
+  .box4-center {margin-bottom: 30px;}
+
+  #Content1 {padding: 5px 10px 5px 10px;}
+
+  .column-left, .column-right {  
+    opacity: 100; /* 처음에 안 보이게 숨김 */
+    animation: none;
+  }
+  .box {
+    opacity: 0;
+    animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  #mainContainer > .column-right:nth-child(2) > .box:nth-child(1) {
+    animation-delay: 0.2s;
+  }
+  #mainContainer > .column-right:nth-child(2) > .box:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+  #mainContainer > .column-left:nth-child(1) > .box:nth-child(1) {
+    animation-delay: 0.6s;
+  }
+  #mainContainer > .column-left:nth-child(1) > .box:nth-child(2) {
+    animation-delay: 0.8s;
+  }
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10; /* nav보다 살짝 낮은 값 */
+}
+
+#overlay.active {
+  display: block;
 }

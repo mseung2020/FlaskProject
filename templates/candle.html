@@ -26,15 +26,17 @@
 
   <header role="banner">
     <div class="header-left">
-      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'" />
-      <h1 class="logo" onclick="location.href='/'">NewCandle™</h1>
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
+      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
     </div>
+    
     <div class="menu-icon">&#9776;</div>
+    
     <div class="header-right">
-      <nav id="main-nav">
+      <nav id="main-nav" aria-label="메인 네비게이션">
         <a href="/index" class="header-link">종목 분석</a>
-        <a href="/page2"  class="header-link">투자 정보</a>
-        <a href="/page3"  class="header-link active">AI 연구</a>
+        <a href="/page2" class="header-link">투자 정보</a>
+        <a href="/page3" class="header-link active">AI 연구</a>
       </nav>
     </div>
   </header>
@@ -51,7 +53,7 @@
           <label class="control-label">STOCK SEARCH</label>
           <div class="search-row">
             <input type="text" id="searchInput" class="bento-input" placeholder="종목명 또는 코드" autocomplete="off" />
-            <button id="searchBtn" class="bento-btn-icon">🔍</button>
+            <button id="searchBtn" class="bento-btn-icon">⌫</button>
           </div>
         </div>
 
@@ -166,14 +168,22 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const menuIcon = document.querySelector('.menu-icon');
-      const overlay = document.getElementById('overlay');
-      const nav = document.getElementById('main-nav');
-      function toggleMenu(){ nav.classList.toggle('nav-active'); overlay.classList.toggle('active'); }
-      if(menuIcon) menuIcon.addEventListener('click', toggleMenu);
-      if(overlay) overlay.addEventListener('click', toggleMenu);
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.menu-icon').addEventListener('click', function() {
+        toggleMenu();
+      });
+      document.getElementById('overlay').addEventListener('click', function() {
+        toggleMenu();
+      });
     });
+      
+    function toggleMenu() {
+      const nav = document.getElementById('main-nav');
+      const overlay = document.getElementById('overlay');
+      
+      nav.classList.toggle('nav-active');
+      overlay.classList.toggle('active');
+    }
   </script>
   <script src="{{ url_for('static', filename='js/candle.js') }}"></script>
 </body>

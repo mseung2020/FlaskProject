@@ -123,7 +123,6 @@
     // 미완성
   }
 
-
   function ensureUIBlocker(targetId, defaultText) {
     const host = document.getElementById(targetId);
     if (!host) return null;
@@ -160,6 +159,196 @@
     el.classList.add('is-hidden');
   }
 
+  function isMobileView() {
+    return window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  function openMobileSuggest() {
+    const box = document.getElementById('mobileSuggestBox');
+    if (box) box.hidden = false;
+  }
+
+  function closeMobileSuggest() {
+    const box = document.getElementById('mobileSuggestBox');
+    const list = document.getElementById('mobileSuggestList');
+    const count = document.getElementById('mobileSuggestCount');
+
+    if (list) list.innerHTML = '';
+    if (count) count.textContent = '0';
+    if (box) box.hidden = true;
+  }
+
+  function renderMobileSuggest(stocks) {
+    const list = document.getElementById('mobileSuggestList');
+    const count = document.getElementById('mobileSuggestCount');
+    if (!list) return;
+
+    list.innerHTML = '';
+    if (count) count.textContent = String(stocks.length);
+
+    // 너무 많으면 모바일에서는 적당히 제한(원하면 숫자 조절)
+    const limited = stocks.slice(0, 25);
+
+    limited.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'stockItem';
+
+      const name = document.createElement('span');
+      name.className = 'stockName';
+      name.textContent = item.회사명;
+
+      const code = document.createElement('span');
+      code.className = 'stockCode';
+      code.textContent = item.종목코드;
+
+      row.appendChild(name);
+      row.appendChild(code);
+
+      // ✅ “리스트에서 터치하면 닫힘 + 선택”
+      row.addEventListener('click', () => {
+        // 기존 renderStockList의 클릭 동작과 동일한 처리를 호출하거나,
+        // 네가 이미 갖고있는 종목 선택 함수로 연결하면 됨.
+        // 일단은: 입력창에 값 세팅 + 닫기(최소동작)
+        const input = document.getElementById('searchInput');
+        if (input) input.value = item.회사명;
+
+        closeMobileSuggest();
+
+        // 여기서 "종목 선택 로직"이 있다면 호출:
+        selectStockByItem(item);
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  function selectStockByItem(item) {
+    // ✅ renderStockList 클릭 로직과 같은 동작을 함수로 뽑아 재사용
+    if (AppState.isStockLoading) return;
+    if (AppState.currentCode === item.종목코드) return;
+
+    AppState.currentCode = item.종목코드;
+
+    // 모바일이면 차트탭으로 복귀(네가 이미 만들어둔 탭 시스템이 있을 때만)
+    if (typeof setMobileTab === 'function' && isMobileView()) {
+      setMobileTab('chart');
+    }
+
+    setUIBusy(true);
+    loadAllBoxesForSelectedStock(AppState.currentCode);
+  }
+
+  let indicatorAccordion = null;
+
+  function setupIndicatorAccordion() {
+    const box = document.getElementById('emptyBox');
+    const header = document.getElementById('indicatorAccordionHeader') || box?.querySelector('.accordion-header');
+    const content = document.getElementById('toggleSections2');
+    if (!box || !header || !content) return;
+
+    const setOpen = (open) => {
+      if (!isMobileView()) return; // PC에서는 아코디언 동작 안 함
+      box.classList.toggle('is-open', open);
+      header.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    const isOpen = () => box.classList.contains('is-open');
+
+    // ✅ 모바일 기본 닫힘
+    if (isMobileView()) setOpen(false);
+
+    // 헤더 클릭/키보드 토글
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setOpen(!isOpen());
+    });
+
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setOpen(!isOpen());
+      }
+    });
+
+    // ✅ 박스(헤더/패널 포함) 눌러도 토글되게
+    // 단, 콘텐츠(지표 리스트) 안을 누르는 건 토글로 처리하지 않음(스크롤/선택 방해 방지)
+    box.addEventListener('click', (e) => {
+      if (!isMobileView()) return;
+      if (e.target.closest('#toggleSections2')) return; // 콘텐츠 내부 클릭은 무시
+      if (e.target.closest('.accordion-header')) return; // 헤더는 위에서 처리
+      setOpen(!isOpen());
+    });
+
+    indicatorAccordion = {
+      close: () => setOpen(false),
+      open: () => setOpen(true),
+      isOpen
+    };
+
+    // 리사이즈로 PC로 넘어가면 상태 리셋(선택)
+    window.addEventListener('resize', () => {
+      if (!isMobileView()) {
+        box.classList.remove('is-open');
+        header.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  function closeIndicatorAccordionIfOpen() {
+    if (indicatorAccordion?.isOpen?.() && isMobileView()) {
+      indicatorAccordion.close();
+    }
+  }
+
+  function setMobileTab(tab) {
+    if (!isMobileView()) return;
+
+    document.body.dataset.mtab = tab;
+
+    const btns = document.querySelectorAll('.mobile-tabbar .tab-btn');
+    btns.forEach(btn => {
+      const active = btn.dataset.tab === tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    // 차트/캔버스가 display:none -> block 전환 시 사이즈 이슈 방지 (최소 안전장치)
+    requestAnimationFrame(() => {
+      try {
+        if (tab === 'chart') {
+          // 등록된 차트 전부 resize 시도(있으면 실행)
+          if (AppState && AppState.charts) {
+            Object.values(AppState.charts).forEach(ch => ch && ch.resize && ch.resize());
+          }
+        }
+        if (tab === 'sent' && window.sentimentChartInstance?.resize) {
+          window.sentimentChartInstance.resize();
+        }
+        if (tab === 'fund' && AppState?.charts?.cashflow?.resize) {
+          AppState.charts.cashflow.resize();
+        }
+        if (tab === 'news' && typeof updateWordCloud === 'function' && AppState.currentCode) {
+          updateWordCloud(AppState.currentCode);
+        }
+      } catch (e) {
+        // 1차 구조 테스트에서는 조용히 무시
+      }
+    });
+  }
+
+  function setupMobileBottomTabs() {
+    const bar = document.querySelector('.mobile-tabbar');
+    if (!bar) return;
+
+    bar.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => setMobileTab(btn.dataset.tab));
+    });
+
+    // 초기 상태 동기화
+    if (isMobileView()) {
+      setMobileTab(document.body.dataset.mtab || 'chart');
+    }
+  }
 
   // ========== 공통 차트 옵션 ==========
 
@@ -508,6 +697,9 @@
     setupSearchIconToggle();
     updateMobileChartPadding();
     setupInvestorTabs();
+    setupMobileBottomTabs();
+    setupIndicatorAccordion();
+    setupMobileSuggestInteractions();
   }
 
   function loadStockList() {
@@ -592,6 +784,48 @@
     });
   }
 
+  function setupMobileSuggestInteractions() {
+    const input = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('searchBtn');
+    const searchBox = document.getElementById('stockSearchBox');
+
+    if (!input || !searchBox) return;
+
+    // 포커스 들어오면: 값이 있으면 자동완성 열기
+    input.addEventListener('focus', () => {
+      if (isMobileView() && input.value.trim()) searchByName();
+    });
+
+    // 엔터 누르면: 자동완성 닫기(그리고 다음 keyup에서 다시 열리지 않게 방지)
+    input.addEventListener('keydown', (e) => {
+      if (!isMobileView()) return;
+      if (e.key === 'Enter') {
+        suppressMobileSuggestOnce = true;
+        closeMobileSuggest();
+      }
+    });
+
+    // 바깥 터치하면 닫기
+    document.addEventListener('click', (e) => {
+      if (!isMobileView()) return;
+      const suggest = document.getElementById('mobileSuggestBox');
+      const clickedInside =
+        searchBox.contains(e.target) || (suggest && suggest.contains(e.target));
+      if (!clickedInside) closeMobileSuggest();
+    });
+
+    // 지우기 버튼 누르면 닫기 (현재 너는 이 로직을 유지해도 OK)
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (!isMobileView()) return;
+        // 기존 clear 로직이 돌아가더라도, 드롭다운은 확실히 닫아줌
+        suppressMobileSuggestOnce = true;
+        closeMobileSuggest();
+      });
+    }
+  }
+
+
   function setupCheckboxControls() {
     const container = document.getElementById("toggleSections2");
     container.addEventListener("change", function(e) {
@@ -602,6 +836,7 @@
         }
         updateIndicatorVisibility();
         updateIndicatorAbbrBadge(); 
+        closeIndicatorAccordionIfOpen();
       }
     });
   }
@@ -740,8 +975,7 @@
           AppState.selectedItemElement.classList.remove('selectedStockItem');
         }
         if (window.matchMedia('(max-width: 767px)').matches) {
-          document.getElementById('chartBox').style.display = 'block';
-          document.getElementById('IndexBox').style.display = 'block';
+          setMobileTab('chart');
         }
         div.classList.add('selectedStockItem');
         AppState.selectedItemElement = div;
@@ -765,32 +999,41 @@
   function searchByName() {
     const term = document.getElementById('searchInput').value.trim().toLowerCase();
     const stockListBox = document.getElementById('stockListBox');
-  
+
     // 모바일 환경인지 체크 (최대 폭 767px)
     if (window.matchMedia('(max-width: 767px)').matches) {
+
+      // ✅ 모바일에서는 큰 리스트 박스를 쓰지 않음 (CSS로 숨겨도 되고, 안전하게 여기서도 방지)
+      if (stockListBox) stockListBox.style.display = 'none';
+
+      // ✅ 검색어가 없으면 드롭다운 닫기
       if (!term) {
-        // 검색어가 없으면 리스트 숨김
-        stockListBox.style.display = 'none';
-        renderStockList(AppState.allStocks);
+        closeMobileSuggest();
         return;
       }
-      // 검색어가 있으면 리스트 보임
-      stockListBox.style.display = 'block';
-      const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
+
+      // ✅ 자동완성 필터 (회사명/코드 둘 다 허용하고 싶으면 code도 포함)
+      const filtered = AppState.allStocks.filter(s =>
+        s.회사명.toLowerCase().includes(term) ||
+        String(s.종목코드).includes(term)
+      );
+
+      // ✅ 매칭 없으면 닫기
       if (filtered.length === 0) {
-        document.getElementById('stockContainer').innerHTML = '';
-        const badge = document.getElementById('stockCountBadge');
-        if (badge) badge.textContent = '0';
-      } else {
-        renderStockList(filtered);
+        closeMobileSuggest();
+        return;
       }
-    } else {
-      // 데스크탑 환경에서는 기본 동작 (예: 항상 보이거나 별도 처리)
-      const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
-      renderStockList(filtered);
+
+      // ✅ 매칭 있으면 검색박스 아래 드롭다운에 렌더 + 열기
+      renderMobileSuggest(filtered);
+      openMobileSuggest();
+      return;
     }
+
+    // 데스크탑 환경에서는 기존 동작 유지
+    const filtered = AppState.allStocks.filter(s => s.회사명.toLowerCase().includes(term));
+    renderStockList(filtered);
   }
-  
 
   function setupSearchIconToggle() {
     const searchInput = document.getElementById('searchInput');
@@ -3126,6 +3369,8 @@
 
   function initCashflowChart() {
     const ctx = document.getElementById("cashflowChart").getContext("2d");
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const axisFontSize = isMobile ? 10 : 12;
   
     AppState.charts.cashflow = new Chart(ctx, {
       type: 'line',
@@ -3198,7 +3443,7 @@
               }
             },
             ticks: {
-              font: { size: 12 }
+              font: { size: axisFontSize  }
             }
           },
           y: {
@@ -3211,7 +3456,7 @@
             },
             ticks: {
               color: '#333', // 그대로
-              font: { size: 12 }
+              font: { size: axisFontSize  }
             }
           }
         }

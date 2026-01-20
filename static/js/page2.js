@@ -260,8 +260,8 @@ function showIndicatorContent(indicator, elem) {
                 `)}
 
                 <h2>📌 매매 타이밍</h2>
-                <p>📈 <strong>매수</strong>: ADX 25 이상 + (+DI가 -DI 상향 돌파)<br>
-                📉 <strong>매도</strong>: ADX 25 이상 + (-DI가 +DI 상향 돌파)</p>
+                <p>📈 <strong>매수</strong>: ADX 25 이상 (+DI가 -DI 상향 돌파)<br>
+                📉 <strong>매도</strong>: ADX 25 이상 (-DI가 +DI 상향 돌파)</p>
             </div>`;
         }
 
@@ -298,6 +298,18 @@ function showIndicatorContent(indicator, elem) {
 
         // 최종 HTML 주입
         contentBox.innerHTML = htmlContent;
+        // ✅ 모바일이면(<=768px) 지표 선택 후 아코디언 자동 닫기
+        if (window.matchMedia('(max-width: 768px)').matches) {
+        const content = document.querySelector('.accordion-content');
+        const toggleIcon = document.querySelector('.accordion-toggle');
+
+        // 열려있는 경우(= inline maxHeight가 잡혀있는 경우)만 닫기
+        if (content && toggleIcon && content.style.maxHeight) {
+            content.style.maxHeight = null;
+            toggleIcon.style.transform = 'rotate(0deg)';
+        }
+        }
+
     }
 }
 /* --------------------- JavaScript 끝 --------------------- */

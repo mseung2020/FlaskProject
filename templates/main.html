@@ -127,26 +127,20 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 모바일 메뉴 토글 로직
-      const menuIcon = document.querySelector('.menu-icon');
-      const overlay = document.getElementById('overlay');
-      
-      if(menuIcon) {
-        menuIcon.addEventListener('click', toggleMenu);
-      }
-      if(overlay) {
-        overlay.addEventListener('click', toggleMenu);
-      }
+      document.querySelector('.menu-icon').addEventListener('click', function() {
+        toggleMenu();
+      });
+      document.getElementById('overlay').addEventListener('click', function() {
+        toggleMenu();
+      });
     });
-    
+      
     function toggleMenu() {
       const nav = document.getElementById('main-nav');
       const overlay = document.getElementById('overlay');
       
-      if(nav && overlay) {
-        nav.classList.toggle('nav-active');
-        overlay.classList.toggle('active');
-      }
+      nav.classList.toggle('nav-active');
+      overlay.classList.toggle('active');
     }
   </script>
   
