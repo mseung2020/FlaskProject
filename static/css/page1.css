@@ -93,12 +93,13 @@ header {
 #mainContainer {
   display: grid;
   grid-template-rows: 80px 38.50rem 14.75rem auto auto;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 1fr;
   gap: 0.9375rem;
   padding: 15px;
   height: auto;
-  max-width: 1800px;
+  max-width: 1400px;
   box-sizing: border-box;
+  margin: auto;
 }
 *, *::before, *::after {
   box-sizing: inherit;
@@ -1515,6 +1516,34 @@ footer {
   text-align: center; padding: 10px; margin-top: 50px; font-size: 0.9rem;
   background: var(--black); color: var(--white);
   border-top: var(--border-width) solid var(--black);
+}
+
+@media (min-width: 769px) {
+
+  #stockSearchBox {
+    width: 345px;
+  }
+  #daysSearchBox {
+    width: 1020px;
+  }
+  #stockListBox {
+    width: 345px;
+  }
+  #emptyBox {
+    width: 345px;
+  }
+  #chartBox {
+    width: 610px;
+  }
+  #IndexBox {
+    width: 610px;
+  }
+  #sentimentIndexBox {
+    width: 395px;
+  }
+  #wordCloudBox {
+    width: 395px;
+  }
 }
 
 /* --------------------- CSS 끝 --------------------- */

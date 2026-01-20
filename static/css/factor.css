@@ -93,7 +93,7 @@ header {
 #mainContainer {
   max-width: 1400px; margin: 30px auto; padding: 0 20px;
   display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px;
-  align-items: start;
+  align-items: start; min-height: 80vh;
 }
 .column-left, .column-right { display: flex; flex-direction: column; gap: 20px; 
   opacity: 0; /* 처음에 안 보이게 숨김 */
