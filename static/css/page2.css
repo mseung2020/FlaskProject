@@ -231,6 +231,20 @@ footer {
 }
 
 /* ---------------- MOBILE RESPONSIVE ---------------- */
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10; /* nav보다 살짝 낮은 값 */
+}
+
+#overlay.active {
+  display: block;
+}
+
 .menu-icon { display: none; font-size: 1.8rem; cursor: pointer; }
 .accordion-header { display: none; } /* PC에선 숨김 */
 
