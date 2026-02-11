@@ -50,6 +50,42 @@ INDICATOR_WARMUP_MAX = 120  # MA120 때문에 기본 워밍업
 MAX_RAW_DAYS = 370          # 기존 PRECOMPUTE_DAYS와 같은 의미(최대 확보치)
 raw_ohlc_cache = {}         # code -> {"pages_fetched": int, "ohlc_map": dict}
 raw_ohlc_cache_lock = threading.Lock()
+
+# ------------------ 일일 캐시 리셋(KST 기준) 설정 ------------------
+KST = datetime.timezone(datetime.timedelta(hours=9))
+DAILY_RESET_HOUR_KST = 4  # 새벽 4시
+last_cache_reset_date_kst = None
+cache_reset_lock = threading.Lock()
+
+
+def ensure_daily_cache_reset_kst():
+    """
+    한국 시간(KST) 기준으로 하루에 한 번, 새벽 4시 이후 처음 호출 시
+    OHLC 관련 전역 캐시를 초기화한다.
+    - precomputed_stock_data: 종목별 미리 계산된 지표 포함 데이터프레임
+    - raw_ohlc_cache: 네이버에서 크롤링한 원시 OHLC 캐시
+    """
+    global last_cache_reset_date_kst
+
+    # UTC 기준 현재 시각 → KST로 변환
+    now_utc = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+    now_kst = now_utc.astimezone(KST)
+
+    # 아직 리셋 시간이 안 됐으면 그대로 사용
+    if now_kst.hour < DAILY_RESET_HOUR_KST:
+        return
+
+    with cache_reset_lock:
+        # 다른 스레드가 먼저 갱신했는지 다시 검사
+        if last_cache_reset_date_kst is not None and last_cache_reset_date_kst == now_kst.date():
+            return
+
+        # 전역 캐시 비우기
+        precomputed_stock_data.clear()
+        raw_ohlc_cache.clear()
+
+        last_cache_reset_date_kst = now_kst.date()
+        logging.info("일일 캐시 리셋 완료 (KST 기준 날짜: %s)", last_cache_reset_date_kst)
 start_metrics_snapshot_daemon(days=100)
 
 # ------------------ 종목 리스트 로드 (캐싱 및 다운로드) ------------------
@@ -335,6 +371,9 @@ def prepare_full_ohlc_data(code, needed_raw_days):
 @cache.cached(timeout=3600, query_string=True)
 @app.route('/get_ohlc_history', methods=['POST'])
 def get_ohlc_history():
+    # 매일 KST 새벽 4시 이후 첫 호출에서 전역 캐시 초기화
+    ensure_daily_cache_reset_kst()
+
     # 파라미터 파싱 및 검증
     code = request.form.get('code', '').strip()
     days_str = request.form.get('days', '242').strip()

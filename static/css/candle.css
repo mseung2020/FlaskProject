@@ -87,8 +87,8 @@ header {
 #mainContainer {
   /* 280px(좌) - 나머지(중) - 340px(우) */
   display: grid;
-  grid-template-columns: 280px 730px 340px;
-  gap: 15px;
+  grid-template-columns: 280px 716px 340px;
+  gap: 22px;
   
   /* 화면 꽉 채우기 & 내부 스크롤 방지 */
   max-width: 1400px;
@@ -256,7 +256,7 @@ header {
 ========================================= */
 #ChartPanel {
   height: 665px;
-  width: 730px;
+  width: 716px;
 }
 /* 차트 래퍼: 상단 공간 차지 */
 .chart-wrapper {
