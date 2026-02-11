@@ -323,9 +323,9 @@ def find_patterns(df: pd.DataFrame, enabled: List[str]) -> List[Dict]:
             if _bull_harami(i,o,h,l,c, ma, c):
                 add(i-1, i, "up", "reversal", "Bullish Harami", "작은 양봉이 이전 음봉 몸통 안쪽")
             if _piercing(i,o,h,l,c, ma, c):
-                add(i-1, i, "up", "reversal", "Piercing Line", "갭다운 후 전일 몸통 중간선 이상으로 반등")
+                add(i-1, i, "up", "reversal", "Piercing Line", "갭다운 후 전일 몸통 중간선 이상 반등")
             if _bull_counter(i,o,h,l,c, atr, ma, c):
-                add(i-1, i, "up", "reversal", "Bullish Counter-attack", "갭다운 후 전일 종가 부근에서 반등 마감")
+                add(i-1, i, "up", "reversal", "Bullish Counter-attack", "갭다운 후 전일 종가 부근에서 반등")
 
         # ===== 상승 지속 =====
         if "bullish_trend" in enabled:
@@ -349,9 +349,9 @@ def find_patterns(df: pd.DataFrame, enabled: List[str]) -> List[Dict]:
             if _bear_harami(i,o,h,l,c, ma, c):
                 add(i-1, i, "down", "reversal", "Bearish Harami", "작은 음봉이 이전 양봉 몸통 안쪽")
             if _dark_cloud(i,o,h,l,c, ma, c):
-                add(i-1, i, "down", "reversal", "Dark Cloud Cover", "갭업 후 전일 몸통 중간선 이하로 하락")
+                add(i-1, i, "down", "reversal", "Dark Cloud Cover", "갭업 후 전일 몸통 중간선 이하")
             if _bear_counter(i,o,h,l,c, atr, ma, c):
-                add(i-1, i, "down", "reversal", "Bearish Counter-attack", "갭업 후 전일 종가 부근에서 하락 마감")
+                add(i-1, i, "down", "reversal", "Bearish Counter-attack", "갭업 후 전일 종가 부근에서 하락")
 
         # ===== 하락 지속 =====
         if "bearish_trend" in enabled:
