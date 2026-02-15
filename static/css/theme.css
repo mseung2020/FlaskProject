@@ -958,11 +958,19 @@ footer {
   #themeContainer { 
     grid-template-columns: 1fr;
   }
+
+  .calendar-header-row {
+    grid-template-columns: 35px repeat(5, 1fr) 140px !important;
+  }
   
+  .calendar-row {
+    grid-template-columns: 35px repeat(5, 1fr) 140px !important;
+  }
+
   .right-column { order: 2; height: 100%; }
   #BoxPast { order: 1; height: 500px; }
-  #BoxPresent { height: 300px; }
-  #BoxFuture { height: 100%; }
+  #BoxPresent { min-height: 300px; }
+  #BoxFuture { height: 550px; min-height: 550px; }
 
   .panel-body {
     overflow-x: hidden !important;
