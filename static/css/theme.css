@@ -974,7 +974,6 @@ footer {
 
   .panel-body {
     overflow-x: hidden !important;
-    overflow-y: auto !important;
   }
 
   /* 현재 박스: 카드 세로 배치 */
