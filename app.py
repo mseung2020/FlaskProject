@@ -25,6 +25,7 @@ from cashflow import get_cashflow_data
 from factor import process_factor_data
 from candle import find_patterns, get_kospi_marketcap_top
 from metrics import get_series_bundle, start_metrics_snapshot_daemon
+from theme import get_theme_calendar, get_current_week_top_themes, get_future_forecast, start_theme_snapshot_daemon
 import requests
 import lxml 
 
@@ -86,7 +87,10 @@ def ensure_daily_cache_reset_kst():
 
         last_cache_reset_date_kst = now_kst.date()
         logging.info("일일 캐시 리셋 완료 (KST 기준 날짜: %s)", last_cache_reset_date_kst)
+
+# ------------------ 백그라운드 데몬 시작 ------------------
 start_metrics_snapshot_daemon(days=100)
+start_theme_snapshot_daemon()  # 테마 갱신 활성화
 
 # ------------------ 종목 리스트 로드 (캐싱 및 다운로드) ------------------
 def load_stock_list():
@@ -163,6 +167,10 @@ def factor():
 @app.route('/candle')
 def candle_page():
     return render_template('candle.html')
+
+@app.route('/theme')
+def theme_page():
+    return render_template('theme.html')
 
 # ------------------ 종목 리스트 API ------------------
 @cache.cached(timeout=3600, query_string=True)
@@ -804,6 +812,40 @@ def get_metrics_api():
 @app.route('/ping')
 def ping():
     return 'pong', 200 
+
+# ------------------ 테마랩 API ------------------
+@app.route('/api/theme/calendar')
+def api_theme_calendar():
+    """과거 1년 테마 달력 데이터 반환"""
+    try:
+        data = get_theme_calendar()
+        if data:
+            return jsonify(data)
+        else:
+            return jsonify({'error': '데이터 준비 중입니다. 잠시 후 다시 시도해주세요.'}), 202
+    except Exception as e:
+        logging.error(f"테마 달력 API 에러: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/theme/current')
+def api_theme_current():
+    """금주 테마 TOP 5 반환"""
+    try:
+        data = get_current_week_top_themes(num_top=5)
+        return jsonify(data)
+    except Exception as e:
+        logging.error(f"현재 트렌드 API 에러: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/theme/forecast')
+def api_theme_forecast():
+    """미래 예측 반환"""
+    try:
+        data = get_future_forecast()
+        return jsonify(data)
+    except Exception as e:
+        logging.error(f"미래 예측 API 에러: {e}")
+        return jsonify({'error': str(e)}), 500
 
 def console_heartbeat():
     """5분마다 콘솔에 '서버 유지 중...' 로그를 찍는 데몬 스레드"""

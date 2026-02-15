@@ -160,7 +160,7 @@ header {
 ========================================= */
 #ControlPanel {
   width: 280px;
-  height: 665px;
+  height: 655px;
 }
 .control-label {
   font-family: var(--font-eng); font-size: 0.7rem; font-weight: 900; color: #888; 
@@ -206,9 +206,30 @@ header {
 
 /* 주식 리스트 */
 .list-container {
-  height: 200px; /* 고정 높이 */
+  height: 190px; /* 고정 높이 */
   border: 2px solid var(--black); border-radius: 8px;
   overflow-x: hidden; overflow-y: auto; margin-bottom: 20px;
+}
+
+/* 커스텀 스크롤바 */
+.list-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.list-container::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+.list-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+  border: 2px solid #f1f3f5;
+}
+
+.list-container::-webkit-scrollbar-thumb:hover {
+  background: #888;
 }
 .stock-item {
   padding: 10px 12px; border-bottom: 1px solid #eee;
@@ -255,7 +276,7 @@ header {
    4. [CENTER] 차트 패널 (Main Stage)
 ========================================= */
 #ChartPanel {
-  height: 665px;
+  height: 655px;
   width: 716px;
 }
 /* 차트 래퍼: 상단 공간 차지 */
@@ -298,12 +319,33 @@ header {
 ========================================= */
 #InsightPanel {
   width: 340px;
-  height: 665px;
+  height: 655px;
 }
 .insight-scroll-area {
   height: 71%;
   overflow-y: auto;
   padding-right: 5px; /* 스크롤바 공간 */
+}
+
+/* 커스텀 스크롤바 */
+.insight-scroll-area::-webkit-scrollbar {
+  width: 10px;
+}
+
+.insight-scroll-area::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+.insight-scroll-area::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+  border: 2px solid #f1f3f5;
+}
+
+.insight-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #888;
 }
 
 .pattern-list { list-style: none; padding: 4px; margin: 0; display: flex; flex-direction: column; gap: 10px; }

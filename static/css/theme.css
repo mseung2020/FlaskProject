@@ -1,0 +1,1089 @@
+/* ========== [SUPERNOVA BENTO THEME : THEME LAB EDITION] ========== */
+:root {
+  /* 컬러 팔레트 */
+  --bg-color: #f8f9fa;
+  --bg-pattern: radial-gradient(#d1d5db 1px, transparent 1px);
+  --accent-yellow: #ffeb3b;
+  --accent-blue: #a0c4ff;
+  --accent-red: #ff7675;
+  --accent-green: #55efc4;
+  --accent-purple: #a29bfe;
+  --white: #ffffff;
+  --black: #111111;
+
+  /* 테두리 & 그림자 */
+  --border-width: 3px;
+  --border-radius: 12px;
+  --hard-shadow: 6px 6px 0px var(--black);
+  --header-height: 70px;
+
+  /* 폰트 */
+  --font-main: 'Noto Sans KR', sans-serif;
+  --font-display: 'Black Han Sans', sans-serif;
+  --font-eng: 'Space Grotesk', sans-serif;
+}
+
+/* ----- 기본 초기화 ----- */
+html, body {
+  font-family: var(--font-main);
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  background-image: var(--bg-pattern);
+  background-size: 20px 20px;
+  color: var(--black);
+  height: 100%;
+}
+
+/* =========================================
+   1. 헤더 (기존 동일)
+========================================= */
+header {
+  background: var(--white);
+  height: var(--header-height);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: var(--border-width) solid var(--black);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { height: 36px; border: 2px solid var(--black); border-radius: 20%; cursor: pointer; }
+.logo {
+  font-family: var(--font-eng); font-size: 1.5rem; font-weight: 700;
+  margin: 0; cursor: pointer; letter-spacing: -0.5px;
+}
+
+@keyframes logoWiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  50% { transform: rotate(12deg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+.header-left:hover .header-logo {
+  animation: logoWiggle 0.6s ease-in-out;
+}
+
+.menu-icon { display: none; font-size: 2rem; cursor: pointer; color: var(--black); }
+
+#main-nav { display: flex; gap: 15px; }
+.header-link {
+  text-decoration: none; color: var(--black); font-weight: 700; font-size: 1.1rem;
+  padding: 8px 15px; border-radius: 8px; border: 2px solid transparent; transition: 0.2s;
+}
+.header-link:hover, .header-link.active {
+  background: var(--accent-yellow);
+  border: 2px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translate(-2px, -2px);
+}
+
+/* =========================================
+   2. 메인 레이아웃
+========================================= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(1.25rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#themeContainer {
+  max-width: 1400px; margin: 30px auto; padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 22px;
+  min-height: 80vh;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  height: 640px;
+}
+
+/* =========================================
+   3. 벤토 박스 공통
+========================================= */
+.bento-box {
+  background: var(--white);
+  border: var(--border-width) solid var(--black);
+  border-radius: var(--border-radius);
+  box-shadow: var(--hard-shadow);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeInUp 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+#BoxPresent {
+  overflow: visible;
+  z-index: 1;
+}
+
+/* 로딩 오버레이 */
+.present-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  border-radius: var(--border-radius);
+}
+
+.present-loader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-red); 
+  border: 3px solid var(--black); 
+  animation: spin 1s infinite ease-in-out; 
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-family: var(--font-eng);
+  font-weight: 900;
+  font-size: 0.9rem;
+  margin-top: 12px;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.5; }
+}
+/* 과거 박스 먼저 */
+#BoxPast { animation-delay: 0.2s; }
+
+/* 현재 + 미래 동시 */
+.right-column .bento-box { animation-delay: 0.4s; }
+
+.panel-header {
+  background: var(--black); color: var(--accent-yellow);
+  font-family: var(--font-eng); font-weight: 700; padding: 10px 15px;
+  border-bottom: var(--border-width) solid var(--black);
+  font-size: 0.85rem; letter-spacing: 1px;
+  display: flex; justify-content: space-between; align-items: center;
+  height: 45px; box-sizing: border-box;
+}
+.header-sub { color: #888; font-size: 0.75rem; font-weight: 500; }
+
+.panel-body {
+  flex: 1; padding: 20px; position: relative;
+  overflow-y: auto; background: #fff;
+  border-radius: var(--border-radius);
+}
+
+/* =========================================
+   4. [PAST] 과거 사이클 히트맵 (세로 배치, 평일만)
+========================================= */
+#BoxPast {
+  height: 635px;
+}
+
+#pastPanelBody {
+  padding: 15px;
+  overflow-y: scroll;
+}
+
+/* 스크롤바 커스텀 (webkit 브라우저) */
+#pastPanelBody::-webkit-scrollbar {
+  width: 10px;
+}
+
+#pastPanelBody::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+#pastPanelBody::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+  border: 2px solid #f1f3f5;
+}
+
+#pastPanelBody::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+/* 달력 래퍼 */
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 헤더 행 */
+.calendar-header-row {
+  display: grid;
+  grid-template-columns: 30px repeat(5, 1fr) 170px;
+  gap: 8px;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #eee;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.header-cell {
+  font-family: var(--font-eng);
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #888;
+  text-align: center;
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 데이터 행들 */
+#calendarRows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 각 행 (월 + 5칸 + 테마) */
+.calendar-row {
+  display: grid;
+  grid-template-columns: 30px repeat(5, 1fr) 170px;
+  gap: 8px;
+  align-items: center;
+  height: 35px;
+}
+
+/* 월 셀 */
+.month-cell {
+  font-family: var(--font-eng);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666;
+  text-align: right;
+  padding-right: 6px;
+}
+
+/* 날짜 셀 */
+.day-cell {
+  width: 100%;
+  height: 30px;
+  background: #e9ecef;
+  border-radius: 2px;
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #999;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s ease, filter 0.1s ease;
+  position: relative;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
+
+.day-cell:hover {
+  transform: scale(1.1);
+  z-index: 50;
+
+}
+
+.day-cell:active {
+  transform: scale(1.0);
+}
+
+.day-cell.has-data {
+  border: 1.5px solid var(--black);
+}
+
+/* 필터링 상태 (다른 테마는 흐리게) */
+.day-cell.filtered {
+  opacity: 0.2;
+  filter: grayscale(50%);
+  transition: opacity 0.1s ease, filter 0.1s ease;
+}
+
+.theme-cell.filtered {
+  opacity: 0.3;
+  transition: opacity 0.1s ease;
+}
+
+/* 호버 시 흐린 셀도 다시 선명 (툴팁 보이게) */
+.day-cell.filtered:hover {
+  opacity: 1 !important;
+  filter: none !important;
+  z-index: 60;
+}
+
+/* 헤더는 필터링 제외 */
+.calendar-header-row .header-cell {
+  opacity: 1 !important;
+}
+
+/* 활성 테마는 강조 */
+.day-cell.highlighted {
+  z-index: 10;
+}
+
+/* 커스텀 툴팁 */
+.custom-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--black);
+  color: var(--white);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.custom-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--black);
+}
+
+.day-cell:hover .custom-tooltip {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+.tooltip-date {
+  color: var(--accent-yellow);
+  font-family: var(--font-eng);
+  font-size: 0.6rem;
+  margin-bottom: 3px;
+}
+
+.tooltip-theme {
+  font-size: 0.6rem;
+  margin-bottom: 2px;
+}
+
+.tooltip-return {
+  font-family: var(--font-eng);
+  color: var(--accent-red);
+  font-size: 0.6rem;
+}
+
+/* 테마 셀 */
+.theme-cell {
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 30px;
+  box-sizing: border-box;
+  margin-left: 5px;
+  transition: opacity 0.1s ease;
+}
+
+.theme-cell.active {
+  border-color: var(--black);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.theme-cell.active:hover {
+  background: #f8f9fa;
+}
+
+.theme-cell.active:active {
+  transform: scale(0.98);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.theme-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid var(--black);
+  flex-shrink: 0;
+}
+
+.theme-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.7rem;
+}
+
+.theme-count {
+  font-family: var(--font-eng);
+  font-size: 0.6rem;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.heatmap-cell.has-data {
+  border: 1px solid var(--black);
+}
+
+/* =========================================
+   5. [PRESENT] 현재 트렌드 TOP 3
+========================================= */
+#BoxPresent { 
+  flex: 1;
+  z-index: 2;
+}
+
+#BoxPresent .panel-body {
+  overflow: visible;
+}
+
+.current-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  height: 100%;
+  overflow: visible;
+}
+
+.current-card {
+  background: #fff;
+  border: 2px solid var(--black);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  position: relative;
+  overflow: visible;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+  z-index: 1;
+}
+
+.current-card:hover {
+  z-index: 100;
+}
+
+.current-card.empty {
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty-message {
+  font-family: var(--font-eng);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #999;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+.current-card.top1 {
+  border-width: 3px;
+  border-color: var(--accent-red);
+  background: #fff5f5;
+}
+
+.current-rank {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-eng);
+  font-weight: 900;
+  font-size: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--black);
+}
+.current-rank.rank-1 { background: var(--accent-yellow); }
+.current-rank.rank-2 { background: var(--accent-blue); }
+.current-rank.rank-3 { background: var(--accent-green); }
+
+.current-theme-name {
+  font-family: var(--font-display);
+  font-size: 25px;
+  margin-bottom: 5px;
+  padding-right: 35px;
+}
+
+.current-stocks {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  position: relative;
+  min-height: 2.1rem;
+}
+
+.stocks-text {
+  flex: 1;
+  line-height: 1.05rem;
+}
+
+.stocks-help {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #999;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.stocks-help:hover {
+  border-color: var(--black);
+  color: var(--black);
+  background: var(--accent-yellow);
+}
+
+.stocks-tooltip {
+  position: absolute;
+  top: -80px;
+  left: calc(100% + 12px);
+  background: var(--black);
+  color: var(--white);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  line-height: 1.6;
+  cursor: default;
+}
+
+.stocks-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 80px;
+  right: 100%;
+  border: 6px solid transparent;
+  border-right-color: var(--black);
+}
+
+.stocks-help:hover .stocks-tooltip {
+  opacity: 1;
+}
+
+/* 3번째 카드는 툴팁을 왼쪽으로 */
+.current-card:nth-child(3) .stocks-tooltip {
+  left: auto;
+  right: calc(100% + 10px);
+}
+
+.current-card:nth-child(3) .stocks-tooltip::before {
+  right: auto;
+  left: 100%;
+  border-right-color: transparent;
+  border-left-color: var(--black);
+}
+
+.current-stat {
+  background: #f8f9fa;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
+
+.stat-label {
+  color: #666;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-family: var(--font-eng);
+  font-weight: 900;
+  color: var(--accent-red);
+}
+
+.current-card.top1 .current-theme-name {
+  color: var(--accent-red);
+}
+
+/* =========================================
+   6. [FUTURE] 미래 예측
+========================================= */
+#BoxFuture { 
+  flex: 1;
+  z-index: 1;
+}
+
+.future-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  height: 100%;
+}
+
+/* ===== 카드 1: 단기 예측 (히어로) ===== */
+.future-card.near {
+  border: 2px solid var(--black);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  background: #fffbe6;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.near-badge {
+  font-family: var(--font-eng);
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border: 1.5px solid var(--black);
+  border-radius: 15px;
+  letter-spacing: 1px;
+  align-self: flex-start;
+  background: #fff;
+}
+
+.near-theme {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--black);
+  margin: 4px 0;
+  text-align: center;
+}
+
+.near-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 5px;
+}
+
+.near-period {
+  font-family: var(--font-eng);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+}
+
+.near-confidence {
+  font-family: var(--font-eng);
+  font-size: 0.85rem;
+  color: var(--accent-red);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+.confidence-help {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: #999;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.confidence-help:hover {
+  border-color: var(--black);
+  background: var(--accent-yellow);
+  color: var(--black);
+}
+
+.confidence-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: -35px;
+  background: var(--black);
+  color: var(--white);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 300;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  line-height: 1.5;
+}
+
+.confidence-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--black);
+}
+
+.confidence-help:hover .confidence-tooltip {
+  opacity: 1;
+}
+
+.near-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1.5px solid #e0e0e0;
+  font-size: 0.65rem;
+  color: #999;
+  text-align: center;
+}
+
+/* ===== 카드 2: 장기 계절성 (타임라인) ===== */
+.future-card.seasonal {
+  border: 2px solid var(--black);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.seasonal-badge {
+  font-family: var(--font-eng);
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border: 1.5px solid var(--black);
+  border-radius: 15px;
+  letter-spacing: 1px;
+  align-self: flex-start;
+}
+
+.timeline-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 5px;
+  flex: 1;
+}
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 9px;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  transition: 0.2s;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--theme-color, #ddd);
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--theme-color, #ddd);
+}
+
+.timeline-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.timeline-month-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.timeline-month {
+  font-family: var(--font-eng);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #333;
+  line-height: 1;
+}
+
+.timeline-month-text {
+  font-size: 0.6rem;
+  color: #999;
+}
+
+.timeline-theme {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--black);
+  margin-top: 3px;
+}
+
+.timeline-item.unknown .timeline-theme {
+  font-size: 1.3rem;
+  color: #ddd;
+}
+
+.timeline-dot {
+  display: none;
+}
+
+.seasonal-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1.5px solid #e0e0e0;
+  font-size: 0.65rem;
+  color: #999;
+  text-align: center;
+}
+
+/* =========================================
+   7. 푸터
+========================================= */
+footer {
+  background: var(--black);
+  color: var(--white);
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  margin-top: 40px;
+}
+
+/* =========================================
+   8. 모바일 반응형 (768px 이하)
+========================================= */
+@media (max-width: 768px) {
+  header { padding: 0 20px; }
+  .menu-icon { display: block; position: absolute; right: 5%; }
+  .menu-icon:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+
+  #main-nav {
+    position: fixed;
+    top: 0; right: 0;
+    width: 30%; max-width: 200px; height: 100%;
+    background-color: var(--white); color: var(--black);
+    display: flex; flex-direction: column;
+    align-items: stretch; justify-content: flex-start;
+    padding: 1.5rem 1rem;
+    border-left: var(--border-width) solid var(--black);
+    transform: translateX(100%);
+    transition: 0.3s; will-change: transform;
+    z-index: 1000;
+    margin-top: 0; margin-right: 0;
+  }
+  #main-nav.nav-active { transform: translateX(0); }
+  #main-nav a.header-link {
+    color: var(--black); padding: 0.75rem 0;
+    border: 2px solid var(--black); border-radius: 10px;
+    display: block; font-size: 1.2rem; font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  header .header-link { width: 100%; text-align: center; }
+
+  /* 레이아웃 1단 변경 */
+  #themeContainer { 
+    grid-template-columns: 1fr;
+  }
+  
+  .right-column { order: 2; height: 100%; }
+  #BoxPast { order: 1; height: 500px; }
+  #BoxPresent { height: 300px; }
+  #BoxFuture { height: 100%; }
+
+  .panel-body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  /* 현재 박스: 카드 세로 배치 */
+  .current-cards {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  /* 미래 박스: 카드 세로 배치 */
+  .future-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  /* 모바일: 툴팁 → 모달 */
+  .stocks-help,
+  .confidence-help {
+    cursor: pointer;
+  }
+
+  .stocks-tooltip,
+  .confidence-tooltip {
+    display: none;
+  }
+
+  /* 히트맵 축소 */
+  .heatmap-grid { gap: 2px; }
+  .month-label { font-size: 0.6rem; min-width: 30px; }
+  .weekday-label { font-size: 0.6rem; }
+  .heatmap-cell { font-size: 0.55rem; }
+
+  /* Future 카드 세로 배치 */
+  .future-cards { flex-direction: column; }
+  .future-card { min-height: 180px; }
+}
+
+/* =========================================
+   모바일 정보 모달
+========================================= */
+.info-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+
+.info-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.info-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+}
+
+.info-modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 35px 25px;
+  max-width: 85%;
+  max-height: 70%;
+  overflow-y: auto;
+  transition: transform 0.1s ease;
+}
+
+.info-modal.active .info-modal-content {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.info-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--black);
+  border-radius: 50%;
+  background: var(--accent-red);
+  color: var(--white);
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-modal-body {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--black);
+}
+
+.info-modal-body h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+#overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3); z-index: 10;
+}
+#overlay.active { display: block; }

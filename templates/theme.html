@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PGJ6TWV8');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NewCandle™ - Theme Lab</title>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='image/logo.png') }}">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGJ6TWV8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+
+  <header role="banner">
+    <div class="header-left">
+      <img src="{{ url_for('static', filename='image/logo.png') }}" alt="NewCandle Logo" class="header-logo" onclick="location.href='/'">
+      <h1 class="logo" onclick="location.href='/'" tabindex="0">NewCandle™</h1>
+    </div>
+    
+    <div class="menu-icon">&#9776;</div>
+    
+    <div class="header-right">
+      <nav id="main-nav" aria-label="메인 네비게이션">
+        <a href="/index" class="header-link">종목 분석</a>
+        <a href="/page2" class="header-link">투자 정보</a>
+        <a href="/page3" class="header-link active">AI 연구</a>
+      </nav>
+    </div>
+  </header>
+
+  <div id="overlay"></div>
+
+  <div id="themeContainer">
+
+    <!-- ===== [PAST] 과거 사이클 히트맵 (좌측) ===== -->
+    <div class="bento-box" id="BoxPast">
+      <div class="panel-header">
+        <span>PAST CYCLE</span>
+        <span class="header-sub">최근 1년 강세 테마</span>
+      </div>
+      <div id="pastPanelBody" class="panel-body">
+        <div class="calendar-wrapper">
+          <!-- 헤더: 월 화 수 목 금 -->
+          <div class="calendar-header-row">
+            <div class="month-cell header-cell" style=" height: 25px; "></div>
+            <div class="day-cell header-cell" style=" height: 25px; ">월</div>
+            <div class="day-cell header-cell" style=" height: 25px; ">화</div>
+            <div class="day-cell header-cell" style=" height: 25px; ">수</div>
+            <div class="day-cell header-cell" style=" height: 25px; ">목</div>
+            <div class="day-cell header-cell" style=" height: 25px; ">금</div>
+            <div class="theme-cell header-cell" >주간 강세 테마</div>
+          </div>
+
+          <!-- 데이터 행들 (JS로 생성) -->
+          <div id="calendarRows">
+            <!-- JS로 52개 행 동적 생성 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+
+      <!-- ===== [PRESENT] 현재 트렌드 (상단) ===== -->
+      <div class="bento-box" id="BoxPresent">
+        <div class="panel-header">
+          <span>NOW TRENDING</span>
+          <span class="header-sub" id="weekBadge">
+            <script>
+              var now = new Date();
+              var weekOfMonth = Math.ceil(now.getDate() / 7);
+              document.write(now.getFullYear() + ' · ' + (now.getMonth() + 1) + '월 ' + weekOfMonth + '주차');
+            </script>
+          </span>
+        </div>
+        <div class="panel-body">
+          <!-- 로딩 오버레이 -->
+          <div class="present-loader" id="presentLoader">
+            <div class="spinner"></div>
+            <div class="loader-text">AI ANALYZING...</div>
+          </div>
+          
+          <div class="current-cards" id="currentCards">
+            <!-- JS로 3개 카드 생성 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== [FUTURE] 미래 예측 ===== -->
+      <div class="bento-box" id="BoxFuture">
+        <div class="panel-header">
+          <span>FUTURE FORECAST</span>
+        </div>
+        <div class="panel-body">
+          <div class="future-split">
+            <!-- 단기 예측 -->
+            <div class="future-card near" id="futureNear">
+              <!-- JS로 생성 -->
+            </div>
+            <!-- 장기 계절성 -->
+            <div class="future-card seasonal" id="futureSeasonal">
+              <!-- JS로 생성 -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 모바일 모달 -->
+  <div id="infoModal" class="info-modal">
+    <div class="info-modal-overlay"></div>
+    <div class="info-modal-content">
+      <button class="info-modal-close">✕</button>
+      <div class="info-modal-body" id="infoModalBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 NewCandle™. All rights reserved.</p>
+  </footer>
+
+  <!-- ==================== 스크립트 ==================== -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+</body>
+</html>
