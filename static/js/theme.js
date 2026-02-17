@@ -323,10 +323,7 @@ function renderCurrent(data) {
     loader.classList.add('hidden');
   }
   
-  if (!data || data.length === 0) {
-    document.getElementById('weekBadge').textContent = '데이터 없음';
-    return;
-  }
+  if (!data) data = [];
 
   const container = document.getElementById('currentCards');
   container.innerHTML = '';

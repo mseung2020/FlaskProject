@@ -495,7 +495,7 @@ def get_future_forecast() -> Dict:
 # ================= 일일/주간 갱신 데몬 =================
 
 def daily_theme_update():
-    """매일 새벽 4시: 하루치 데이터 갱신"""
+    """매일 새벽 4시: 최신 거래일 데이터 갱신"""
     logging.info("=== 테마 일일 갱신 시작 ===")
     
     try:
@@ -507,26 +507,46 @@ def daily_theme_update():
         themes = {k: [(t[0], t[1]) for t in v] for k, v in data['themes'].items()}
         trading_days = data['trading_days']
         
-        # 2. 오늘 날짜 (평일만)
+        # 2. 주말이면 스킵 (토·일에는 전일 데이터도 이미 금요일 것이므로)
         today = datetime.datetime.now(tz=KST)
-        if today.weekday() >= 5:  # 주말
+        if today.weekday() >= 5:
             logging.info("주말이라 크롤링 스킵")
             return
         
-        today_str = today.strftime('%Y.%m.%d')
+        # 3. 대표 종목 1개로 최신 거래일 탐지 (네이버에서 실제 최신 날짜 확인)
+        all_codes = list(set(
+            code for stocks in themes.values() for _, code in stocks
+        ))
         
-        # 이미 있으면 스킵
-        if today_str in trading_days:
-            logging.info(f"{today_str} 이미 존재, 스킵")
+        latest_trading_date = None
+        for probe_code in all_codes[:5]:  # 최대 5개까지 시도
+            try:
+                url = f"https://finance.naver.com/item/sise_day.nhn?code={probe_code}&page=1"
+                response = shared_session.get(url, timeout=5)
+                response.encoding = 'cp949'
+                tables = pd.read_html(StringIO(response.text), encoding='cp949')
+                if tables:
+                    df = tables[0].dropna()
+                    if not df.empty:
+                        dt = pd.to_datetime(str(df.iloc[0]['날짜']).strip())
+                        latest_trading_date = dt.strftime('%Y.%m.%d')
+                        break
+            except:
+                continue
+        
+        if not latest_trading_date:
+            logging.warning("최신 거래일 탐지 실패. 스킵")
             return
         
-        # 3. 모든 종목 하루치 크롤링
-        logging.info(f"{today_str} 크롤링 시작...")
+        logging.info(f"네이버 최신 거래일: {latest_trading_date}")
         
-        all_codes = set()
-        for stocks in themes.values():
-            for _, code in stocks:
-                all_codes.add(code)
+        # 4. 이미 수집된 날짜면 스킵
+        if latest_trading_date in trading_days:
+            logging.info(f"{latest_trading_date} 이미 존재, 스킵")
+            return
+        
+        # 5. 모든 종목의 최신 거래일 종가 크롤링
+        logging.info(f"{latest_trading_date} 크롤링 시작...")
         
         updated_count = 0
         for code in all_codes:
@@ -546,10 +566,10 @@ def daily_theme_update():
                         dt = pd.to_datetime(date_str)
                         date_key = dt.strftime('%Y.%m.%d')
                         
-                        if date_key == today_str:
+                        if date_key == latest_trading_date:
                             if code not in stock_prices:
                                 stock_prices[code] = {}
-                            stock_prices[code][today_str] = close
+                            stock_prices[code][latest_trading_date] = close
                             updated_count += 1
                 
                 time.sleep(0.05)
@@ -558,20 +578,23 @@ def daily_theme_update():
         
         logging.info(f"크롤링 완료: {updated_count}개 종목")
         
-        # 4. trading_days 추가
-        trading_days.append(today_str)
+        # 6. 실제 수집 성공 시에만 trading_days에 추가
+        if updated_count == 0:
+            logging.warning(f"{latest_trading_date} 가격 데이터 미수집. trading_days 추가 스킵")
+            return
         
-        # 5. 290일 초과 시 오래된 데이터 삭제
+        trading_days.append(latest_trading_date)
+        
+        # 7. 290일 초과 시 오래된 데이터 삭제
         if len(trading_days) > 290:
             remove_date = trading_days.pop(0)
             logging.info(f"290일 초과: {remove_date} 삭제")
             
-            # stock_prices에서도 삭제
             for code in stock_prices:
                 if remove_date in stock_prices[code]:
                     del stock_prices[code][remove_date]
         
-        # 6. 슬라이딩 윈도우 재계산
+        # 8. 슬라이딩 윈도우 재계산
         try:
             from theme_forecast import calculate_strong_days
             strong_days = calculate_strong_days(data)
@@ -579,11 +602,11 @@ def daily_theme_update():
         except Exception as calc_err:
             logging.error(f"강세 재계산 실패: {calc_err}")
         
-        # 7. 저장
+        # 9. 저장
         with open(THEME_365_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         
-        logging.info("=== 테마 일일 갱신 완료 ===")
+        logging.info(f"=== 테마 일일 갱신 완료 ({latest_trading_date}, {updated_count}종목) ===")
     
     except Exception as e:
         logging.error(f"일일 갱신 실패: {e}")
