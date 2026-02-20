@@ -514,6 +514,10 @@ def daily_theme_update():
             return
         
         # 3. 대표 종목 1개로 최신 거래일 탐지 (네이버에서 실제 최신 날짜 확인)
+        def clean_code(c):
+            """종목코드 정리: '.0' 제거 + 6자리 제로패딩"""
+            return str(c).replace('.0', '').strip().zfill(6)
+        
         all_codes = list(set(
             code for stocks in themes.values() for _, code in stocks
         ))
@@ -521,7 +525,7 @@ def daily_theme_update():
         latest_trading_date = None
         for probe_code in all_codes[:5]:  # 최대 5개까지 시도
             try:
-                url = f"https://finance.naver.com/item/sise_day.nhn?code={probe_code}&page=1"
+                url = f"https://finance.naver.com/item/sise_day.nhn?code={clean_code(probe_code)}&page=1"
                 response = shared_session.get(url, timeout=5)
                 response.encoding = 'cp949'
                 tables = pd.read_html(StringIO(response.text), encoding='cp949')
@@ -551,7 +555,7 @@ def daily_theme_update():
         updated_count = 0
         for code in all_codes:
             try:
-                url = f"https://finance.naver.com/item/sise_day.nhn?code={code}&page=1"
+                url = f"https://finance.naver.com/item/sise_day.nhn?code={clean_code(code)}&page=1"
                 response = shared_session.get(url, timeout=5)
                 response.encoding = 'cp949'
                 
