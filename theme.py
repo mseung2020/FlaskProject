@@ -652,6 +652,7 @@ def _next_kst_4am_weekday(now=None):
 def start_theme_snapshot_daemon():
     """테마 갱신 데몬 (매일 새벽 4시)"""
     def _job():
+        last_run_date_kst = None  # 같은 날 중복 실행 방지
         while True:
             try:
                 target = _next_kst_4am_weekday()
@@ -659,8 +660,16 @@ def start_theme_snapshot_daemon():
                 logging.info(f"테마 갱신 대기: {sleep_seconds/3600:.1f}시간")
                 time.sleep(sleep_seconds)
                 
+                # 같은 날 이미 실행했으면 스킵 (갱신 작업이 4시를 넘겨도 안전)
+                today_kst = datetime.datetime.now(tz=KST).date()
+                if last_run_date_kst == today_kst:
+                    logging.info(f"오늘({today_kst}) 이미 갱신 완료, 스킵")
+                    time.sleep(60)  # 1분 후 다시 체크
+                    continue
+                
                 # 일일 갱신
                 daily_theme_update()
+                last_run_date_kst = today_kst
                 
                 # 월요일이면 주간 갱신도
                 if datetime.datetime.now(tz=KST).weekday() == 0:
