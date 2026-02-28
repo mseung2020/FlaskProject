@@ -397,7 +397,7 @@ function renderCurrent(data) {
     stat1.className = 'current-stat';
     stat1.innerHTML = 
       '<div class="stat-label">연속 강세</div>' +
-      '<div class="stat-value">' + item.streak + '일째</div>';
+      '<div class="stat-value">' + item.streak + '일</div>';
 
     // 평균 수익률
     const stat2 = document.createElement('div');

@@ -969,11 +969,15 @@ footer {
 
   .right-column { order: 2; height: 100%; }
   #BoxPast { order: 1; height: 500px; }
-  #BoxPresent { min-height: 300px; }
+  #BoxPresent { min-height: 300px; max-height: 510px;}
   #BoxFuture { height: 550px; min-height: 550px; }
 
   .panel-body {
     overflow-x: hidden !important;
+  }
+
+  #BoxPresent .panel-body {
+      margin-bottom: 10px;
   }
 
   /* 현재 박스: 카드 세로 배치 */
