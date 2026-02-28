@@ -507,11 +507,8 @@ def daily_theme_update():
         themes = {k: [(t[0], t[1]) for t in v] for k, v in data['themes'].items()}
         trading_days = data['trading_days']
         
-        # 2. 주말이면 스킵 (토·일에는 전일 데이터도 이미 금요일 것이므로)
-        today = datetime.datetime.now(tz=KST)
-        if today.weekday() >= 5:
-            logging.info("주말이라 크롤링 스킵")
-            return
+        # 2. 주말 체크 제거 — 토요일 04:00에 금요일 데이터를 수집해야 하므로
+        #    대신 네이버 최신 거래일이 이미 수집됐으면 자동 스킵됨
         
         # 3. 대표 종목 1개로 최신 거래일 탐지 (네이버에서 실제 최신 날짜 확인)
         def clean_code(c):
@@ -650,30 +647,24 @@ def _next_kst_4am_weekday(now=None):
 
 
 def start_theme_snapshot_daemon():
-    """테마 갱신 데몬 (매일 새벽 4시)"""
+    """테마 갱신 데몬 (매일 새벽 4시, 주말 포함)"""
     def _job():
-        last_run_date_kst = None  # 같은 날 중복 실행 방지
         while True:
             try:
-                target = _next_kst_4am_weekday()
+                target = _next_kst_4am()  # 주말 포함 매일 04:00 (금요일 데이터 토요일 수집)
                 sleep_seconds = max(1, (target - datetime.datetime.now(tz=KST)).total_seconds())
                 logging.info(f"테마 갱신 대기: {sleep_seconds/3600:.1f}시간")
                 time.sleep(sleep_seconds)
                 
-                # 같은 날 이미 실행했으면 스킵 (갱신 작업이 4시를 넘겨도 안전)
-                today_kst = datetime.datetime.now(tz=KST).date()
-                if last_run_date_kst == today_kst:
-                    logging.info(f"오늘({today_kst}) 이미 갱신 완료, 스킵")
-                    time.sleep(60)  # 1분 후 다시 체크
-                    continue
-                
-                # 일일 갱신
+                # 일일 갱신 (이미 수집된 날짜면 내부에서 자동 스킵)
                 daily_theme_update()
-                last_run_date_kst = today_kst
                 
                 # 월요일이면 주간 갱신도
                 if datetime.datetime.now(tz=KST).weekday() == 0:
                     weekly_theme_update()
+                
+                # 갱신 완료 후 1시간 대기 (04:01에 같은 날 04:00을 다시 잡는 것 방지)
+                time.sleep(3600)
                 
             except Exception as e:
                 logging.error(f"테마 데몬 에러: {e}")
