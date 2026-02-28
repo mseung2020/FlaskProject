@@ -432,36 +432,23 @@ def get_current_week_top_themes(num_top: int = 3) -> List[Dict]:
         theme_data[theme]['dates'].append(item['date'])
         theme_data[theme]['returns'].append(item['avg_return'])
     
-    # TOP N 계산
+    # TOP N 계산 — 최근 5거래일 내 강세 일수 기준 순위
     result = []
     
     for theme, info in theme_data.items():
-        # 연속 강세 일수 (전체 strong_days에서 계산)
-        all_theme_dates = sorted([s['date'] for s in strong_days if s['theme'] == theme])
-        
-        streak = 0
-        for date in reversed(trading_days):
-            if date in all_theme_dates:
-                streak += 1
-            else:
-                break
-        
-        # 진행 중인 테마만 (streak > 0)
-        if streak == 0:
-            continue
-        
+        days_count = len(info['dates'])  # 이번 주 강세 일수
         avg_ret = sum(info['returns']) / len(info['returns'])
-        stocks_list = [name for name, _ in themes_dict.get(theme, [])]  # 전체 종목
+        stocks_list = [name for name, _ in themes_dict.get(theme, [])]
         
         result.append({
             'theme': theme,
-            'streak': streak,
+            'streak': days_count,
             'streak_return': round(avg_ret, 2),
             'stocks': stocks_list
         })
     
-    # 연속 일수 순 정렬 (현재 가장 뜨거운 순)
-    result.sort(key=lambda x: x['streak'], reverse=True)
+    # 강세 일수 내림차순, 동일 시 평균 수익률 내림차순
+    result.sort(key=lambda x: (x['streak'], x['streak_return']), reverse=True)
     
     # TOP N + 순위 추가
     for i, item in enumerate(result[:num_top], 1):
