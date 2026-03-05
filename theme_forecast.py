@@ -26,8 +26,8 @@ def calculate_strong_days(data):
     
     WINDOW_SIZE = 5
     AVG_RETURN_THRESHOLD = 2.0
-    UP_RATIO_THRESHOLD = 0.75
-    STD_DEV_THRESHOLD = 8.0
+    UP_RATIO_THRESHOLD = 0.6
+    STD_DEV_THRESHOLD = 15.0
     MEDIAN_THRESHOLD = 1.2
     MIN_STOCKS = 5
     
